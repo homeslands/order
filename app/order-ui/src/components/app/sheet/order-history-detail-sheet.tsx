@@ -213,7 +213,10 @@ export default function OrderHistoryDetailSheet({
                               {orderDetail?.payment.paymentMethod ===
                                 PaymentMethod.CASH && <span>{t('paymentMethod.cash')}</span>}
                               {orderDetail?.payment.paymentMethod ===
-                                PaymentMethod.CREDIT_CARD && <span>{t('paymentMethod.creditCard')}</span>}
+                                PaymentMethod.CREDIT_CARD && <div className="flex flex-col gap-1">
+                                  <span>{t('paymentMethod.creditCard')}</span>
+                                  <span>{t('paymentMethod.transactionId')}: {orderDetail?.payment?.transactionId}</span>
+                                </div>}
                               {orderDetail?.payment.paymentMethod ===
                                 PaymentMethod.POINT && <span>{t('paymentMethod.point')}</span>}
                             </>

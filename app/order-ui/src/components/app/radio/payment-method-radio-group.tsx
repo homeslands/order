@@ -250,14 +250,16 @@ export default function PaymentMethodRadioGroup({
                     </Label>
                   </div>
                 </div>
-                <Input
-                  type="text"
-                  placeholder="ID giao dịch thẻ tín dụng"
-                  className="ml-6 w-full h-9"
-                  value={creditCardTransactionId}
-                  onChange={(e) => handleTransactionIdChange(e.target.value)}
-                  disabled={!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD)}
-                />
+                {selectedPaymentMethod === PaymentMethod.CREDIT_CARD && (
+                  <Input
+                    type="text"
+                    placeholder={t('paymentMethod.creditCardTransactionIdPlaceholder')}
+                    className="ml-6 w-full h-9"
+                    value={creditCardTransactionId}
+                    onChange={(e) => handleTransactionIdChange(e.target.value)}
+                    disabled={!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD)}
+                  />
+                )}
               </div>
             </div>
 
@@ -363,14 +365,16 @@ export default function PaymentMethodRadioGroup({
                 </Label>
               </div>
             </div>
-            <Input
-              type="text"
-              placeholder={t('paymentMethod.creditCardTransactionIdPlaceholder')}
-              className="ml-6 w-full h-9 text-sm"
-              value={creditCardTransactionId}
-              onChange={(e) => handleTransactionIdChange(e.target.value)}
-              disabled={!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD)}
-            />
+            {selectedPaymentMethod === PaymentMethod.CREDIT_CARD && (
+              <Input
+                type="text"
+                placeholder={t('paymentMethod.creditCardTransactionIdPlaceholder')}
+                className="ml-6 w-full h-9 text-sm"
+                value={creditCardTransactionId}
+                onChange={(e) => handleTransactionIdChange(e.target.value)}
+                disabled={!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD)}
+              />
+            )}
           </div>
         </div>
       )}
