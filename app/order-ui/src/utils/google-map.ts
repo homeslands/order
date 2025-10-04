@@ -3,7 +3,7 @@ import { useGetBranchInfoForDelivery } from '@/hooks'
 
 export const parseKm = (distance?: number): number | null => {
   if (distance == null || Number.isNaN(distance)) return null
-  return distance / 1000
+  return distance
 }
 
 // calculate delivery fee based on distance using branch delivery info
