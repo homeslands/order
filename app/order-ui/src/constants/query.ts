@@ -24,4 +24,6 @@ export const QUERYKEY = {
   userGiftCards: ['userGiftCards'],
   giftCardDetail: ['giftCardDetail'],
   loyaltyPoints: ['loyaltyPoints'],
+  systemFeatureFlagsByGroup: ['systemFeatureFlagsByGroup'],
+  systemFeatureFlagGroups: ['systemFeatureFlagGroups'],
 }
