@@ -68,7 +68,7 @@
     "deliveryManagement": "Quản lý giao hàng",
     "dishManagement": "Quản lý món",
     "docs": "Tài liệu",
-    "giftCardFeatureFlag": "Quản lý khóa chức năng",
+    "giftCardFeatureFlag": "Quản lý khóa chức năng thẻ quà tặng",
     "giftCardManagement": "Quản lý thẻ quà tặng",
     "giftCardMenu": "Mua thẻ quà tặng",
     "home": "Trang chủ",
@@ -89,6 +89,7 @@
     "voucher": "Mã giảm giá",
     "voucherGroup": "Nhóm mã giảm giá",
     "cardOrderManagement": "Quản lý đơn hàng quà tặng",
-    "loyaltyPoint": "Điểm tích lũy"
+    "loyaltyPoint": "Điểm tích lũy",
+    "systemLockManagement": "Quản lý khóa chức năng hệ thống"
   }
 }

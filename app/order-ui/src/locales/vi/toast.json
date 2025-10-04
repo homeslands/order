@@ -350,6 +350,7 @@
         "voucherPaymentMethodAlreadyExists": "Phương thức thanh toán đã tồn tại",
         "voucherPaymentMethodValidationError": "Phương thức thanh toán không hợp lệ",
         "loyaltyPointAlreadyReserved": "Điểm tích lũy đã được sử dụng ở đơn hàng khác",
-        "featureOnlyForRegisteredCustomer": "Tính năng này chỉ dành cho khách hàng đã đăng ký tài khoản"
+        "featureOnlyForRegisteredCustomer": "Tính năng này chỉ dành cho khách hàng đã đăng ký tài khoản",
+        "changeFeatureLockStatusSuccess": "Cập nhật trạng thái khóa tính năng thành công"
       }
     }

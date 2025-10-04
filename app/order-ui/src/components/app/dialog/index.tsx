@@ -165,3 +165,6 @@ export { default as CancelPublicOrderDialog } from './cancel-public-order-dialog
 
 export { default as LoyaltyPointDetailHistoryDialog } from './loyalty-point-detail-history-dialog'
 export { default as StaffLoyaltyPointDetailHistoryDialog } from './staff-loyalty-point-detail-history-dialog'
+
+export { default as ChangeFeatureLockStatusDialog } from './change-feature-lock-status-dialog'
+export { default as ChangeParentFeatureLockStatusDialog } from './change-parent-feature-lock-status-dialog'

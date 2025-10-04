@@ -471,3 +471,10 @@ export const CardOrderHistoryPage = React.lazy(() =>
     default: module.CardOrderHistoryPage,
   })),
 )
+
+// System lock management page
+export const SystemLockManagementPage = React.lazy(() =>
+  import('@/app/system/system-lock-management').then((module) => ({
+    default: module.SystemLockManagementPage,
+  })),
+)

@@ -70,6 +70,7 @@ import {
   SystemGiftCardCheckoutWithSlugPage,
   CardOrderHistoryPage,
   CustomerInfoPage,
+  SystemLockManagementPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -737,6 +738,25 @@ export const router = createBrowserRouter([
               <ProtectedElement
                 // allowedRoles={[Role.ADMIN, Role.SUPER_ADMIN]}
                 element={<SuspenseElement component={BankConfigPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.STAFF_SYSTEM_LOCK_MANAGEMENT}`,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                // allowedRoles={[Role.ADMIN, Role.SUPER_ADMIN]}
+                element={<SuspenseElement component={SystemLockManagementPage} />}
               />
             ),
           },

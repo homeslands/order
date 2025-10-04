@@ -170,6 +170,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     permission: Permission.BANNER_MANAGEMENT,
   },
   {
+    title: 'sidebar.systemLockManagement',
+    path: ROUTE.STAFF_SYSTEM_LOCK_MANAGEMENT,
+    icon: LockOpen,
+    permission: Permission.BANNER_MANAGEMENT,
+  },
+  {
     title: 'sidebar.banner',
     path: ROUTE.STAFF_BANNER,
     icon: Newspaper,
