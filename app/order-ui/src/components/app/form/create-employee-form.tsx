@@ -23,6 +23,7 @@ import { ICreateUserRequest } from '@/types'
 import { showToast } from '@/utils'
 import { BranchSelect, RoleSelect } from '../select'
 import { PasswordWithRulesInput } from '../input'
+import { DatePicker } from '../picker'
 
 interface IFormCreateEmployeeProps {
   onSubmit: (isOpen: boolean) => void
@@ -43,6 +44,7 @@ export const CreateEmployeeForm: React.FC<IFormCreateEmployeeProps> = ({
       confirmPassword: '',
       firstName: '',
       lastName: '',
+      dob: '',
       branch: '',
       role: '',
     },
@@ -53,6 +55,8 @@ export const CreateEmployeeForm: React.FC<IFormCreateEmployeeProps> = ({
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: ['users'],
+          exact: false,
+          refetchType: 'all'
         })
         onSubmit(false)
         form.reset()
@@ -156,6 +160,28 @@ export const CreateEmployeeForm: React.FC<IFormCreateEmployeeProps> = ({
             <FormLabel>{t('employee.lastName')}</FormLabel>
             <FormControl>
               <Input placeholder={t('employee.enterLastName')} {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    dob: (
+      <FormField
+        control={form.control}
+        name="dob"
+        render={({ field }) => (
+          <FormItem>
+            <span className="pr-1 text-destructive">*</span>
+            <FormLabel>{t('employee.dob')}</FormLabel>
+            <FormControl>
+              <DatePicker
+                backgroundColor="bg-transparent"
+                date={field.value}
+                onSelect={(selectedDate) => field.onChange(selectedDate)}
+                validateDate={(date) => date <= new Date()}
+                disableFutureDate
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
