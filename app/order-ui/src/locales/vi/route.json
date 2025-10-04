@@ -12,7 +12,7 @@
     "detail": "Tổng quan các chi nhánh",
     "details": "Chi tiết",
     "docs": "Tài liệu",
-    "feature-lock-management": "Quản lý khóa chức năng",
+    "gift-card-feature-lock-management": "Quản lý khóa chức năng thẻ quà tặng",
     "gift-card": "Quản lý thẻ quà tặng",
     "home": "Trang chủ",
     "log-management": "Quản lý log",
@@ -44,6 +44,7 @@
     "card": "Thẻ quà tặng",
     "catalog": "Danh mục thẻ quà tặng",
     "checkout": "Thanh toán",
-    "confirmation": "Xác nhận"
+    "confirmation": "Xác nhận",
+    "system-lock-management": "Quản lý khóa chức năng"
   }
 }

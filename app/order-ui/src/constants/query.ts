@@ -29,4 +29,6 @@ export const QUERYKEY = {
   addressByPlaceId: ['addressByPlaceId'],
   addressDirection: ['addressDirection'],
   distanceAndDuration: ['distanceAndDuration'],
+  systemFeatureFlagsByGroup: ['systemFeatureFlagsByGroup'],
+  systemFeatureFlagGroups: ['systemFeatureFlagGroups'],
 }
