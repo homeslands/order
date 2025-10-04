@@ -53,27 +53,6 @@ export default function OrdersPublicPage() {
                                 <OrderStatusBadge order={orderItem} />
                             </div>
 
-                            {/* <div className="grid grid-cols-1 gap-4 px-4 py-2 w-full sm:grid-cols-2 sm:flex-row">
-                                <div className="grid grid-cols-1 gap-4 sm:flex-col sm:items-start">
-                                    <div className="flex flex-col col-span-1 gap-2">
-                                        <span className="text-sm font-semibold">{t('order.orderId')}: {orderItem.slug}</span>
-                                        <div className="flex gap-2 items-center">
-                                            <img
-                                                src={`${publicFileURL}/${orderItem.orderItems[0].variant.product.image}`}
-                                                alt={orderItem.orderItems[0].variant.product.name}
-                                                className="object-cover h-20 rounded-md sm:w-28"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <span className="flex gap-1 items-center w-full text-sm sm:justify-end text-muted-foreground">
-                                    {t('order.total')} ({orderItem.orderItems.length} {t('order.items')}):
-                                    <span className="text-lg font-semibold text-primary">
-                                        {formatCurrency(orderItem.subtotal)}
-                                    </span>
-                                </span>
-                            </div> */}
-
                             <div className="px-4 pb-4">
                                 <div className="flex flex-col divide-y">
                                     {orderItem.orderItems.map((product) => (
