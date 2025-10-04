@@ -430,7 +430,7 @@ export default function SystemMapAddressSelect({
                             {marker && distanceResp?.result?.distance && distanceResp?.result?.distance > 0 && (
                                 <div className="flex flex-wrap gap-6 pl-6">
                                     <div className="flex gap-1 items-center">
-                                        <span className='italic'>{t('cart.distance')}: {distanceResp?.result?.distance || '-'}{t('cart.distance')}:</span>
+                                        <span className='italic'>{t('cart.distance')}: {distanceResp?.result?.distance || '-'} {t('cart.km')}</span>
                                     </div>
                                 </div>
                             )}
