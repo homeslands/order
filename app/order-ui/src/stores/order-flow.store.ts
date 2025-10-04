@@ -44,8 +44,8 @@ export interface IOrderingData {
   payment?: IOrderPayment
   // Delivery info
   deliveryAddress?: string
-  deliveryDistance?: string
-  deliveryDuration?: string
+  deliveryDistance?: number
+  deliveryDuration?: number
   deliveryPhone?: string
   // New: Persisted delivery coordinates & placeId for map address selection
   deliveryLat?: number
@@ -109,7 +109,7 @@ export interface IOrderFlowStore {
   clearOrderingData: () => void
   // Delivery info actions
   setDeliveryAddress: (address: string) => void
-  setDeliveryDistanceDuration: (distance: string, duration: string) => void
+  setDeliveryDistanceDuration: (distance: number, duration: number) => void
   setDeliveryCoords: (lat: number, lng: number, placeId?: string) => void
   setDeliveryPlaceId: (placeId: string) => void
   setDeliveryPhone: (phone: string) => void
@@ -147,7 +147,7 @@ export interface IOrderFlowStore {
   resetDraftToOriginal: () => void
   // Delivery info actions
   setDraftDeliveryAddress: (address: string) => void
-  setDraftDeliveryDistanceDuration: (distance: string, duration: string) => void
+  setDraftDeliveryDistanceDuration: (distance: number, duration: number) => void
   setDraftDeliveryCoords: (lat: number, lng: number, placeId?: string) => void
   setDraftDeliveryPlaceId: (placeId: string) => void
   setDraftDeliveryPhone: (phone: string) => void
@@ -268,8 +268,8 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           description: '',
           approvalBy: '',
           deliveryAddress: '',
-          deliveryDistance: '',
-          deliveryDuration: '',
+          deliveryDistance: 0,
+          deliveryDuration: 0,
           deliveryPhone:
             useUserStore.getState().getUserInfo()?.phonenumber || '',
           deliveryLat: undefined,
@@ -478,8 +478,8 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
             voucher: requiresVerification ? null : orderingData.voucher,
             // Clear delivery info when removing customer
             deliveryAddress: '',
-            deliveryDistance: '',
-            deliveryDuration: '',
+            deliveryDistance: 0,
+            deliveryDuration: 0,
             deliveryPhone: '',
           },
           lastModified: moment().valueOf(),
@@ -512,8 +512,8 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
             tableName: '',
             // Clear delivery info when removing table
             deliveryAddress: '',
-            deliveryDistance: '',
-            deliveryDuration: '',
+            deliveryDistance: 0,
+            deliveryDuration: 0,
           },
           lastModified: moment().valueOf(),
         })
@@ -638,7 +638,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
         })
       },
 
-      setDeliveryDistanceDuration: (distance: string, duration: string) => {
+      setDeliveryDistanceDuration: (distance: number, duration: number) => {
         const { orderingData } = get()
         if (!orderingData) return
 
@@ -701,8 +701,8 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           orderingData: {
             ...orderingData,
             deliveryAddress: '',
-            deliveryDistance: '',
-            deliveryDuration: '',
+            deliveryDistance: 0,
+            deliveryDuration: 0,
             deliveryLat: undefined,
             deliveryLng: undefined,
             deliveryPlaceId: '',
@@ -1238,8 +1238,8 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
         })
       },
       setDraftDeliveryDistanceDuration: (
-        distance: string,
-        duration: string,
+        distance: number,
+        duration: number,
       ) => {
         const { updatingData } = get()
         if (!updatingData) return
@@ -1316,8 +1316,8 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
         const updatedDraft = {
           ...updatingData.updateDraft,
           deliveryAddress: '',
-          deliveryDistance: '',
-          deliveryDuration: '',
+          deliveryDistance: 0,
+          deliveryDuration: 0,
           deliveryPhone: '',
         }
         set({

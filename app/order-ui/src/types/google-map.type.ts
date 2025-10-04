@@ -85,6 +85,6 @@ export interface IAddressDirection {
 }
 
 export interface IDistanceAndDuration {
-  distance: string
-  duration: string
+  distance: number
+  duration: number
 }

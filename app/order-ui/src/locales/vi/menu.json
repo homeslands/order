@@ -116,6 +116,7 @@
     "restaurantAddressNotAvailable": "Địa chỉ chi nhánh không khả dụng",
     "calculatingDeliveryRoute": "Đang tính toán đường đi",
     "distance": "Khoảng cách",
+    "km": "km",
     "time": "Thời gian",
     "estimatedDeliveryTimeMayVaryBasedOnTrafficAndPreparationTime": "Thời gian giao hàng có thể thay đổi tùy thuộc vào điều kiện giao thông và thời gian chuẩn bị",
     "deliveryInformation": "Thông tin giao hàng",
@@ -373,7 +374,8 @@
     "butYouCanUse": "nhưng bạn chỉ có thể sử dụng",
     "voucherNotSupport": "Voucher không hỗ trợ",
     "creditCardTransactionIdPlaceholder": "ID giao dịch thẻ tín dụng",
-    "loyaltyPointEarningNote": "Sau khi thanh toán thành công, điểm tích lũy sẽ được cộng vào tài khoản."
+    "loyaltyPointEarningNote": "Sau khi thanh toán thành công, điểm tích lũy sẽ được cộng vào tài khoản.",
+    "transactionId": "ID giao dịch"
   },
   "table": {
     "title": "Danh sách bàn"
