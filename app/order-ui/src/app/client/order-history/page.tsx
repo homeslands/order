@@ -294,9 +294,14 @@ export default function OrderHistoryPage() {
                             )}
                           {orderInfo?.payment.paymentMethod ===
                             PaymentMethod.CREDIT_CARD && (
-                              <span className="italic">
-                                {t('paymentMethod.creditCard')}
-                              </span>
+                              <div className="flex flex-col gap-1">
+                                <span className="italic">
+                                  {t('paymentMethod.creditCard')}
+                                </span>
+                                <span className="text-muted-foreground">
+                                  {t('paymentMethod.transactionId')}: {orderInfo?.payment?.transactionId}
+                                </span>
+                              </div>
                             )}
                         </>
                       )}
