@@ -47,6 +47,7 @@ export const ROUTE = {
   STAFF_GIFT_CARD: '/system/gift-card',
   STAFF_GIFT_CARD_MENU: '/system/card/catalog',
   STAFF_GIFT_CARD_FEATURE_FLAG: '/system/feature-lock-management',
+  STAFF_SYSTEM_LOCK_MANAGEMENT: '/system/system-lock-management',
   STAFF_GIFT_CARD_CHECKOUT: '/system/card/catalog/checkout',
   STAFF_GIFT_CARD_CHECKOUT_WITH_SLUG: '/system/card/catalog/checkout/:slug',
 

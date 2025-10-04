@@ -1,0 +1,39 @@
+{
+    "system": {
+        "lockFeature": {
+            "title": "Quản lý khóa chức năng",
+            "pageTitle": "Quản lý khóa chức năng",
+            "featureControls": "Quản lý khóa chức năng",
+            "featureControlsDescription": "Quản lý khóa chức năng",
+            "unlockAll": "Mở khóa tất cả",
+            "lockAll": "Khóa tất cả",
+            "noFeatureFlags": "Không có chức năng",
+            "locked": "Khóa",
+            "unlocked": "Mở khóa",
+            "mixed": "Hỗn hợp",
+            "description": "Vui lòng xác nhận thay đổi",
+            "warning": "Bạn có chắc muốn ",
+            "enable": "mở khóa",
+            "disable": "khóa ",
+            "thisFeature": "chức năng này?",
+            "group_example": "Nhóm ví dụ",
+            "order": "Đơn hàng",
+            "create_private": "Tạo đơn hàng riêng tư",
+            "create_public": "Tạo đơn hàng công khai",
+            "at_table": "Tại bàn",
+            "take_out": "Mang đi",
+            "delivery": "Giao hàng",
+            "feature_example": "Chức năng ví dụ",
+            "feature_example_description": "Mô tả cho chức năng",
+            "child_feature_example": "Chức năng con ví dụ",
+            "group_example_description": "Mô tả cho nhóm {{groupName}}",
+            "group_description": "Mô tả cho nhóm {{groupName}}",
+            "create_private_description": "Tạo, cập nhật đơn hàng cho người dùng đã đăng nhập. Về loại, bao gồm tất cả các loại (tại bàn, mang đi, giao hàng). Về quyền, bao gồm: khách hàng đã đăng nhập mua cho bản thân, nhân viên mua cho khách hàng không có tài khoản",
+            "create_public_description": "Tạo, cập nhật đơn hàng cho người dùng chưa đăng nhập. Về loại, bao gồm tất cả các loại (tại bàn, mang đi). Về quyền, bao gồm: người dùng công khai mua cho bản thân",
+            "at_table_description": "Tạo, cập nhật đơn hàng cho người dùng đã đăng nhập cho loại tại bàn",
+            "take_out_description": "Tạo, cập nhật đơn hàng cho người dùng đã đăng nhập cho loại mang đi",
+            "delivery_description": "Tạo, cập nhật đơn hàng cho người dùng đã đăng nhập cho loại giao hàng",
+            "child_feature_example_description": "Mô tả chức năng con ví dụ"
+        }
+    }
+}
