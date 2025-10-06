@@ -62,7 +62,7 @@
     },
     "giftCardMenu": {
       "description": "Mua thẻ quà tặng của bạn tại đây",
-      "keywords":  "menu thẻ quà tặng, danh mục thẻ quà tặng, menu thẻ quà tặng quán ăn",
+      "keywords": "menu thẻ quà tặng, danh mục thẻ quà tặng, menu thẻ quà tặng quán ăn",
       "manageGiftCardMenu": "Mua thẻ quà tặng",
       "title": "Mua thẻ quà tặng"
     },
@@ -173,6 +173,12 @@
       "keywords": "voucher, quản lý voucher, voucher giảm giá",
       "manageVoucher": "Quản lý voucher",
       "title": "Quản lý voucher"
+    },
+    "system": {
+      "description": "Quản lý hệ thống của bạn tại đây",
+      "keywords": "hệ thống, quản lý hệ thống, hệ thống quán ăn",
+      "manageSystem": "Quản lý hệ thống",
+      "title": "Quản lý hệ thống"
     }
   }
 }
