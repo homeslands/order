@@ -7,27 +7,29 @@ import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
 
 import { QuantitySelector } from '@/components/app/button'
-import { useOrderFlowStore } from '@/stores'
+import { useBranchStore, useOrderFlowStore } from '@/stores'
 import { CartNoteInput } from '@/components/app/input'
 import {
   CreateOrderDialog,
   DeleteAllCartDialog,
   DeleteCartItemDialog,
 } from '@/components/app/dialog'
-import { APPLICABILITY_RULE, ROUTE, VOUCHER_TYPE, publicFileURL } from '@/constants'
+import { APPLICABILITY_RULE, ROUTE, VOUCHER_TYPE, publicFileURL, PHONE_NUMBER_REGEX } from '@/constants'
 import { Badge, Button } from '@/components/ui'
 import { OrderTypeSelect, PickupTimeSelect, ProductVariantSelect, TableInCartSelect } from '@/components/app/select'
 import { VoucherListSheet } from '@/components/app/sheet'
-import { formatCurrency, calculateCartTotals, showErrorToast, calculateCartItemDisplay } from '@/utils'
+import { formatCurrency, calculateCartTotals, showErrorToast, calculateCartItemDisplay, useCalculateDeliveryFee, parseKm } from '@/utils'
 import { OrderNoteInput } from '@/components/app/input'
 import ProductImage from '@/assets/images/ProductImage.png'
 import { OrderTypeEnum } from '@/types'
 import { useIsMobile } from '@/hooks'
+import { MapAddressSelector } from './components'
 
 export default function ClientCartPage() {
   const { t } = useTranslation('menu')
   const { t: tVoucher } = useTranslation('voucher')
   const { t: tHelmet } = useTranslation('helmet')
+  const { branch } = useBranchStore()
   // const [runJoyride, setRunJoyride] = useState(false)
   const isMobile = useIsMobile()
   const { removeVoucher, getCartItems, addOrderingProductVariant } = useOrderFlowStore()
@@ -40,6 +42,8 @@ export default function ClientCartPage() {
   )
 
   const cartTotals = calculateCartTotals(displayItems, currentCartItems?.voucher || null)
+
+  const deliveryFee = useCalculateDeliveryFee(parseKm(currentCartItems?.deliveryDistance) || 0, branch?.slug || '')
 
   const handleChangeVariant = (id: string) => {
     addOrderingProductVariant(id)
@@ -121,47 +125,38 @@ export default function ClientCartPage() {
               {t('order.selectTableNote')}
             </span>
           </div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <div className="joyride-step-1">
-              <OrderTypeSelect />
-            </div>
-            <div className="grid grid-cols-2 gap-1 sm:grid-cols-5">
-              <div className="joyride-step-2 sm:col-span-4">
-                {currentCartItems?.type === OrderTypeEnum.TAKE_OUT ? (
-                  <PickupTimeSelect />
-                ) : <TableInCartSelect />}
+          {currentCartItems?.type === OrderTypeEnum.DELIVERY ? (
+            // Delivery layout
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-5">
+              <div className="joyride-step-1 sm:col-span-4">
+                <OrderTypeSelect />
               </div>
               <DeleteAllCartDialog />
-              {/* <Joyride
-                run={runJoyride}
-                steps={steps}
-                continuous={true}
-                showProgress={true}
-                showSkipButton={true}
-                disableScrolling={true}
-                styles={{
-                  options: {
-                    zIndex: 10000,
-                    primaryColor: '#f79e22',  // Nút chính (ví dụ: xanh lá)
-                    textColor: '#000000',
-                    backgroundColor: '#ffffff',
-                    arrowColor: '#ffffff',
-                  },
-                  tooltip: {
-                    borderRadius: '12px',
-                    padding: '16px',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                  },
-                  buttonNext: {
-                    backgroundColor: '#f79e22',
-                  },
-                  buttonBack: {
-                    color: '#64748b',
-                  },
-                }}
-              /> */}
             </div>
-          </div>
+          ) : (
+            // Take-out / Dine-in layout
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <div className="joyride-step-1">
+                <OrderTypeSelect />
+              </div>
+              <div className="grid grid-cols-2 gap-1 sm:grid-cols-5">
+                <div className="joyride-step-2 sm:col-span-4">
+                  {currentCartItems?.type === OrderTypeEnum.TAKE_OUT ? (
+                    <PickupTimeSelect />
+                  ) : (
+                    <TableInCartSelect />
+                  )}
+                </div>
+                <DeleteAllCartDialog />
+              </div>
+            </div>
+          )}
+
+          {currentCartItems?.type === OrderTypeEnum.DELIVERY && (
+            <div className='mt-2'>
+              <MapAddressSelector />
+            </div>
+          )}
 
           {/* Table list order items */}
           {!isMobile ? (
@@ -420,10 +415,16 @@ export default function ClientCartPage() {
                         </div>
                       </div>
                     )}
+                    {currentCartItems?.type === OrderTypeEnum.DELIVERY && (
+                      <div className="flex justify-between">
+                        <span>{t('order.deliveryFee')}</span>
+                        <span>{formatCurrency(deliveryFee.deliveryFee)}</span>
+                      </div>
+                    )}
 
                     <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
                       <span>{t('order.totalPayment')}</span>
-                      <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
+                      <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee.deliveryFee)}</span>
                     </div>
                   </div>
                 </div>
@@ -639,7 +640,7 @@ export default function ClientCartPage() {
 
                     <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
                       <span>{t('order.totalPayment')}</span>
-                      <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
+                      <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee.deliveryFee)}</span>
                     </div>
                   </div>
                 </div>
@@ -655,8 +656,12 @@ export default function ClientCartPage() {
                   <CreateOrderDialog
                     disabled={
                       !currentCartItems ||
-                      (currentCartItems?.type === OrderTypeEnum.AT_TABLE &&
-                        !currentCartItems?.table)
+                      (currentCartItems?.type === OrderTypeEnum.AT_TABLE && !currentCartItems?.table) ||
+                      (currentCartItems?.type === OrderTypeEnum.DELIVERY && (
+                        !currentCartItems?.deliveryAddress ||
+                        !currentCartItems?.deliveryPhone ||
+                        !PHONE_NUMBER_REGEX.test(currentCartItems?.deliveryPhone)
+                      ))
                     }
                   />
                 </div>
@@ -668,7 +673,7 @@ export default function ClientCartPage() {
               <div className='grid grid-cols-2 justify-between items-center px-2 py-4'>
                 <div className="flex col-span-1 gap-1 justify-center items-center font-semibold">
                   {/* <span>{t('order.totalPayment')}</span> */}
-                  <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
+                  <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee.deliveryFee)}</span>
                 </div>
                 <div className="flex col-span-1 justify-end p-0 w-full">
                   <CreateOrderDialog

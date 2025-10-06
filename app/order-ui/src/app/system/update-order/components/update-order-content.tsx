@@ -34,6 +34,7 @@ export default function UpdateOrderContent({
     const isMobile = useIsMobile()
 
     const voucher = updatingData?.updateDraft?.voucher || null
+    const deliveryFee = updatingData?.updateDraft?.deliveryFee || 0
 
     // Memoize orderItems để tránh dependency thay đổi
     const orderItems = useMemo(() =>
@@ -51,6 +52,7 @@ export default function UpdateOrderContent({
             cartTotals: totals
         }
     }, [orderItems, voucher])
+    // const deliveryFee = useCalculateDeliveryFee(parseKm(updatingData?.updateDraft?.deliveryDistance) || 0, branch?.slug || '')
 
     const handleRemoveOrderItem = (item: IOrderItem) => {
         deleteOrderItem(item.slug, {
@@ -91,7 +93,6 @@ export default function UpdateOrderContent({
                                 // Tạo key thống nhất - dựa trên product + variant để tránh key conflict
                                 const stableKey = `${item.productSlug}-${item.variant?.slug || 'default'}-${index}`
 
-                                // console.log(`Item ${item.name}: stableKey=${stableKey}`)
                                 const displayItem = displayItems.find(di => di.productSlug === item.productSlug)
 
                                 const original = item.variant.price || 0
@@ -271,16 +272,27 @@ export default function UpdateOrderContent({
                                     </div>
                                 )}
 
+                                {/* Delivery fee */}
+                                {orderType === OrderTypeEnum.DELIVERY && (
+                                    <div className="flex justify-between text-xs italic text-muted-foreground/60">
+                                        <span>{t('order.deliveryFee')}</span>
+                                        <span>{formatCurrency(deliveryFee)}</span>
+                                    </div>
+                                )}
+
                                 <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
                                     <span>{t('order.totalPayment')}</span>
-                                    <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals?.finalTotal || 0)}</span>
+                                    <span className="text-2xl font-bold text-primary">{formatCurrency((cartTotals?.finalTotal || 0) + deliveryFee)}</span>
                                 </div>
                             </div>
 
                             {updatingData?.originalOrder?.status === OrderStatus.PENDING && (
                                 <div className='flex justify-end items-center'>
                                     <StaffConfirmUpdateOrderDialog
-                                        disabled={orderType === OrderTypeEnum.AT_TABLE && !table}
+                                        disabled={
+                                            (orderType === OrderTypeEnum.AT_TABLE && !table) ||
+                                            (orderType === OrderTypeEnum.DELIVERY && !updatingData?.updateDraft?.deliveryAddress)
+                                        }
                                     />
                                 </div>
                             )}

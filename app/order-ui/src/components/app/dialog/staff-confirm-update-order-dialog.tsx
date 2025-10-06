@@ -48,6 +48,7 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
   const orderDraft = updatingData?.updateDraft
   const originalOrder = updatingData?.originalOrder
   const voucher = updatingData?.updateDraft?.voucher || null
+  const deliveryFee = updatingData?.updateDraft?.deliveryFee || 0
 
   // Convert orderDraft to ICartItem format for comparison
   const order: ICartItem | null = orderDraft ? {
@@ -59,6 +60,8 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
     ownerRole: orderDraft.ownerRole,
     type: orderDraft.type as string,
     timeLeftTakeOut: orderDraft.timeLeftTakeOut,
+    deliveryTo: orderDraft.deliveryTo,
+    deliveryPhone: orderDraft.deliveryPhone,
     orderItems: orderDraft.orderItems.map(item => ({
       ...item,
       slug: item.slug || item.id,
@@ -82,6 +85,8 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
     ownerRole: originalOrder.owner?.role?.name || '',
     type: originalOrder.type,
     timeLeftTakeOut: originalOrder.timeLeftTakeOut,
+    deliveryTo: originalOrder.deliveryTo,
+    deliveryPhone: originalOrder.deliveryPhone,
     orderItems: originalOrder.orderItems.map(detail => ({
       id: detail.id || detail.slug,
       slug: detail.slug,
@@ -122,8 +127,8 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
     if (!orderDraft || !originalOrder) return
 
     try {
-      // 1. Update order type/table/description/pickup time if changed
-      if (orderComparison.tableChanged || orderComparison.noteChanged || orderComparison.pickupTimeChanged) {
+      // 1. Update order type/table/description/pickup time/deliveryAddress/deliveryPhone if changed
+      if (orderComparison.typeChanged || orderComparison.tableChanged || orderComparison.noteChanged || orderComparison.pickupTimeChanged || orderComparison.deliveryAddressChanged || orderComparison.deliveryPhoneChanged) {
         await new Promise((resolve, reject) => {
           updateOrderType({
             slug: originalOrder.slug,
@@ -131,7 +136,9 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
               type: orderDraft.type,
               table: orderDraft.table || null,
               description: orderDraft.description || '',
-              timeLeftTakeOut: orderDraft.timeLeftTakeOut || 0
+              timeLeftTakeOut: orderDraft.timeLeftTakeOut || 0,
+              deliveryTo: orderDraft.type === OrderTypeEnum.DELIVERY ? orderDraft.deliveryTo?.placeId || '' : '',
+              deliveryPhone: orderDraft.type === OrderTypeEnum.DELIVERY ? orderDraft.deliveryPhone || '' : '',
             }
           }, {
             onSuccess: () => resolve(true),
@@ -230,10 +237,20 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
           onClick={() => setIsOpen(true)}
         >
           {isAnyPending && <Loader2 className="w-4 h-4 animate-spin" />}
-          {(order?.type === OrderTypeEnum.TAKE_OUT ||
-            (order?.type === OrderTypeEnum.AT_TABLE && order.table))
-            ? t('order.updateOrder')
-            : t('menu.noSelectedTable')}
+          {(() => {
+            if (order?.type === OrderTypeEnum.TAKE_OUT) {
+              return t('order.updateOrder');
+            }
+            if (order?.type === OrderTypeEnum.AT_TABLE) {
+              return order?.table ? t('order.updateOrder') : t('menu.noSelectedTable');
+            }
+            if (order?.type === OrderTypeEnum.DELIVERY) {
+              return order?.deliveryTo?.formattedAddress
+                ? t('order.updateOrder')
+                : t('order.noSelectedAddress');
+            }
+            return t('order.noSelectedAddress');
+          })()}
         </Button>
       </DialogTrigger>
 
@@ -265,7 +282,7 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
                 {t('order.orderType')}
               </span>
               <Badge className={`shadow-none ${order?.type === OrderTypeEnum.AT_TABLE ? '' : 'bg-blue-500/20 text-blue-500'}`}>
-                {order?.type === OrderTypeEnum.AT_TABLE ? t('menu.dineIn') : t('menu.takeAway')}
+                {order?.type === OrderTypeEnum.AT_TABLE ? t('menu.dineIn') : order?.type === OrderTypeEnum.DELIVERY ? t('menu.delivery') : t('menu.takeAway')}
               </Badge>
             </div>
             {order?.type === OrderTypeEnum.TAKE_OUT && order?.timeLeftTakeOut !== undefined && (
@@ -279,6 +296,24 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
                     ? t('menu.immediately')
                     : `${order.timeLeftTakeOut} ${t('menu.minutes')}`}
                 </Badge>
+              </div>
+            )}
+            {order?.type === OrderTypeEnum.DELIVERY && order?.deliveryTo?.formattedAddress && (
+              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
+                <span className="flex gap-2 items-center text-gray-600">
+                  <MapPin className="w-4 h-4" />
+                  {t('menu.deliveryAddress')}
+                </span>
+                <span className="font-medium">{order.deliveryTo.formattedAddress}</span>
+              </div>
+            )}
+            {order?.type === OrderTypeEnum.DELIVERY && order?.deliveryPhone && (
+              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
+                <span className="flex gap-2 items-center text-gray-600">
+                  <Phone className="w-4 h-4" />
+                  {t('menu.deliveryPhone')}
+                </span>
+                <span className="font-medium">{order.deliveryPhone}</span>
               </div>
             )}
             {order?.tableName && (
@@ -409,6 +444,16 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
                 -{`${formatCurrency(orderTotals?.voucherDiscount || 0)}`}
               </span>
             </div>
+            {deliveryFee && (
+              <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
+                <span className="italic text-muted-foreground">
+                  {t('order.deliveryFee')}:&nbsp;
+                </span>
+                <span className="italic text-muted-foreground">
+                  {`${formatCurrency(deliveryFee || 0)}`}
+                </span>
+              </div>
+            )}
             <div className="flex gap-2 justify-between items-center pt-2 mt-4 w-full font-semibold border-t text-md">
               <span>{t('order.totalPayment')}:&nbsp;</span>
               <span className="text-2xl font-extrabold text-primary">

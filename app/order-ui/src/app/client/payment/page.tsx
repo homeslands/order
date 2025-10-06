@@ -201,17 +201,19 @@ export function ClientPaymentPage() {
         ? voucherPaymentMethods[0].paymentMethod
         : defaultMethod || PaymentMethod.BANK_TRANSFER)
 
-    // Check if we should poll - prioritize existing BANK_TRANSFER payment over current UI state
-    const shouldPollForBankTransfer = !isExpired && (
-      // There's already a BANK_TRANSFER payment in progress
+    // Check if we should poll for methods that finalize asynchronously (BANK_TRANSFER, POINT)
+    const shouldPollForPayment = !isExpired && (
+      // There's already an async payment in progress
       orderData?.payment?.paymentMethod === PaymentMethod.BANK_TRANSFER ||
-      // Or the actual method (not pending) is BANK_TRANSFER
+      orderData?.payment?.paymentMethod === PaymentMethod.POINT ||
+      // Or the actual method (not pending) is async
       actualPaymentMethod === PaymentMethod.BANK_TRANSFER ||
-      // Or current UI method is BANK_TRANSFER (but only if no existing payment conflicts)
-      (paymentMethod === PaymentMethod.BANK_TRANSFER && !orderData?.payment)
+      actualPaymentMethod === PaymentMethod.POINT ||
+      // Or current UI method is async (but only if no existing payment conflicts)
+      ((paymentMethod === PaymentMethod.BANK_TRANSFER || paymentMethod === PaymentMethod.POINT) && !orderData?.payment)
     )
 
-    if (shouldPollForBankTransfer) {
+    if (shouldPollForPayment) {
       if (hasValidPaymentAndQr) {
         // Case 1: Valid QR code - check if payment is completed
         if (orderData.payment.statusMessage === paymentStatus.COMPLETED) {
@@ -225,8 +227,8 @@ export function ClientPaymentPage() {
       } else if (orderData?.payment && !qrCode && orderData.payment.amount === orderData.subtotal) {
         // Case 3: Payment exists but no QR code (amount < 2000) - start polling
         setIsPolling(true)
-      } else if (!orderData?.payment && actualPaymentMethod === PaymentMethod.BANK_TRANSFER) {
-        // Case 4: No payment exists yet but actual method is BANK_TRANSFER - start polling to wait for payment creation
+      } else if (!orderData?.payment && (actualPaymentMethod === PaymentMethod.BANK_TRANSFER || actualPaymentMethod === PaymentMethod.POINT)) {
+        // Case 4: No payment exists yet but actual method is async - start polling to wait for payment creation
         setIsPolling(true)
       } else {
         setIsPolling(false)
@@ -367,8 +369,9 @@ export function ClientPaymentPage() {
           { orderSlug: slug, paymentMethod },
           {
             onSuccess: () => {
-              clearPaymentData()
-              navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
+              // Với POINT, chuyển sang cơ chế polling giống BANK_TRANSFER
+              refetchOrder()
+              setIsPolling(true)
             },
             onError: () => {
               setIsLoading(false)
@@ -400,15 +403,15 @@ export function ClientPaymentPage() {
           },
         )
       } else if (
-        paymentMethod === PaymentMethod.CASH ||
         paymentMethod === PaymentMethod.POINT
       ) {
         initiatePayment(
           { orderSlug: slug, paymentMethod },
           {
             onSuccess: () => {
-              clearPaymentData()
-              navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
+              // Với POINT, chuyển sang cơ chế polling giống BANK_TRANSFER
+              refetchOrder()
+              setIsPolling(true)
             },
             onError: () => {
               setIsLoading(false)
@@ -660,7 +663,9 @@ export function ClientPaymentPage() {
                 <p className="col-span-1 text-sm font-semibold">
                   {order?.result.type === OrderTypeEnum.AT_TABLE
                     ? t('order.dineIn')
-                    : t('order.takeAway')}
+                    : order?.result.type === OrderTypeEnum.DELIVERY
+                      ? t('order.delivery')
+                      : t('order.takeAway')}
                 </p>
               </div>
               {order?.result.type === OrderTypeEnum.TAKE_OUT && (
@@ -673,15 +678,37 @@ export function ClientPaymentPage() {
                   </span>
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-2">
-                <h3 className="col-span-1 text-sm font-medium">
-                  {t('order.location')}
-                </h3>
-                <p className="col-span-1 text-sm font-semibold">
-                  {order?.result.table && t('order.tableNumber')}{' '}
-                  {order?.result.table ? order?.result.table.name : ''}
-                </p>
-              </div>
+              {order?.result.type === OrderTypeEnum.AT_TABLE && order?.result.table && (
+                <div className="grid grid-cols-2 gap-2">
+                  <h3 className="col-span-1 text-sm font-medium">
+                    {t('order.tableNumber')}
+                  </h3>
+                  <p className="col-span-1 text-sm font-semibold">
+                    {order?.result.table && t('order.tableNumber')}{' '}
+                    {order?.result.table ? order?.result.table.name : ''}
+                  </p>
+                </div>
+              )}
+              {order?.result.type === OrderTypeEnum.DELIVERY && order?.result.deliveryTo && (
+                <div className="grid grid-cols-2 gap-2">
+                  <h3 className="col-span-1 text-sm font-medium">
+                    {t('order.deliveryAddress')}
+                  </h3>
+                  <p className="col-span-1 text-sm font-semibold">
+                    {order?.result.deliveryTo.formattedAddress}
+                  </p>
+                </div>
+              )}
+              {order?.result.type === OrderTypeEnum.DELIVERY && order?.result.deliveryPhone && (
+                <div className="grid grid-cols-2 gap-2">
+                  <h3 className="col-span-1 text-sm font-medium">
+                    {t('order.deliveryPhone')}
+                  </h3>
+                  <p className="col-span-1 text-sm font-semibold">
+                    {order?.result.deliveryPhone}
+                  </p>
+                </div>
+              )}
               {order?.result.description && (
                 <div className="grid grid-cols-2 gap-2">
                   <h3 className="col-span-1 text-sm font-medium">
@@ -811,6 +838,14 @@ export function ClientPaymentPage() {
                     </h3>
                     <p className="text-sm italic font-semibold text-primary">
                       - {`${formatCurrency(order?.result.accumulatedPointsToUse || 0)}`}
+                    </p>
+                  </div>
+                  <div className="flex justify-between pb-4 w-full border-b">
+                    <h3 className="text-sm italic font-medium text-muted-foreground/60">
+                      {t('order.deliveryFee')}
+                    </h3>
+                    <p className="text-sm italic font-semibold text-muted-foreground/60">
+                      {`${formatCurrency(order?.result.deliveryFee || 0)}`}
                     </p>
                   </div>
                   <div className="flex flex-col">

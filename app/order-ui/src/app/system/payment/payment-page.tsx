@@ -88,7 +88,7 @@ export default function PaymentPage() {
       return pendingPaymentMethod
     }
 
-    // Nếu có payment data từ store và method đó có trong effective methods, dùng nó
+    // Nếu có payment data từ store và method đó có trong effective methods, ưu tiên dùng nó
     if (paymentData?.paymentMethod && effectiveMethods.includes(paymentData.paymentMethod)) {
       return paymentData.paymentMethod
     }
@@ -260,7 +260,12 @@ export default function PaymentPage() {
 
   // Start polling when QR code exists and payment is valid, or when payment method is selected
   useEffect(() => {
-    if (!isExpired && paymentMethod === PaymentMethod.BANK_TRANSFER) {
+    if (
+      !isExpired &&
+      (paymentMethod === PaymentMethod.BANK_TRANSFER ||
+        paymentMethod === PaymentMethod.CASH ||
+        paymentMethod === PaymentMethod.CREDIT_CARD)
+    ) {
       if (hasValidPaymentAndQr) {
         // Case 1: Valid QR code - check if payment is completed
         if (orderData.payment.statusMessage === paymentStatus.COMPLETED) {
@@ -293,7 +298,7 @@ export default function PaymentPage() {
 
     // Sync order data with Order Flow Store
     if (updatedOrderData) {
-      setOrderFromAPI(updatedOrderData)
+      // setOrderFromAPI(updatedOrderData)
     }
 
     // Only update QR code if it's not already set and becomes available during polling
@@ -319,7 +324,7 @@ export default function PaymentPage() {
       }
       return false // Continue polling
     }
-  }, [refetchOrder, setOrderFromAPI, updateQrCode, clearCartItemStore, clearUpdateOrderStore, clearPaymentData, navigate, slug])
+  }, [refetchOrder, updateQrCode, clearCartItemStore, clearUpdateOrderStore, clearPaymentData, navigate, slug])
 
   //polling order status every 3 seconds
   useEffect(() => {
@@ -339,7 +344,7 @@ export default function PaymentPage() {
     }
   }, [isPolling, handlePolling])
 
-  const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
+  const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod, transactionId?: string) => {
     // Lưu method hiện tại để có thể restore nếu validate fail
     setPreviousPaymentMethod(paymentMethod as PaymentMethod)
 
@@ -358,33 +363,32 @@ export default function PaymentPage() {
       return
     }
 
-    // Check if voucher exists and needs validation
-    if (voucher) {
-      // Normal validation flow for compatible payment methods
-      validateVoucherPaymentMethod(
-        { slug: voucher.slug, paymentMethod: selectedPaymentMethod },
-        {
-          onSuccess: () => {
-            updatePaymentMethod(selectedPaymentMethod)
-            setPendingPaymentMethod(undefined)
-            setPreviousPaymentMethod(undefined) // Clear previous method when successful
-            setIsLoading(false)
-          },
-          onError: () => {
-            // Restore previous method on validation failure
-            setPendingPaymentMethod(undefined)
-            setIsRemoveVoucherOption(true)
-            setIsLoading(false)
-          },
-        }
-      )
-    } else {
-      // No voucher, just update payment method
-      updatePaymentMethod(selectedPaymentMethod)
-      setPendingPaymentMethod(undefined)
-      setPreviousPaymentMethod(undefined)
-      setIsLoading(false)
-    }
+    // Normal validation flow for compatible payment methods
+    // if (voucher) {
+    validateVoucherPaymentMethod(
+      { slug: voucher?.slug || '', paymentMethod: selectedPaymentMethod },
+      {
+        onSuccess: () => {
+          updatePaymentMethod(selectedPaymentMethod, transactionId)
+          setPendingPaymentMethod(undefined)
+          setPreviousPaymentMethod(undefined) // Clear previous method when successful
+          setIsLoading(false)
+        },
+        onError: () => {
+          // Restore previous method on validation failure
+          setPendingPaymentMethod(undefined)
+          setIsRemoveVoucherOption(true)
+          setIsLoading(false)
+        },
+      }
+    )
+    // } else {
+    // No voucher, just update payment method immediately
+    updatePaymentMethod(selectedPaymentMethod, transactionId)
+    setPendingPaymentMethod(undefined)
+    setPreviousPaymentMethod(undefined)
+    setIsLoading(false)
+    // }
   }
 
   const handleConfirmPayment = () => {
@@ -401,7 +405,6 @@ export default function PaymentPage() {
               updateQrCode(data.result.qrCode)
               qrCodeSetRef.current = true
             }
-
             // Refetch order to get latest payment data and sync with customer display
             refetchOrder()
             setIsPolling(true)
@@ -416,14 +419,27 @@ export default function PaymentPage() {
           }
         },
       )
-    } else if (paymentMethod === PaymentMethod.CASH || paymentMethod === PaymentMethod.CREDIT_CARD) {
+    } else if (paymentMethod === PaymentMethod.CASH) {
       initiatePayment(
         { orderSlug: slug, paymentMethod },
         {
           onSuccess: () => {
-            clearCartItemStore()
+            // Điều hướng ngay khi thanh toán CASH thành công (giống client page)
             clearPaymentData()
             navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
+          },
+          onError: () => {
+            setIsLoading(false)
+          }
+        },
+      )
+    } else if (paymentMethod === PaymentMethod.CREDIT_CARD) {
+      initiatePayment(
+        { orderSlug: slug, paymentMethod, transactionId: paymentData?.transactionId },
+        {
+          onSuccess: () => {
+            setIsPolling(true)
+            refetchOrder()
           },
           onError: () => {
             setIsLoading(false)
@@ -532,7 +548,9 @@ export default function PaymentPage() {
                   <p className="col-span-1 text-sm">
                     {order.result.type === OrderTypeEnum.AT_TABLE
                       ? t('order.dineIn')
-                      : t('order.takeAway')}
+                      : order.result.type === OrderTypeEnum.DELIVERY
+                        ? t('order.delivery')
+                        : t('order.takeAway')}
                     {order.result.type === OrderTypeEnum.TAKE_OUT && (
                       <>
                         {" - "}
@@ -543,14 +561,36 @@ export default function PaymentPage() {
                     )}
                   </p>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <h3 className="col-span-1 text-sm font-bold">
-                    {t('order.location')}
-                  </h3>
-                  <p className="col-span-1 text-sm">
-                    {order.result.table ? order.result.table.name : ''}
-                  </p>
-                </div>
+                {order?.result?.type === OrderTypeEnum.AT_TABLE && order?.result?.table && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <h3 className="col-span-1 text-sm font-bold">
+                      {t('order.location')}
+                    </h3>
+                    <p className="col-span-1 text-sm">
+                      {order.result.table ? order.result.table.name : ''}
+                    </p>
+                  </div>
+                )}
+                {order?.result?.type === OrderTypeEnum.DELIVERY && order?.result?.deliveryTo && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <h3 className="col-span-1 text-sm font-bold">
+                      {t('order.deliveryAddress')}
+                    </h3>
+                    <p className="col-span-1 text-sm">
+                      {order?.result?.deliveryTo?.formattedAddress}
+                    </p>
+                  </div>
+                )}
+                {order?.result?.type === OrderTypeEnum.DELIVERY && order?.result?.deliveryPhone && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <h3 className="col-span-1 text-sm font-bold">
+                      {t('order.deliveryPhone')}
+                    </h3>
+                    <p className="col-span-1 text-sm">
+                      {order.result.deliveryPhone}
+                    </p>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-2">
                   <h3 className="col-span-1 text-sm font-bold">
                     {t('order.note')}
@@ -673,6 +713,15 @@ export default function PaymentPage() {
                       - {`${formatCurrency(order.result.accumulatedPointsToUse || 0)}`}
                     </p>
                   </div>
+                  <div className="flex justify-between py-4 w-full border-b">
+                    <h3 className="text-sm italic font-medium text-muted-foreground/60">
+                      {t('order.deliveryFee')}
+                    </h3>
+                    <p className="text-sm italic font-semibold text-muted-foreground/60">
+                      {`${formatCurrency(order.result.deliveryFee || 0)}`}
+                    </p>
+                  </div>
+
                   <div className="flex flex-col py-4">
                     <div className="flex justify-between w-full">
                       <h3 className="font-semibold text-md">
@@ -691,7 +740,7 @@ export default function PaymentPage() {
               refetchOrder().then(() => {
                 // Re-initialize payment with updated order data after voucher update
                 if (slug) {
-                  initializePayment(slug, paymentMethod as PaymentMethod)
+                  initializePayment(slug, (paymentData?.paymentMethod || paymentMethod) as PaymentMethod)
                 }
               })
             }} />
@@ -741,7 +790,7 @@ export default function PaymentPage() {
                   refetchOrder().then(() => {
                     // Re-initialize payment with updated order data (no voucher)
                     if (slug) {
-                      initializePayment(slug, selectedMethod as PaymentMethod)
+                      initializePayment(slug, (paymentData?.paymentMethod || selectedMethod) as PaymentMethod)
                     }
 
                     // Reset flag after everything is complete - allow new voucher dialogs
@@ -781,7 +830,7 @@ export default function PaymentPage() {
                   refetchOrder().then(() => {
                     // Re-initialize payment with updated order data after voucher update
                     if (slug) {
-                      initializePayment(slug, paymentMethod as PaymentMethod)
+                      initializePayment(slug, (paymentData?.paymentMethod || paymentMethod) as PaymentMethod)
                     }
                   })
                 }}

@@ -19,7 +19,7 @@ export default function CustomerSearchInput() {
     const [users, setUsers] = useState<IUserInfo[]>([])
     const { pagination, setPagination } = usePagination()
     const { inputValue, setInputValue, debouncedInputValue } = useDebouncedInput()
-    const { getCartItems, addCustomerInfo, removeCustomerInfo } = useOrderFlowStore()
+    const { getCartItems, addCustomerInfo, removeCustomerInfo, setDeliveryPhone } = useOrderFlowStore()
     const cartItems = getCartItems()
     const userListRef = useRef<HTMLDivElement>(null)
 
@@ -64,11 +64,13 @@ export default function CustomerSearchInput() {
         addCustomerInfo(user)
         setUsers([])
         setInputValue('')
+        setDeliveryPhone(user.phonenumber)
     }
 
     const handleRemoveOwner = () => {
         setInputValue('')
         removeCustomerInfo()
+        setDeliveryPhone('')
     }
 
     return (
