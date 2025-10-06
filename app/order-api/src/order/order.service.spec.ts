@@ -79,6 +79,13 @@ import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point
 import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
+import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
+import { BranchConfigService } from 'src/branch-config/branch-config.service';
+import { BranchConfig } from 'src/branch-config/branch-config.entity';
+import { FeatureFlagSystemService } from 'src/feature-flag-system/feature-flag-system.service';
+import { FeatureFlagSystem } from 'src/feature-flag-system/entities/feature-flag-system.entity';
+import { ChildFeatureFlagSystem } from 'src/feature-flag-system/entities/child-feature-flag-system.entity';
+import { FeatureSystemGroup } from 'src/feature-flag-system/entities/feature-system-group.entity';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -253,6 +260,25 @@ describe('OrderService', () => {
           useValue: {
             emit: jest.fn(), // Mock the emit method
           },
+        },
+        GoogleMapConnectorClient,
+        BranchConfigService,
+        {
+          provide: getRepositoryToken(BranchConfig),
+          useValue: repositoryMockFactory,
+        },
+        FeatureFlagSystemService,
+        {
+          provide: getRepositoryToken(FeatureFlagSystem),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(FeatureSystemGroup),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ChildFeatureFlagSystem),
+          useValue: repositoryMockFactory,
         },
       ],
     }).compile();
@@ -669,6 +695,8 @@ describe('OrderService', () => {
         owner: 'mock-owner-slug',
         orderItems: [createOrderItem],
         approvalBy: 'mock-approval-by-slug',
+        deliveryPhone: '',
+        deliveryTo: '',
       };
 
       jest
@@ -701,6 +729,8 @@ describe('OrderService', () => {
         owner: 'mock-owner-slug',
         orderItems: [createOrderItem],
         approvalBy: 'mock-approval-by-slug',
+        deliveryPhone: '',
+        deliveryTo: '',
       };
       const order = {
         subtotal: 100,
@@ -744,6 +774,8 @@ describe('OrderService', () => {
         owner: 'mock-owner-slug',
         orderItems: [createOrderItem],
         approvalBy: 'mock-approval-by-slug',
+        deliveryPhone: '',
+        deliveryTo: '',
       };
       const orderItem = {
         quantity: 1,

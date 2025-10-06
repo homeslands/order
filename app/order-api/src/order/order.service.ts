@@ -64,6 +64,17 @@ import {
 } from 'src/printer/printer.constants';
 import { PrinterJobResponseDto } from 'src/printer/printer.dto';
 import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
+import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
+import { BranchException } from 'src/branch/branch.exception';
+import { BranchValidation } from 'src/branch/branch.validation';
+import { Address } from 'src/google-map/entities/address.entity';
+import { BranchConfigService } from 'src/branch-config/branch-config.service';
+import { BranchConfigKey } from 'src/branch-config/branch-config.constant';
+import { FeatureFlagSystemService } from 'src/feature-flag-system/feature-flag-system.service';
+import {
+  FeatureFlagSystems,
+  FeatureSystemGroups,
+} from 'src/feature-flag-system/feature-flag-system.constant';
 @Injectable()
 export class OrderService {
   constructor(
@@ -89,7 +100,26 @@ export class OrderService {
     private readonly promotionUtils: PromotionUtils,
     private readonly paymentUtils: PaymentUtils,
     private readonly accumulatedPointService: AccumulatedPointService,
+    private readonly googleMapConnectorClient: GoogleMapConnectorClient,
+    private readonly branchConfigService: BranchConfigService,
+    private readonly featureFlagSystemService: FeatureFlagSystemService,
   ) {}
+
+  async getMaxDistanceDelivery(branchSlug: string): Promise<number> {
+    const maxDistanceDelivery = await this.branchConfigService.get(
+      BranchConfigKey.MAX_DISTANCE_DELIVERY,
+      branchSlug,
+    );
+    return Number(maxDistanceDelivery || 0);
+  }
+
+  async getDeliveryFeePerKm(branchSlug: string): Promise<number> {
+    const deliveryFeePerKm = await this.branchConfigService.get(
+      BranchConfigKey.DELIVERY_FEE_PER_KM,
+      branchSlug,
+    );
+    return Number(deliveryFeePerKm || 0);
+  }
 
   /**
    * Delete order
@@ -231,6 +261,7 @@ export class OrderService {
   async updateOrder(
     slug: string,
     requestData: UpdateOrderRequestDto,
+    requestUserRole?: string | null,
   ): Promise<OrderResponseDto> {
     const context = `${OrderService.name}.${this.updateOrder.name}`;
 
@@ -239,6 +270,48 @@ export class OrderService {
     if (order.status !== OrderStatus.PENDING) {
       this.logger.warn(`Order ${slug} is not pending`, context);
       throw new OrderException(OrderValidation.ORDER_IS_NOT_PENDING);
+    }
+
+    // check feature flag
+    if (requestData.type === OrderType.AT_TABLE) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.key,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.AT_TABLE.key,
+      );
+    }
+    if (requestData.type === OrderType.TAKE_OUT) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.key,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.TAKE_OUT.key,
+      );
+    }
+    if (requestData.type === OrderType.DELIVERY) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.key,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.DELIVERY.key,
+      );
+    }
+
+    // check permission
+    if (order.owner?.phonenumber === 'default-customer') {
+      // public user
+      if (requestUserRole === RoleEnum.Customer) {
+        this.logger.warn(`Not permission to update order`, context);
+        throw new OrderException(
+          OrderValidation.NOT_PERMISSION_TO_UPDATE_ORDER,
+        );
+      }
+
+      if (requestData.type === OrderType.DELIVERY) {
+        this.logger.warn(
+          `Delivery type is not allowed for public order`,
+          context,
+        );
+        throw new OrderException(OrderValidation.DELIVERY_TYPE_NOT_ALLOWED);
+      }
     }
 
     order.type = requestData.type;
@@ -251,14 +324,105 @@ export class OrderService {
       });
       order.table = table;
       order.timeLeftTakeOut = 0;
-    } else {
+      order.deliveryTo = null;
+      order.deliveryPhone = null;
+      order.deliveryFee = 0;
+      order.deliveryDistance = 0;
+    } else if (requestData.type === OrderType.TAKE_OUT) {
       order.table = null;
       order.timeLeftTakeOut = requestData.timeLeftTakeOut;
+      order.deliveryTo = null;
+      order.deliveryPhone = null;
+      order.deliveryFee = 0;
+      order.deliveryDistance = 0;
+    } else if (requestData.type === OrderType.DELIVERY) {
+      if (!order?.branch?.addressDetail) {
+        this.logger.warn(
+          `Branch address detail not found when construct order`,
+          context,
+        );
+        throw new BranchException(
+          BranchValidation.BRANCH_ADDRESS_DETAIL_NOT_FOUND,
+        );
+      }
+      if (!requestData.deliveryPhone) {
+        this.logger.warn(
+          `Delivery phone not found when construct order`,
+          context,
+        );
+        throw new OrderException(OrderValidation.DELIVERY_PHONE_NOT_FOUND);
+      }
+      if (!requestData.deliveryTo) {
+        this.logger.warn(
+          `Delivery address not found when construct order`,
+          context,
+        );
+        throw new OrderException(OrderValidation.DELIVERY_ADDRESS_NOT_FOUND);
+      }
+      const deliveryTo =
+        await this.googleMapConnectorClient.getPlaceDetailsByPlaceId(
+          requestData.deliveryTo,
+        );
+
+      const origin = `${order.branch.addressDetail.lat},${order.branch.addressDetail.lng}`;
+      const destination = `${deliveryTo?.geometry?.location?.lat},${deliveryTo?.geometry?.location?.lng}`;
+      const { distance: deliveryDistance } =
+        await this.googleMapConnectorClient.getDistanceAndDuration(
+          origin,
+          destination,
+        );
+
+      const maxDistanceDelivery = await this.getMaxDistanceDelivery(
+        order.branch.slug,
+      );
+      const deliveryFeePerKm = await this.getDeliveryFeePerKm(
+        order.branch.slug,
+      );
+
+      if (deliveryDistance > maxDistanceDelivery) {
+        this.logger.warn(
+          `Delivery distance is greater than max distance delivery`,
+          context,
+        );
+        throw new OrderException(
+          OrderValidation.DELIVERY_DISTANCE_GREATER_THAN_MAX_DISTANCE_DELIVERY,
+        );
+      }
+
+      if (order.deliveryTo) {
+        order.deliveryTo.formattedAddress =
+          deliveryTo?.formatted_address || 'N/A';
+        order.deliveryTo.lat = deliveryTo?.geometry?.location?.lat || 0;
+        order.deliveryTo.lng = deliveryTo?.geometry?.location?.lng || 0;
+        order.deliveryTo.placeId = requestData.deliveryTo;
+        order.deliveryTo.url = deliveryTo?.url || 'N/A';
+      } else {
+        order.deliveryTo = new Address();
+        order.deliveryTo.formattedAddress =
+          deliveryTo?.formatted_address || 'N/A';
+        order.deliveryTo.lat = deliveryTo?.geometry?.location?.lat || 0;
+        order.deliveryTo.lng = deliveryTo?.geometry?.location?.lng || 0;
+        order.deliveryTo.placeId = requestData.deliveryTo;
+        order.deliveryTo.url = deliveryTo?.url || 'N/A';
+      }
+
+      order.deliveryPhone = requestData.deliveryPhone;
+      order.deliveryFee = deliveryDistance * deliveryFeePerKm;
+      order.deliveryDistance = deliveryDistance;
+      order.timeLeftTakeOut = 0;
+      order.table = null;
     }
 
     if (requestData.description) {
       order.description = requestData.description;
     }
+
+    // update subtotal after update delivery fee
+    const { subtotal } = await this.orderUtils.getOrderSubtotal(
+      order,
+      order.voucher,
+    );
+    order.subtotal = subtotal;
 
     // Update order
     const updatedOrder = await this.transactionManagerService.execute<Order>(
@@ -687,6 +851,161 @@ export class OrderService {
   ): Promise<OrderResponseDto> {
     const context = `${OrderService.name}.${this.createOrder.name}`;
 
+    // Check feature flag
+    if (requestData.type === OrderType.AT_TABLE) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.key,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.AT_TABLE.key,
+      );
+    }
+    if (requestData.type === OrderType.TAKE_OUT) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.key,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.TAKE_OUT.key,
+      );
+    }
+    if (requestData.type === OrderType.DELIVERY) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.key,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.DELIVERY.key,
+      );
+    }
+
+    // Get voucher
+    let voucher: Voucher = null;
+    try {
+      voucher = await this.voucherUtils.getVoucher({
+        where: {
+          slug: requestData.voucher ?? IsNull(),
+        },
+        relations: ['voucherProducts.product'],
+      });
+    } catch (error) {
+      this.logger.warn(`${error.message}`, context);
+    }
+
+    if (voucher) {
+      // await this.voucherUtils.validateVoucher(voucher);
+      await this.voucherUtils.validateVoucherTime(voucher);
+      this.voucherUtils.validateVoucherRemainingUsage(voucher);
+      await this.voucherUtils.validateVoucherUsage(voucher, requestData.owner);
+      await this.voucherUtils.validateVoucherProduct(
+        voucher,
+        requestData.orderItems.map((item) => item.variant) || [],
+      );
+    }
+
+    // Construct order
+    const order: Order = await this.constructOrder(requestData);
+
+    // Get order items
+    const orderItems = await this.constructOrderItems(
+      requestData.branch,
+      requestData.orderItems,
+      voucher,
+      requestUserRole,
+    );
+    this.logger.log(`Number of order items: ${orderItems.length}`, context);
+    order.orderItems = orderItems;
+
+    if (voucher) {
+      await this.voucherUtils.validateMinOrderValue(voucher, order);
+      // Update remaining quantity of voucher
+      voucher.remainingUsage -= 1;
+    }
+
+    order.voucher = voucher;
+
+    const { subtotal } = await this.orderUtils.getOrderSubtotal(order, voucher);
+    order.subtotal = subtotal;
+
+    order.originalSubtotal = order.orderItems.reduce(
+      (previous, current) => previous + current.originalSubtotal,
+      0,
+    );
+
+    const createdOrder = await this.transactionManagerService.execute<Order>(
+      async (manager) => {
+        const createdOrder = await manager.save(order);
+        const currentMenuItems = await this.menuItemUtils.getCurrentMenuItems(
+          createdOrder,
+          new Date(moment().format('YYYY-MM-DD')),
+          'decrement',
+        );
+        await manager.save(currentMenuItems);
+
+        // Update remaining quantity of voucher
+        if (voucher) await manager.save(voucher);
+
+        this.logger.log(
+          `Number of menu items: ${currentMenuItems.length} updated successfully`,
+          context,
+        );
+
+        // Cancel order after 10 minutes
+        this.orderScheduler.handleDeleteOrder(
+          createdOrder.slug,
+          15 * 60 * 1000,
+        );
+        return createdOrder;
+      },
+      (result) => {
+        this.logger.log(`Order ${result.slug} has been created`, context);
+      },
+      (error) => {
+        this.logger.warn(
+          `Error when creating new order: ${error.message}`,
+          context,
+        );
+        throw new OrderException(OrderValidation.CREATE_ORDER_ERROR);
+      },
+    );
+
+    return this.mapper.map(createdOrder, Order, OrderResponseDto);
+  }
+
+  /**
+   * Handles order creation for public
+   * This method creates new order and order items
+   * @param {CreateOrderRequestDto} requestData The data to create a new order
+   * @returns {Promise<OrderResponseDto>} The created order
+   * @throws {BranchException} If branch is not found
+   * @throws {TableException} If table is not found in this branch
+   * @throws {OrderException} If invalid data to create order item
+   */
+  async createOrderPublic(
+    requestData: CreateOrderRequestDto,
+    requestUserRole?: string | null,
+  ): Promise<OrderResponseDto> {
+    const context = `${OrderService.name}.${this.createOrder.name}`;
+
+    // Check feature flag
+    if (requestData.type === OrderType.AT_TABLE) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PUBLIC.key,
+        FeatureFlagSystems.ORDER.CREATE_PUBLIC.children.AT_TABLE.key,
+      );
+    }
+    if (requestData.type === OrderType.TAKE_OUT) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PUBLIC.key,
+        FeatureFlagSystems.ORDER.CREATE_PUBLIC.children.TAKE_OUT.key,
+      );
+    }
+
+    if (requestData.type === OrderType.DELIVERY) {
+      this.logger.warn(
+        `Delivery type is not allowed for public order`,
+        context,
+      );
+      throw new OrderException(OrderValidation.DELIVERY_TYPE_NOT_ALLOWED);
+    }
+
     // Get voucher
     let voucher: Voucher = null;
     try {
@@ -786,13 +1105,18 @@ export class OrderService {
    * @returns {Promise<Order>} The result of checking
    */
   async constructOrder(data: CreateOrderRequestDto): Promise<Order> {
+    const context = `${OrderService.name}.${this.constructOrder.name}`;
     // Get branch
     const branch = await this.branchUtils.getBranch({
       where: { slug: data.branch },
+      relations: ['addressDetail'],
     });
 
     // Get table if order type is at table
     let table: Table = null;
+    let address: Address = null;
+    let deliveryFee = 0;
+    const deliveryDistance = 0;
     if (data.type === OrderType.AT_TABLE) {
       table = await this.tableUtils.getTable({
         where: {
@@ -805,6 +1129,68 @@ export class OrderService {
       data.timeLeftTakeOut = 0;
     } else if (data.type === OrderType.TAKE_OUT) {
       data.timeLeftTakeOut = data.timeLeftTakeOut || 0;
+    } else if (data.type === OrderType.DELIVERY) {
+      if (!branch.addressDetail) {
+        this.logger.warn(
+          `Branch address detail not found when construct order`,
+          context,
+        );
+        throw new BranchException(
+          BranchValidation.BRANCH_ADDRESS_DETAIL_NOT_FOUND,
+        );
+      }
+      if (!data.deliveryPhone) {
+        this.logger.warn(
+          `Delivery phone not found when construct order`,
+          context,
+        );
+        throw new OrderException(OrderValidation.DELIVERY_PHONE_NOT_FOUND);
+      }
+      if (!data.deliveryTo) {
+        this.logger.warn(
+          `Delivery address not found when construct order`,
+          context,
+        );
+        throw new OrderException(OrderValidation.DELIVERY_ADDRESS_NOT_FOUND);
+      }
+      const deliveryTo =
+        await this.googleMapConnectorClient.getPlaceDetailsByPlaceId(
+          data.deliveryTo,
+        );
+
+      const origin = `${branch.addressDetail.lat},${branch.addressDetail.lng}`;
+      const destination = `${deliveryTo?.geometry?.location?.lat},${deliveryTo?.geometry?.location?.lng}`;
+      const { distance: deliveryDistance } =
+        await this.googleMapConnectorClient.getDistanceAndDuration(
+          origin,
+          destination,
+        );
+
+      const maxDistanceDelivery = await this.getMaxDistanceDelivery(
+        branch.slug,
+      );
+      const deliveryFeePerKm = await this.getDeliveryFeePerKm(branch.slug);
+
+      if (deliveryDistance > maxDistanceDelivery) {
+        this.logger.warn(
+          `Delivery distance is greater than max distance delivery`,
+          context,
+        );
+        throw new OrderException(
+          OrderValidation.DELIVERY_DISTANCE_GREATER_THAN_MAX_DISTANCE_DELIVERY,
+        );
+      }
+
+      // address
+      address = new Address();
+      address.formattedAddress = deliveryTo?.formatted_address || 'N/A';
+      address.lat = deliveryTo?.geometry?.location?.lat || 0;
+      address.lng = deliveryTo?.geometry?.location?.lng || 0;
+      address.placeId = data.deliveryTo;
+      address.url = deliveryTo?.url || 'N/A';
+
+      // order
+      deliveryFee = deliveryDistance * deliveryFeePerKm;
     }
 
     const defaultCustomer = await this.userUtils.getUser({
@@ -841,6 +1227,9 @@ export class OrderService {
       branch,
       table,
       approvalBy,
+      deliveryTo: address,
+      deliveryFee,
+      deliveryDistance,
     });
     return order;
   }
@@ -1051,6 +1440,7 @@ export class OrderService {
         'orderItems.promotion',
         'chefOrders',
         'voucher.voucherProducts.product',
+        'deliveryTo',
       ],
       order: { createdAt: 'DESC' },
     };
@@ -1166,6 +1556,7 @@ export class OrderService {
         'orderItems.promotion',
         'chefOrders',
         'voucher.voucherProducts.product',
+        'deliveryTo',
       ],
       order: { createdAt: 'DESC' },
     });

@@ -296,6 +296,9 @@ export class ChefOrderService {
     const referenceNumber = chefOrder.order.referenceNumber;
     const areaName = chefOrder.chefArea.name;
     const timeLeftTakeOut = chefOrder.order.timeLeftTakeOut;
+    const deliveryPhone = chefOrder.order.deliveryPhone;
+    const deliveryTo = chefOrder.order.deliveryTo?.formattedAddress;
+    const type = chefOrder.order.type;
     const data = await this.pdfService.generatePdf(
       'chef-order',
       {
@@ -306,6 +309,9 @@ export class ChefOrderService {
         tableName,
         areaName,
         timeLeftTakeOut,
+        deliveryPhone,
+        deliveryTo,
+        type,
       },
       {
         width: '80mm',
@@ -427,6 +433,7 @@ export class ChefOrderService {
         'order.table',
         'order.branch',
         'chefArea.printers',
+        'order.deliveryTo',
       ],
     });
 

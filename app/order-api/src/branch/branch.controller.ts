@@ -16,6 +16,7 @@ import { BranchService } from './branch.service';
 import {
   BranchResponseDto,
   CreateBranchDto,
+  DeliveryInfoResponseDto,
   UpdateBranchDto,
 } from './branch.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
@@ -30,8 +31,7 @@ export class BranchController {
   constructor(private branchService: BranchService) {}
 
   @Post()
-  // @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
-  @Public()
+  @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create new branch' })
   @ApiResponseWithType({
@@ -104,5 +104,23 @@ export class BranchController {
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
     } as AppResponseDto<string>;
+  }
+
+  @Get(':slug/delivery-info')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get delivery info' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Delivery info have been retrieved successfully',
+    type: DeliveryInfoResponseDto,
+  })
+  async getDeliveryInfo(@Param('slug') slug: string) {
+    const result = await this.branchService.getDeliveryInfo(slug);
+    return {
+      message: 'Delivery info have been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<DeliveryInfoResponseDto>;
   }
 }

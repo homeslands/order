@@ -37,6 +37,22 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { PrinterJobResponseDto } from 'src/printer/printer.dto';
 import { CurrentUser } from 'src/user/user.decorator';
 import { CurrentUserDto } from 'src/user/user.dto';
+import {
+  DistanceAndDurationResponseDto,
+  LocationResponseDto,
+  RouteAndDirectionResponseDto,
+  SuggestionAddressResultResponseDto,
+} from 'src/google-map/dto/google-map.response.dto';
+import { GoogleMapService } from 'src/google-map/google-map.service';
+import {
+  GetAddressDirectionDto,
+  GetAddressDistanceAndDurationDto,
+} from 'src/google-map/dto/google-map.request.dto';
+import { Feature } from 'src/feature-flag-system/decorator/feature.decorator';
+import {
+  FeatureFlagSystems,
+  FeatureSystemGroups,
+} from 'src/feature-flag-system/feature-flag-system.constant';
 
 @ApiTags('Order')
 @Controller('orders')
@@ -45,8 +61,12 @@ export class OrderController {
   constructor(
     private readonly orderService: OrderService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+    private readonly googleMapService: GoogleMapService,
   ) {}
 
+  @Feature(
+    `${FeatureSystemGroups.ORDER}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.key}`,
+  )
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiResponseWithType({
@@ -80,6 +100,9 @@ export class OrderController {
   }
 
   @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @Feature(
+    `${FeatureSystemGroups.ORDER}:${FeatureFlagSystems.ORDER.CREATE_PUBLIC.key}`,
+  )
   @Post('public')
   @Public()
   @HttpCode(HttpStatus.CREATED)
@@ -103,7 +126,7 @@ export class OrderController {
     if (!session.orders) {
       session.orders = [] as string[];
     }
-    const result = await this.orderService.createOrder(requestData, null);
+    const result = await this.orderService.createOrderPublic(requestData, null);
     session.orders.push(result.slug);
     this.logger.log(
       'Session orders from createOrderPublic:',
@@ -208,8 +231,14 @@ export class OrderController {
     @Param('slug') slug: string,
     @Body(new ValidationPipe({ transform: true, whitelist: true }))
     requestData: UpdateOrderRequestDto,
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    currentUserDto: CurrentUserDto,
   ) {
-    const result = await this.orderService.updateOrder(slug, requestData);
+    const result = await this.orderService.updateOrder(
+      slug,
+      requestData,
+      currentUserDto.scope?.role,
+    );
     return {
       message: 'Update order status successfully',
       statusCode: HttpStatus.OK,
@@ -327,5 +356,97 @@ export class OrderController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<PrinterJobResponseDto[]>;
+  }
+
+  @Feature(
+    `${FeatureSystemGroups.ORDER}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.key}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.DELIVERY.key}`,
+  )
+  @Get('delivery/address/suggestion/:name')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Retrieve address' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Address suggestion has been retrieved successfully',
+    type: SuggestionAddressResultResponseDto,
+    isArray: true,
+  })
+  async findAddressForOrder(@Param('name') name: string) {
+    const result = await this.googleMapService.getAddressSuggestion(name);
+    return {
+      message: 'Address suggestion has been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<SuggestionAddressResultResponseDto[]>;
+  }
+
+  @Feature(
+    `${FeatureSystemGroups.ORDER}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.key}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.DELIVERY.key}`,
+  )
+  @Get('delivery/location/:placeId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Retrieve address by place id' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Address has been retrieved successfully',
+    type: LocationResponseDto,
+  })
+  async findAddressByPlaceIdForOrder(@Param('placeId') placeId: string) {
+    const result = await this.googleMapService.getLocationByPlaceId(placeId);
+    return {
+      message: 'Address has been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<LocationResponseDto>;
+  }
+
+  @Feature(
+    `${FeatureSystemGroups.ORDER}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.key}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.DELIVERY.key}`,
+  )
+  @Get('delivery/direction')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get address direction' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Address direction has been retrieved successfully',
+    type: RouteAndDirectionResponseDto,
+  })
+  async getAddressDirectionForOrder(
+    @Query(new ValidationPipe({ transform: true }))
+    option: GetAddressDirectionDto,
+  ) {
+    const result = await this.googleMapService.getAddressDirection(option);
+    return {
+      message: 'Address direction has been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<RouteAndDirectionResponseDto>;
+  }
+
+  @Feature(
+    `${FeatureSystemGroups.ORDER}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.key}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.DELIVERY.key}`,
+  )
+  @Get('delivery/distance-and-duration')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get address distance and duration' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description:
+      'Address distance and duration has been retrieved successfully',
+    type: DistanceAndDurationResponseDto,
+  })
+  async getAddressDistanceAndDurationForOrder(
+    @Query(new ValidationPipe({ transform: true }))
+    option: GetAddressDistanceAndDurationDto,
+  ) {
+    const result = await this.googleMapService.getDistanceAndDuration(option);
+    return {
+      message: 'Address distance and duration has been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<DistanceAndDurationResponseDto>;
   }
 }
