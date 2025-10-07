@@ -31,4 +31,8 @@ export const QUERYKEY = {
   addressByPlaceId: ['addressByPlaceId'],
   addressDirection: ['addressDirection'],
   distanceAndDuration: ['distanceAndDuration'],
+  userGroups: ['userGroups'],
+  userGroup: ['userGroup'],
+  userGroupMembers: ['userGroupMembers'],
+  userGroupMember: ['userGroupMember'],
 }

@@ -71,6 +71,8 @@ import {
   CardOrderHistoryPage,
   CustomerInfoPage,
   SystemLockManagementPage,
+  UserGroupPage,
+  UserGroupMembersPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -555,6 +557,29 @@ export const router = createBrowserRouter([
                 element={<SuspenseElement component={EmployeeListPage} />}
               />
             ),
+          },
+        ],
+      },
+      {
+        path: ROUTE.STAFF_CUSTOMER_GROUP_MANAGEMENT,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+                element={<SuspenseElement component={UserGroupPage} />}
+              />
+            ),
+          },
+          {
+            path: ":slug",
+            element: <SuspenseElement component={UserGroupMembersPage} />,
           },
         ],
       },

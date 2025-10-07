@@ -104,6 +104,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     permission: Permission.EMPLOYEE_MANAGEMENT,
   },
   {
+    title: 'sidebar.customerGroupManagement',
+    path: ROUTE.STAFF_CUSTOMER_GROUP_MANAGEMENT,
+    icon: Users,
+    permission: Permission.CUSTOMER_MANAGEMENT,
+  },
+  {
     title: 'sidebar.branchManagement',
     path: ROUTE.STAFF_BRANCH,
     icon: Store,

@@ -1,0 +1,106 @@
+import React from 'react'
+import { useForm } from 'react-hook-form'
+import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { useQueryClient } from '@tanstack/react-query'
+
+import {
+  Form,
+  Button,
+  ScrollArea,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui'
+
+import { IUserInfo } from '@/types'
+import { useAddMultipleGroupMember } from '@/hooks'
+import { showToast } from '@/utils'
+import { QUERYKEY } from '@/constants'
+
+interface IFormAddMultipleUsersToUserGroupProps {
+  users: IUserInfo[]
+  onSubmit: (isOpen: boolean) => void
+}
+
+type TFormData = {
+  [key: string]: number
+}
+
+export const AddMultipleUsersToUserGroupForm: React.FC<
+  IFormAddMultipleUsersToUserGroupProps
+> = ({ users, onSubmit }) => {
+  const queryClient = useQueryClient()
+  const { slug: userGroupSlug } = useParams()
+  const { t } = useTranslation(['customer'])
+  const { t: tToast } = useTranslation('toast')
+  const { mutate: addMultipleUserGroupMember } = useAddMultipleGroupMember()
+
+  const form = useForm<TFormData>({})
+  const handleSubmit = () => {
+    addMultipleUserGroupMember({
+      users: users.map((user) => user.slug),
+      userGroup: userGroupSlug as string,
+    }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: [QUERYKEY.userGroupMembers],
+          exact: false,
+          refetchType: 'all'
+        })
+        queryClient.invalidateQueries({
+          queryKey: [QUERYKEY.userGroups],
+          exact: false,
+          refetchType: 'all'
+        })
+        form.reset()
+        showToast(tToast('toast.addMultipleUsersToUserGroupSuccess'))
+        onSubmit(false)
+      },
+    })
+  }
+
+  // Không cần tạo formFields nữa vì sẽ dùng Table
+
+  return (
+    <div className="mt-3">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <div className="space-y-4">
+            <h3 className="font-medium">{t('customer.userGroup.selectedUsers')}</h3>
+
+            <ScrollArea className="h-[300px]">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[70%]">{t('customer.userGroup.fullName')}</TableHead>
+                    <TableHead className="w-[30%]">{t('customer.userGroup.phoneNumber')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user) => (
+                    <TableRow key={user.slug}>
+                      <TableCell className="font-medium">
+                        {user?.firstName} {user?.lastName}
+                      </TableCell>
+                      <TableCell>
+                        {user?.phonenumber}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          </div>
+
+          <div className="flex justify-end">
+            <Button type="submit">{t('customer.userGroup.addMember')}</Button>
+          </div>
+        </form>
+      </Form>
+    </div>
+  )
+}

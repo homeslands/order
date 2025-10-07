@@ -90,6 +90,7 @@
     "voucherGroup": "Nhóm mã giảm giá",
     "cardOrderManagement": "Quản lý đơn hàng quà tặng",
     "loyaltyPoint": "Điểm tích lũy",
-    "systemLockManagement": "Quản lý khóa chức năng hệ thống"
+    "systemLockManagement": "Quản lý khóa chức năng hệ thống",
+    "customerGroupManagement": "Quản lý nhóm khách hàng"
   }
 }
