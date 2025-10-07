@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu, Users } from 'lucide-react'
@@ -13,15 +13,27 @@ export default function UserGroupMembersPage() {
     const { t } = useTranslation(['customer'])
     const { t: tHelmet } = useTranslation('helmet')
     const { slug } = useParams()
+    const [searchParams, setSearchParams] = useSearchParams()
+    const page = Number(searchParams.get('page')) || 1
+    const size = Number(searchParams.get('size')) || 10
     const [phonenumber, setPhoneNumber] = useState<string>('')
-    const { handlePageChange, handlePageSizeChange, pagination } = usePagination()
+    const { handlePageChange, handlePageSizeChange, pagination } = usePagination({ isSearchParams: true })
     const { data: userGroupMemberListData, isLoading: isLoadingList } = useUserGroupMembers({
         userGroup: slug as string,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
+        page,
+        size,
         hasPaging: true,
         phonenumber,
     })
+
+    // add page size to query params
+    useEffect(() => {
+        setSearchParams((prev) => {
+            prev.set('page', pagination.pageIndex.toString())
+            prev.set('size', pagination.pageSize.toString())
+            return prev
+        })
+    }, [pagination.pageIndex, pagination.pageSize, setSearchParams])
 
     const isLoading = isLoadingList
     const data = userGroupMemberListData?.result.items || []

@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PlusCircledIcon } from '@radix-ui/react-icons'
-
 import {
   Dialog,
   DialogTrigger,
@@ -9,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
   Button,
   ScrollArea,
 } from '@/components/ui'
@@ -16,20 +15,29 @@ import { IUserInfo } from '@/types'
 import { AddMultipleUsersToUserGroupForm } from '@/components/app/form'
 
 interface AddMultipleUsersToUserGroupDialogProps {
+  disabled: boolean
   users: IUserInfo[]
   onSubmit: (isOpen: boolean) => void
 }
 
 export default function AddMultipleUsersToUserGroupDialog({
+  disabled,
   users,
   onSubmit,
 }: AddMultipleUsersToUserGroupDialogProps) {
   const { t } = useTranslation(['customer'])
   const [isOpen, setIsOpen] = useState(false)
+  const [formRef, setFormRef] = useState<{ submitForm: () => void } | null>(null)
 
   const handleSubmit = (isDialogOpen: boolean) => {
     setIsOpen(isDialogOpen)
     onSubmit(isDialogOpen)
+  }
+
+  const handleFormSubmit = () => {
+    if (formRef) {
+      formRef.submitForm()
+    }
   }
 
   return (
@@ -37,9 +45,9 @@ export default function AddMultipleUsersToUserGroupDialog({
       <DialogTrigger asChild>
         <Button
           className="gap-1 h-10 text-sm"
+          disabled={disabled}
           onClick={() => setIsOpen(true)}
         >
-          <PlusCircledIcon className="icon" />
           {t('customer.userGroup.addMember')}
         </Button>
       </DialogTrigger>
@@ -54,8 +62,14 @@ export default function AddMultipleUsersToUserGroupDialog({
           <AddMultipleUsersToUserGroupForm
             onSubmit={handleSubmit}
             users={users}
+            onRef={setFormRef}
           />
         </ScrollArea>
+        <DialogFooter>
+          <Button onClick={handleFormSubmit}>
+            {t('customer.userGroup.addMember')}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
