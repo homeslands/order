@@ -31,4 +31,8 @@ export const QUERYKEY = {
   distanceAndDuration: ['distanceAndDuration'],
   systemFeatureFlagsByGroup: ['systemFeatureFlagsByGroup'],
   systemFeatureFlagGroups: ['systemFeatureFlagGroups'],
+  userGroups: ['userGroups'],
+  userGroup: ['userGroup'],
+  userGroupMembers: ['userGroupMembers'],
+  userGroupMember: ['userGroupMember'],
 }

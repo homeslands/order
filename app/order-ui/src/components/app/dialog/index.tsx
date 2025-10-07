@@ -168,3 +168,10 @@ export { default as StaffLoyaltyPointDetailHistoryDialog } from './staff-loyalty
 
 export { default as ChangeFeatureLockStatusDialog } from './change-feature-lock-status-dialog'
 export { default as ChangeParentFeatureLockStatusDialog } from './change-parent-feature-lock-status-dialog'
+
+export { default as CreateUserGroupDialog } from './create-user-group-dialog'
+export { default as UpdateUserGroupDialog } from './update-user-group-dialog'
+export { default as DeleteUserGroupDialog } from './delete-user-group-dialog'
+
+export { default as AddMultipleUsersToUserGroupDialog } from './add-multiple-users-to-user-group-dialog'
+export { default as DeleteUserGroupMemberDialog } from './delete-user-group-member-dialog'

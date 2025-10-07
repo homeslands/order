@@ -39,14 +39,15 @@ export default function RecipientSearchInput({
   const { data: userByPhoneNumber } = useUsers(
     searchCondition
       ? {
-          order: 'DESC',
-          page: pagination.pageIndex,
-          size: pagination.pageSize,
-          phonenumber: debouncedInputValue,
-          role: Role.CUSTOMER,
-          hasPaging: true,
-        }
+        order: 'DESC',
+        page: pagination.pageIndex,
+        size: pagination.pageSize,
+        phonenumber: debouncedInputValue,
+        role: Role.CUSTOMER,
+        hasPaging: true,
+      }
       : null,
+    true
   )
   const handleSelectUser = useCallback(
     (user: IUserInfo) => () => {
@@ -110,7 +111,7 @@ export default function RecipientSearchInput({
   }
 
   return (
-    <div className="relative flex flex-col gap-3">
+    <div className="flex relative flex-col gap-3">
       {/* Recipient Input */}
       <div className="flex flex-col gap-1">
         {' '}
@@ -136,7 +137,7 @@ export default function RecipientSearchInput({
           />
           {/* Character counter */}
           {inputValue && inputValue.length < 10 && (
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+            <div className="absolute right-2 top-1/2 text-xs text-gray-400 -translate-y-1/2">
               {inputValue.length}/10
             </div>
           )}
@@ -165,7 +166,7 @@ export default function RecipientSearchInput({
         <div
           ref={userListRef}
           onScroll={handleScroll}
-          className="absolute z-50 mt-11 max-h-96 w-full overflow-y-auto rounded-md border bg-white shadow-lg dark:bg-gray-800"
+          className="overflow-y-auto absolute z-50 mt-11 w-full max-h-96 bg-white rounded-md border shadow-lg dark:bg-gray-800"
         >
           {users.map((user, index) => (
             <div
@@ -173,8 +174,8 @@ export default function RecipientSearchInput({
               onClick={handleSelectUser(user)}
               className={`flex cursor-pointer items-center gap-2 rounded-md p-2 transition-all duration-300 hover:bg-primary/20 ${index < users.length - 1 ? 'border-b' : ''}`}
             >
-              <div className="flex items-center justify-center rounded-full bg-primary/10 p-2">
-                <User2Icon className="h-4 w-4 text-primary" />
+              <div className="flex justify-center items-center p-2 rounded-full bg-primary/10">
+                <User2Icon className="w-4 h-4 text-primary" />
               </div>
               <div className="flex flex-col">
                 <div className="text-sm font-bold text-muted-foreground">

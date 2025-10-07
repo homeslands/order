@@ -31,3 +31,5 @@ export { default as UpdateVoucherPaymentMethodSheet } from './update-voucher-pay
 export { default as VoucherListSheetInPayment } from './client-voucher-list-sheet-in-payment'
 export { default as StaffVoucherListSheetInPayment } from './staff-voucher-list-sheet-in-payment'
 export { default as GiftCardTransactionSheet } from './gift-card-transactions-sheet'
+
+export { default as AddUserGroupMemberSheet } from './add-user-group-member-sheet'
