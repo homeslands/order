@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useImperativeHandle, forwardRef, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -6,7 +6,6 @@ import { useQueryClient } from '@tanstack/react-query'
 
 import {
   Form,
-  Button,
   ScrollArea,
   Table,
   TableBody,
@@ -24,15 +23,21 @@ import { QUERYKEY } from '@/constants'
 interface IFormAddMultipleUsersToUserGroupProps {
   users: IUserInfo[]
   onSubmit: (isOpen: boolean) => void
+  onRef?: (ref: { submitForm: () => void }) => void
+}
+
+export interface IFormAddMultipleUsersToUserGroupRef {
+  submitForm: () => void
 }
 
 type TFormData = {
   [key: string]: number
 }
 
-export const AddMultipleUsersToUserGroupForm: React.FC<
+export const AddMultipleUsersToUserGroupForm = forwardRef<
+  IFormAddMultipleUsersToUserGroupRef,
   IFormAddMultipleUsersToUserGroupProps
-> = ({ users, onSubmit }) => {
+>(({ users, onSubmit, onRef }, ref) => {
   const queryClient = useQueryClient()
   const { slug: userGroupSlug } = useParams()
   const { t } = useTranslation(['customer'])
@@ -40,7 +45,8 @@ export const AddMultipleUsersToUserGroupForm: React.FC<
   const { mutate: addMultipleUserGroupMember } = useAddMultipleGroupMember()
 
   const form = useForm<TFormData>({})
-  const handleSubmit = () => {
+
+  const handleSubmit = useCallback(() => {
     addMultipleUserGroupMember({
       users: users.map((user) => user.slug),
       userGroup: userGroupSlug as string,
@@ -61,9 +67,22 @@ export const AddMultipleUsersToUserGroupForm: React.FC<
         onSubmit(false)
       },
     })
-  }
+  }, [addMultipleUserGroupMember, users, userGroupSlug, queryClient, form, tToast, onSubmit])
 
-  // Không cần tạo formFields nữa vì sẽ dùng Table
+  useImperativeHandle(ref, () => ({
+    submitForm: () => {
+      handleSubmit()
+    }
+  }), [handleSubmit])
+
+  // Expose ref to parent component
+  React.useEffect(() => {
+    if (onRef) {
+      onRef({
+        submitForm: handleSubmit
+      })
+    }
+  }, [onRef, handleSubmit])
 
   return (
     <div className="mt-3">
@@ -95,12 +114,10 @@ export const AddMultipleUsersToUserGroupForm: React.FC<
               </Table>
             </ScrollArea>
           </div>
-
-          <div className="flex justify-end">
-            <Button type="submit">{t('customer.userGroup.addMember')}</Button>
-          </div>
         </form>
       </Form>
     </div>
   )
-}
+})
+
+AddMultipleUsersToUserGroupForm.displayName = 'AddMultipleUsersToUserGroupForm'
