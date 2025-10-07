@@ -107,6 +107,20 @@ export class UserResponseDto extends BaseResponseDto {
   accumulatedPoint: AccumulatedPointResponseDto;
 }
 
+export class GeneralUserResponseDto extends BaseResponseDto {
+  @ApiProperty()
+  @AutoMap()
+  readonly phonenumber: string;
+
+  @ApiProperty()
+  @AutoMap()
+  readonly firstName: string;
+
+  @ApiProperty()
+  @AutoMap()
+  readonly lastName: string;
+}
+
 export class UpdateUserRoleRequestDto {
   @ApiProperty()
   @IsNotEmpty()
