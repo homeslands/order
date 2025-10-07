@@ -234,6 +234,31 @@ export function useUpdateEmployeeSchema() {
   })
 }
 
+export function useCreateUserGroupSchema() {
+  const { t } = useTranslation(['customer'])
+  return z.object({
+    name: z.string().min(1, t('customer.userGroup.nameRequired')),
+    description: z.string().optional(),
+  })
+}
+
+export function useUpdateUserGroupSchema() {
+  const { t } = useTranslation(['customer'])
+  return z.object({
+    slug: z.string(),
+    name: z.string().min(1, t('customer.userGroup.nameRequired')),
+    description: z.string().optional(),
+  })
+}
+
+export type TUpdateUserGroupSchema = z.infer<
+  ReturnType<typeof useUpdateUserGroupSchema>
+>
+
+export type TCreateUserGroupSchema = z.infer<
+  ReturnType<typeof useCreateUserGroupSchema>
+>
+
 export type TUserInfoSchema = z.infer<typeof userInfoSchema>
 export type TUserRoleSchema = z.infer<typeof userRoleSchema>
 export type TCreateUserSchema = z.infer<ReturnType<typeof useCreateUserSchema>>

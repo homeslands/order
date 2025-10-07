@@ -185,6 +185,20 @@ export const CustomerInfoPage = React.lazy(() =>
   })),
 )
 
+// Customer group page
+export const UserGroupPage = React.lazy(() =>
+  import('@/app/system/customer-group').then((module) => ({
+    default: module.UserGroupPage,
+  })),
+)
+
+// Customer group members page
+export const UserGroupMembersPage = React.lazy(() =>
+  import('@/app/system/customer-group/components').then((module) => ({
+    default: module.UserGroupMembersPage,
+  })),
+)
+
 // Role page
 export const RolePage = React.lazy(() =>
   import('@/app/system/role').then((module) => ({

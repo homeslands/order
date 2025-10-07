@@ -1,5 +1,6 @@
 import { Role } from '@/constants/role'
 import { IPermission } from './permissions.type'
+import { IBase } from './base.type'
 
 export interface IUserInfo {
   slug: string
@@ -77,4 +78,85 @@ export interface IUpdatePasswordRequest {
 export interface IUpdateUserRoleRequest {
   slug: string
   role: string
+}
+
+export interface ICreateUserGroupRequest {
+  name: string
+  description?: string
+}
+
+export interface IUserGroup extends IBase {
+  name: string
+  description?: string
+  createdBy: {
+    slug: string
+    firstName: string
+    lastName: string
+    phonenumber: string
+  }
+}
+
+export interface IGetAllUserGroupRequest {
+  hasPaging?: boolean
+  page?: number | 1
+  size?: number | 10
+  sort?: string[]
+  name?: string
+  phonenumber?: string
+}
+
+export interface IUpdateUserGroupRequest {
+  slug: string
+  name: string
+  description?: string
+}
+
+export interface IAddUserGroupMemberRequest {
+  user: string
+  userGroup: string
+}
+
+export interface IAddMultipleUserGroupMemberRequest {
+  users: string[]
+  userGroup: string
+}
+
+export interface IUserGroupMember extends IBase {
+  user: {
+    slug: string
+    phonenumber: string
+    firstName: string
+    lastName: string
+    dob: string
+    email: string
+    address: string
+    isVerifiedEmail: boolean
+    isVerifiedPhonenumber: boolean
+  }
+  userGroup: {
+    name: string
+    description: string
+    createdBy: {
+      slug: string
+      firstName: string
+      lastName: string
+      phonenumber: string
+    }
+    slug: string
+    createdAt: string
+  }
+  createdBy: {
+    slug: string
+    firstName: string
+    lastName: string
+    phonenumber: string
+  }
+}
+
+export interface IGetUserGroupMemberRequest {
+  userGroup: string
+  page: number | 1
+  size: number | 10
+  hasPaging?: boolean
+  phonenumber?: string
 }

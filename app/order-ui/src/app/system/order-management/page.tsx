@@ -52,7 +52,8 @@ export default function OrderHistoryPage() {
         order: 'DESC',
         hasPaging: true,
       }
-      : null
+      : null,
+    true
   )
 
   const ownerSlug = (() => {

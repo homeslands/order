@@ -46,6 +46,7 @@
     "checkout": "Thanh toán",
     "confirmation": "Xác nhận",
     "feature-lock-management": "Quản lý khóa chức năng thẻ quà tặng",
-    "system-lock-management": "Quản lý khóa chức năng"
+    "system-lock-management": "Quản lý khóa chức năng",
+    "customer-group-management": "Quản lý nhóm khách hàng"
   }
 }

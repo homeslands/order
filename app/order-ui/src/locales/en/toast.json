@@ -354,6 +354,11 @@
     "changeFeatureLockStatusSuccess": "Update feature lock status successfully",
     "distanceTooFar": "Distance is greater than 3km, not supported.",
     "confirmAddressSuccess": "Address updated successfully",
-    "creditCardTransactionIdRequired": "Credit card transaction ID is required"
+    "creditCardTransactionIdRequired": "Credit card transaction ID is required",
+    "userGroupMemberNotFound": "User group member not found",
+    "createUserGroupSuccess": "Create user group successfully",
+    "updateUserGroupSuccess": "Update user group successfully",
+    "deleteUserGroupSuccess": "Delete user group successfully",
+    "addMultipleUsersToUserGroupSuccess": "Add multiple users to user group successfully"
   }
 }
