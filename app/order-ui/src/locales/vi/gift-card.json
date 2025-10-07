@@ -191,7 +191,9 @@
             "self": "Nạp cho bản thân",
             "receipientInfo": "Thông tin người nhận",
             "message": "Lời nhắn",
-            "name": "Tên người nhận"
+            "name": "Tên người nhận",
+            "shortTitle": "Đơn hàng thẻ quà tặng",
+            "coinTitle": "Lịch sử giao dịch"
         },
         "customer": {
             "title": "Khách hàng",

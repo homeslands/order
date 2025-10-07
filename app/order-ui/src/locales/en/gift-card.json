@@ -191,7 +191,10 @@
             "self": "Top up for myself",
             "receipientInfo": "Receipient information",
             "message": "Message",
-            "name": "Receipient name"
+            "name": "Receipient name",
+            "pageTitle": "Card order management",
+            "shortTitle": "Card order management",
+            "coinTitle": "Point transactions management"
         },
         "customer": {
             "title": "Customer",
