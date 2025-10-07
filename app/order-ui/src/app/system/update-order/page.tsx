@@ -26,6 +26,7 @@ export default function UpdateOrderPage() {
     const [isExpired, setIsExpired] = useState<boolean>(false)
     const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false) // Track if data is loaded to store
     const [shouldReinitialize, setShouldReinitialize] = useState<boolean>(false)
+    const [isRefetching] = useState<boolean>(false)
     const {
         updatingData,
         initializeUpdating,
@@ -40,7 +41,7 @@ export default function UpdateOrderPage() {
 
     // Initialize updating data
     useEffect(() => {
-        if (order?.result && order.result.orderItems && (!isDataLoaded || shouldReinitialize)) {
+        if (order?.result && order.result.orderItems && (!isDataLoaded || shouldReinitialize) && !isRefetching) {
             // Đảm bảo order data đầy đủ trước khi initialize
             const orderData = order.result
 
@@ -53,7 +54,7 @@ export default function UpdateOrderPage() {
                 // ✅ Preserve current draft values before reinitializing
                 const currentDraft = updatingData?.updateDraft
                 const preservedTimeLeftTakeOut = currentDraft?.timeLeftTakeOut
-                const preservedType = currentDraft?.type || orderData.type
+                const preservedType = orderData?.type
                 const preservedDescription = currentDraft?.description || orderData.description
                 const preservedVoucher = currentDraft?.voucher || orderData.voucher
 
@@ -85,7 +86,6 @@ export default function UpdateOrderPage() {
 
                 // ✅ Reinitialize với data mới từ server (bao gồm món vừa add)
                 initializeUpdating(orderData)
-                // console.log('✅ Initialized with', orderData.orderItems.length, 'items from server')
 
                 // ✅ Restore preserved values after initialization
                 if (preservedType && preservedType !== orderData.type) {
@@ -128,7 +128,7 @@ export default function UpdateOrderPage() {
 
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [order, isDataLoaded, shouldReinitialize, initializeUpdating])
+    }, [order, isDataLoaded, shouldReinitialize, isRefetching, initializeUpdating])
 
     // Separate useEffect for polling control (currently disabled)
     useEffect(() => {
@@ -210,15 +210,6 @@ export default function UpdateOrderPage() {
         }
     }, [isExpired])
 
-    const handleRefetchAndReinitialize = useCallback(async () => {
-        try {
-            await refetchOrder()
-            setShouldReinitialize(true)
-        } catch {
-            // Ignore refetch errors
-        }
-    }, [refetchOrder])
-
     const handleExpire = useCallback((value: boolean) => {
         setIsExpired(value)
         if (value) {
@@ -227,6 +218,11 @@ export default function UpdateOrderPage() {
             setIsDataLoaded(false)
         }
     }, [clearUpdatingData])
+
+    const _handleRefetchAndReinitialize = useCallback(async () => {
+        await refetchOrder()
+        setShouldReinitialize(true)
+    }, [refetchOrder])
 
     if (isExpired) {
         return (
@@ -280,7 +276,7 @@ export default function UpdateOrderPage() {
                             <div className="flex flex-col gap-2 py-3 w-full">
                                 {/* Menu & Table select */}
                                 <div className="min-h-[50vh]">
-                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSuccess={handleRefetchAndReinitialize} />
+                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSubmit={_handleRefetchAndReinitialize} />
                                 </div>
                             </div>
                         </>
@@ -289,7 +285,7 @@ export default function UpdateOrderPage() {
                             {/* Desktop layout - Menu left */}
                             <div className={`flex ${isMobile ? 'w-full' : 'w-[75%] xl:w-[70%] pr-6 xl:pr-0'} flex-col gap-2`}>
                                 {/* Menu & Table select */}
-                                <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSuccess={handleRefetchAndReinitialize} />
+                                <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSubmit={_handleRefetchAndReinitialize} />
                             </div>
 
                             {/* Desktop layout - Content right */}

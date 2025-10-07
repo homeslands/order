@@ -2,7 +2,7 @@ import { Coins, CreditCard, CircleDollarSign, CoinsIcon, Smartphone } from 'luci
 import { useTranslation } from 'react-i18next'
 import { useEffect, useState, useCallback, useMemo } from 'react'
 
-import { RadioGroup, RadioGroupItem, Label } from '@/components/ui'
+import { RadioGroup, RadioGroupItem, Label, Input } from '@/components/ui'
 import { PaymentMethod, Role, VOUCHER_PAYMENT_METHOD } from '@/constants'
 import { useUserStore } from '@/stores'
 import { useGetUserBalance } from '@/hooks'
@@ -14,7 +14,7 @@ interface PaymentMethodRadioGroupProps {
   defaultValue: string | null
   disabledMethods?: PaymentMethod[]
   disabledReasons?: Record<PaymentMethod, string>
-  onSubmit?: (paymentMethod: PaymentMethod) => void
+  onSubmit?: (paymentMethod: PaymentMethod, transactionId?: string) => void
 }
 export default function PaymentMethodRadioGroup({
   order,
@@ -33,6 +33,7 @@ export default function PaymentMethodRadioGroup({
   )
   const balance = balanceData?.result?.points || 0
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('')
+  const [creditCardTransactionId, setCreditCardTransactionId] = useState<string>('')
 
   const voucherPaymentMethods = useMemo(() =>
     order?.voucher?.voucherPaymentMethods || [],
@@ -160,7 +161,20 @@ export default function PaymentMethodRadioGroup({
   const handlePaymentMethodChange = (paymentMethod: PaymentMethod) => {
     setSelectedPaymentMethod(paymentMethod)
     if (onSubmit) {
-      onSubmit(paymentMethod)
+      // If credit card is selected, include transaction ID
+      if (paymentMethod === PaymentMethod.CREDIT_CARD) {
+        onSubmit(paymentMethod, creditCardTransactionId)
+      } else {
+        onSubmit(paymentMethod)
+      }
+    }
+  }
+
+  const handleTransactionIdChange = (transactionId: string) => {
+    setCreditCardTransactionId(transactionId)
+    // If credit card is currently selected, update the parent with new transaction ID
+    if (selectedPaymentMethod === PaymentMethod.CREDIT_CARD && onSubmit) {
+      onSubmit(PaymentMethod.CREDIT_CARD, transactionId)
     }
   }
 
@@ -217,23 +231,38 @@ export default function PaymentMethodRadioGroup({
           </div>
           {userInfo && userInfo.role.name !== Role.CUSTOMER && (
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value={PaymentMethod.CREDIT_CARD} id="r3" />
-              <div className={`flex gap-1 items-center pl-2 ${isPaymentMethodSupported(PaymentMethod.CREDIT_CARD)
-                ? 'text-muted-foreground'
-                : 'text-muted-foreground/50'
-                }`}>
-                <Label htmlFor="r3" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD) ? 'opacity-50' : ''
-                  }`}>
-                  <CreditCard size={20} />
-                  {t('paymentMethod.creditCard')}
-                  {!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD) && (
-                    <span className="ml-1 text-xs text-orange-500">
-                      ({disabledReasons?.[PaymentMethod.CREDIT_CARD] || t('paymentMethod.voucherNotSupport')})
-                    </span>
-                  )}
-                </Label>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value={PaymentMethod.CREDIT_CARD} id="r3" />
+                  <div className={`flex gap-1 items-center ${isPaymentMethodSupported(PaymentMethod.CREDIT_CARD)
+                    ? 'text-muted-foreground'
+                    : 'text-muted-foreground/50'
+                    }`}>
+                    <Label htmlFor="r3" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD) ? 'opacity-50' : ''
+                      }`}>
+                      <CreditCard size={20} />
+                      {t('paymentMethod.creditCard')}
+                      {!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD) && (
+                        <span className="ml-1 text-xs text-orange-500">
+                          ({disabledReasons?.[PaymentMethod.CREDIT_CARD] || t('paymentMethod.voucherNotSupport')})
+                        </span>
+                      )}
+                    </Label>
+                  </div>
+                </div>
+                {selectedPaymentMethod === PaymentMethod.CREDIT_CARD && (
+                  <Input
+                    type="text"
+                    placeholder={t('paymentMethod.creditCardTransactionIdPlaceholder')}
+                    className="ml-6 w-full h-9"
+                    value={creditCardTransactionId}
+                    onChange={(e) => handleTransactionIdChange(e.target.value)}
+                    disabled={!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD)}
+                  />
+                )}
               </div>
             </div>
+
           )}
           {userInfo && userInfo.role.name !== Role.CUSTOMER && (
             <div className="flex items-center space-x-2">
@@ -319,19 +348,33 @@ export default function PaymentMethodRadioGroup({
       </div>
       {userInfo && userInfo.role.name !== Role.CUSTOMER && (
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value={PaymentMethod.CREDIT_CARD} id="r3" />
-          <div className={`flex gap-1 items-center pl-2 ${isPaymentMethodSupported(PaymentMethod.CREDIT_CARD)
-            ? 'text-muted-foreground'
-            : 'text-muted-foreground/50'
-            }`}>
-            <Label htmlFor="r3" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD) ? 'opacity-50' : ''
-              }`}>
-              <CreditCard size={20} />
-              {t('paymentMethod.creditCard')}
-              {!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD) && (
-                <span className="ml-1 text-xs text-orange-500">({t('paymentMethod.voucherNotSupport')})</span>
-              )}
-            </Label>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value={PaymentMethod.CREDIT_CARD} id="r3" />
+              <div className={`flex gap-1 items-center ${isPaymentMethodSupported(PaymentMethod.CREDIT_CARD)
+                ? 'text-muted-foreground'
+                : 'text-muted-foreground/50'
+                }`}>
+                <Label htmlFor="r3" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD) ? 'opacity-50' : ''
+                  }`}>
+                  <CreditCard size={20} />
+                  {t('paymentMethod.creditCard')}
+                  {!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD) && (
+                    <span className="ml-1 text-xs text-orange-500">({t('paymentMethod.voucherNotSupport')})</span>
+                  )}
+                </Label>
+              </div>
+            </div>
+            {selectedPaymentMethod === PaymentMethod.CREDIT_CARD && (
+              <Input
+                type="text"
+                placeholder={t('paymentMethod.creditCardTransactionIdPlaceholder')}
+                className="ml-6 w-full h-9 text-sm"
+                value={creditCardTransactionId}
+                onChange={(e) => handleTransactionIdChange(e.target.value)}
+                disabled={!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD)}
+              />
+            )}
           </div>
         </div>
       )}

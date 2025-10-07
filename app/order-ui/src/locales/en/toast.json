@@ -349,6 +349,16 @@
     "voucherPaymentMethodInvalid": "Payment method invalid",
     "voucherPaymentMethodAlreadyExists": "Payment method already exists",
     "voucherPaymentMethodValidationError": "Payment method is not valid",
-    "loyaltyPointAlreadyReserved": "Loyalty point already reserved in another order"
+    "loyaltyPointAlreadyReserved": "Loyalty point already reserved in another order",
+    "featureOnlyForRegisteredCustomer": "This feature is only available for registered customers",
+    "changeFeatureLockStatusSuccess": "Update feature lock status successfully",
+    "distanceTooFar": "Distance is greater than 3km, not supported.",
+    "confirmAddressSuccess": "Address updated successfully",
+    "creditCardTransactionIdRequired": "Credit card transaction ID is required",
+    "userGroupMemberNotFound": "User group member not found",
+    "createUserGroupSuccess": "Create user group successfully",
+    "updateUserGroupSuccess": "Update user group successfully",
+    "deleteUserGroupSuccess": "Delete user group successfully",
+    "addMultipleUsersToUserGroupSuccess": "Add multiple users to user group successfully"
   }
 }

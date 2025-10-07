@@ -104,6 +104,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     permission: Permission.EMPLOYEE_MANAGEMENT,
   },
   {
+    title: 'sidebar.customerGroupManagement',
+    path: ROUTE.STAFF_CUSTOMER_GROUP_MANAGEMENT,
+    icon: Users,
+    permission: Permission.CUSTOMER_MANAGEMENT,
+  },
+  {
     title: 'sidebar.branchManagement',
     path: ROUTE.STAFF_BRANCH,
     icon: Store,
@@ -170,6 +176,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     permission: Permission.BANNER_MANAGEMENT,
   },
   {
+    title: 'sidebar.systemLockManagement',
+    path: ROUTE.STAFF_SYSTEM_LOCK_MANAGEMENT,
+    icon: LockOpen,
+    permission: Permission.BANNER_MANAGEMENT,
+  },
+  {
     title: 'sidebar.banner',
     path: ROUTE.STAFF_BANNER,
     icon: Newspaper,
@@ -180,11 +192,5 @@ export const sidebarRoutes: ISidebarRoute[] = [
     path: ROUTE.STAFF_CUSTOMER_DISPLAY,
     icon: Users,
     permission: Permission.CLIENT_VIEW,
-  },
-  {
-    title: 'sidebar.loyaltyPoint',
-    path: ROUTE.STAFF_LOYALTY_POINT,
-    icon: Ticket,
-    permission: Permission.BANNER_MANAGEMENT,
   },
 ]

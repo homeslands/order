@@ -1,5 +1,39 @@
 {
   "customer": {
+    "userGroup": {
+      "title": "User group",
+      "searchByName": "Search by name",
+      "createdAt": "Created at",
+      "createdBy": "Created by",
+      "slug": "User group ID",
+      "name": "User group name",
+      "description": "User group description",
+      "userGroupMemberTitle": "User group member",
+      "searchByPhoneNumber": "Enter phone number",
+      "create": "Create user group",
+      "createDescription": "Create user group",
+      "enterName": "Enter user group name",
+      "enterDescription": "Enter user group description",
+      "nameRequired": "User group name is required",
+      "update": "Update",
+      "updateDescription": "Update user group",
+      "delete": "Delete",
+      "deleteDescription": "Delete user group",
+      "deleteUserGroupContent": "You are about to delete the user group ",
+      "deleteUserGroupContent2": "Are you sure you want to delete the user group?",
+      "userGroupName": "User group name",
+      "addMember": "Add member",
+      "addMemberDescription": "Add member to user group",
+      "selectedUsers": "Selected users",
+      "fullName": "Full name",
+      "phoneNumber": "Phone number",
+      "totalMembers": "Total members",
+      "deleteUserGroupMemberContent": "You are about to delete the user group member ",
+      "deleteUserGroupMemberContent2": " from user group ",
+      "deleteUserGroupMemberContent3": "Are you sure you want to delete the user group member?"
+    },
+    "verified": "Verified",
+    "notVerified": "Not verified",
     "address": "Address",
     "branch": "Branch",
     "confirmPassword": "Confirm password",
@@ -30,6 +64,10 @@
     "updateRole": "Update role",
     "updateRoleDescription": "Update employee role",
     "viewDetail": "View details",
-    "searchByPhoneNumber": "Enter phone number"
+    "searchByPhoneNumber": "Enter phone number",
+    "viewOrders": "View orders",
+    "info": "Info",
+    "orderHistory": "Order history",
+    "loyaltyPoint": "Loyalty point"
   }
 }

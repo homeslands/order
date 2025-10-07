@@ -283,6 +283,8 @@ export class ChefAreaService {
             createdAt: 'Fri Jul 04 2025 09:05:49 GMT+0700 (Indochina Time)',
             slug: 'c59a6e5200',
           },
+          deliveryPhone: null,
+          deliveryTo: null,
           createdAt: 'Fri Jul 04 2025 09:05:49 GMT+0700 (Indochina Time)',
           slug: 'd499e93e23',
         },

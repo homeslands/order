@@ -410,6 +410,7 @@ describe('AuthService', () => {
       senderCardOrders: [],
       pointTransactions: [],
       accumulatedPoint: null,
+      userGroupMembers: [],
     };
 
     const mockExistToken: ForgotPasswordToken = {
@@ -506,6 +507,7 @@ describe('AuthService', () => {
       verifyPhoneNumberTokens: [],
       pointTransactions: [],
       accumulatedPoint: null,
+      userGroupMembers: [],
     };
 
     const mockForgotToken: ForgotPasswordToken = {
@@ -600,6 +602,7 @@ describe('AuthService', () => {
       verifyPhoneNumberTokens: [],
       pointTransactions: [],
       accumulatedPoint: null,
+      userGroupMembers: [],
     };
 
     it('Should throw `AuthException` if user is not found', async () => {

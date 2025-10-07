@@ -8,6 +8,7 @@ import {
   PASSWORD_REGEX,
   PHONE_NUMBER_REGEX,
 } from '@/constants'
+import moment from 'moment'
 
 export const userInfoSchema = z.object({
   slug: z.string(),
@@ -69,6 +70,15 @@ export function useCreateUserSchema() {
         .refine((val) => !EMOJI_REGEX.test(val), {
           message: tProfile('profile.lastNameEmojiInvalid'),
         }),
+      dob: z.preprocess(
+        (val) => (typeof val === 'string' ? val.trim() : ''),
+        z
+          .string()
+          .min(1, tProfile('profile.dobRequired'))
+          .refine((val) => moment(val, 'DD/MM/YYYY', true).isValid(), {
+            message: tProfile('profile.dobInvalid'),
+          }),
+      ),
       role: z.string().min(1, t('register.roleRequired')),
     })
     .refine((data) => data.password === data.confirmPassword, {
@@ -144,27 +154,23 @@ export function useUpdateUserSchema() {
       .refine((val) => !EMOJI_REGEX.test(val), {
         message: tProfile('profile.lastNameEmojiInvalid'),
       }),
-    dob: z
-      .string({
-        required_error: tProfile('profile.dobRequired'),
-        invalid_type_error: tProfile('profile.dobInvalid'),
-      })
-      .min(1, tProfile('profile.dobRequired'))
-      .refine(
-        (val) => {
-          const date = new Date(val)
-          return !isNaN(date.getTime())
-        },
-        {
+    dob: z.preprocess(
+      (val) => (typeof val === 'string' ? val.trim() : ''),
+      z
+        .string()
+        .min(1, tProfile('profile.dobRequired'))
+        .refine((val) => moment(val, 'DD/MM/YYYY', true).isValid(), {
           message: tProfile('profile.dobInvalid'),
-        },
-      ),
+        }),
+    ),
+
     email: z
       .string()
       .min(1, {
         message: tProfile('profile.emailRequired'),
       })
-      .email({ message: tProfile('profile.emailInvalid') }),
+      .email({ message: tProfile('profile.emailInvalid') })
+      .optional(),
     address: z
       .string()
       .min(1, tProfile('profile.addressRequired'))
@@ -172,6 +178,7 @@ export function useUpdateUserSchema() {
       .refine((val) => !EMOJI_REGEX.test(val), {
         message: tProfile('profile.addressEmojiInvalid'),
       }),
+
     branch: z.string().optional(),
   })
 }
@@ -198,28 +205,23 @@ export function useUpdateEmployeeSchema() {
         message: tProfile('profile.lastNameEmojiInvalid'),
       }),
 
-    dob: z
-      .string({
-        required_error: tProfile('profile.dobRequired'),
-        invalid_type_error: tProfile('profile.dobInvalid'),
-      })
-      .min(1, tProfile('profile.dobRequired'))
-      .refine(
-        (val) => {
-          const date = new Date(val)
-          return !isNaN(date.getTime())
-        },
-        {
+    dob: z.preprocess(
+      (val) => (typeof val === 'string' ? val.trim() : ''),
+      z
+        .string()
+        .min(1, tProfile('profile.dobRequired'))
+        .refine((val) => moment(val, 'DD/MM/YYYY', true).isValid(), {
           message: tProfile('profile.dobInvalid'),
-        },
-      ),
+        }),
+    ),
 
     email: z
       .string()
       .min(1, {
         message: tProfile('profile.emailRequired'),
       })
-      .email({ message: tProfile('profile.emailInvalid') }),
+      .email({ message: tProfile('profile.emailInvalid') })
+      .optional(),
     address: z
       .string()
       .min(1, tProfile('profile.addressRequired'))
@@ -231,6 +233,31 @@ export function useUpdateEmployeeSchema() {
     branch: z.string().optional(),
   })
 }
+
+export function useCreateUserGroupSchema() {
+  const { t } = useTranslation(['customer'])
+  return z.object({
+    name: z.string().min(1, t('customer.userGroup.nameRequired')),
+    description: z.string().optional(),
+  })
+}
+
+export function useUpdateUserGroupSchema() {
+  const { t } = useTranslation(['customer'])
+  return z.object({
+    slug: z.string(),
+    name: z.string().min(1, t('customer.userGroup.nameRequired')),
+    description: z.string().optional(),
+  })
+}
+
+export type TUpdateUserGroupSchema = z.infer<
+  ReturnType<typeof useUpdateUserGroupSchema>
+>
+
+export type TCreateUserGroupSchema = z.infer<
+  ReturnType<typeof useCreateUserGroupSchema>
+>
 
 export type TUserInfoSchema = z.infer<typeof userInfoSchema>
 export type TUserRoleSchema = z.infer<typeof userRoleSchema>

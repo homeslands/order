@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 
 import { ScrollArea, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
-import { SystemHorizontalCatalogSelect, SystemTableSelect } from '../select'
+import { SystemHorizontalCatalogSelect, SystemMapAddressSelect, SystemTableSelect } from '../select'
 import { SystemMenuTabscontent } from '../tabscontent'
 import { useCatalogStore, useOrderFlowStore, useUserStore } from '@/stores'
 import { FilterState, OrderTypeEnum } from '@/types'
@@ -14,7 +14,7 @@ export function SystemMenuTabs() {
   const { t } = useTranslation(['menu'])
   const [searchParams, setSearchParams] = useSearchParams()
   const { userInfo } = useUserStore()
-  const { getCartItems, initializeOrdering } = useOrderFlowStore()
+  const { getCartItems, initializeOrdering, setOrderingType } = useOrderFlowStore()
   const cartItems = getCartItems()
   const { catalog } = useCatalogStore()
 
@@ -58,19 +58,31 @@ export function SystemMenuTabs() {
   }
 
   // Handle tab change by updating URL
-  const handleTabChange = (tab: string) => {
+  const handleTabChange = useCallback((tab: string) => {
     setSearchParams({ tab }, { replace: true })
-  }
+  }, [setSearchParams])
 
   useEffect(() => {
     if (cartItems?.type === OrderTypeEnum.TAKE_OUT) {
       handleTabChange('menu')
     } else if (cartItems?.type === OrderTypeEnum.AT_TABLE && !isFirstLoad && preCartItems.current) {
       handleTabChange('table')
+    } else if (cartItems?.type === OrderTypeEnum.DELIVERY && !isFirstLoad && preCartItems.current) {
+      handleTabChange('delivery')
     }
     preCartItems.current = cartItems?.type
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cartItems?.type])
+
+  // Guard: if no owner or owner is default-customer, ensure delivery is not active
+  useEffect(() => {
+    const noOwner = !cartItems?.ownerFullName || !cartItems?.ownerPhoneNumber
+    const isDefault = cartItems?.ownerFullName === 'default-customer'
+    if ((noOwner || isDefault) && cartItems?.type === OrderTypeEnum.DELIVERY) {
+      setOrderingType(OrderTypeEnum.AT_TABLE)
+      handleTabChange('table')
+    }
+  }, [cartItems?.ownerFullName, cartItems?.ownerPhoneNumber, cartItems?.type, setOrderingType, handleTabChange])
 
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange}>
@@ -80,6 +92,11 @@ export function SystemMenuTabs() {
           {cartItems?.type === OrderTypeEnum.AT_TABLE && (
             <TabsTrigger value="table" className="flex justify-center">
               {t('menu.table')}
+            </TabsTrigger>
+          )}
+          {cartItems?.type === OrderTypeEnum.DELIVERY && (
+            <TabsTrigger value="delivery" className="flex justify-center">
+              {t('menu.delivery')}
             </TabsTrigger>
           )}
           <TabsTrigger value="menu" className="flex justify-center">
@@ -92,6 +109,13 @@ export function SystemMenuTabs() {
       {cartItems?.type === OrderTypeEnum.AT_TABLE && (
         <TabsContent value="table" className="p-0 w-full sm:w-[90%] xl:w-full">
           <SystemTableSelect />
+        </TabsContent>
+      )}
+
+      {/* Tab Content: Delivery */}
+      {cartItems?.type === OrderTypeEnum.DELIVERY && (
+        <TabsContent value="delivery" className="p-0 w-full sm:w-[90%] xl:w-full">
+          <SystemMapAddressSelect />
         </TabsContent>
       )}
 

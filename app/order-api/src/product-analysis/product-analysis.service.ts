@@ -34,6 +34,10 @@ import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { ProductAnalysisUtils } from './product-analysis.utils';
 import { plainToInstance } from 'class-transformer';
 import { ProductAnalysisTypeQuery } from './product-analysis.constants';
+import { DistributeLockJobKey, QueueRegisterKey } from 'src/app/app.constants';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import Redlock from 'redlock';
 
 @Injectable()
 export class ProductAnalysisService {
@@ -54,6 +58,8 @@ export class ProductAnalysisService {
     private readonly branchRepository: Repository<Branch>,
     private readonly transactionManagerService: TransactionManagerService,
     private readonly productAnalysisUtils: ProductAnalysisUtils,
+    @InjectQueue(QueueRegisterKey.DISTRIBUTE_LOCK_JOB)
+    private readonly distributeLockJobQueue: Queue,
   ) {}
 
   async getTopSellProductsByBranch(
@@ -333,6 +339,7 @@ export class ProductAnalysisService {
     requestData: RefreshSpecificRangeProductAnalysisQueryDto,
   ) {
     const context = `${ProductAnalysisService.name}.${this.refreshProductAnalysisInSpecificTimeRange.name}`;
+
     this.denyRefreshProductAnalysisManuallyInTimeAutoRefresh();
 
     if (requestData.startDate.getTime() > requestData.endDate.getTime()) {
@@ -345,149 +352,197 @@ export class ProductAnalysisService {
         ProductAnalysisValidation.START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE,
       );
     }
+
     this.logger.log(
       `Start refreshing product analysis from ${requestData.startDate} to ${requestData.endDate}`,
       context,
     );
-    const startQuery = moment(requestData.startDate).format('YYYY-MM-DD');
-    const endQuery = moment(requestData.endDate)
-      .add(1, 'days')
-      .format('YYYY-MM-DD');
 
-    const startDate = new Date(requestData.startDate);
-    startDate.setHours(7, 0, 0, 0);
-    const endDate = new Date(requestData.endDate);
-    endDate.setHours(7, 0, 0, 0);
+    const client = await this.distributeLockJobQueue.client;
+    const redlock = new Redlock([client]);
+    const key = DistributeLockJobKey.REFRESH_PRODUCT_ANALYSIS;
+    const ttl = 1000 * 30; // 30 seconds
+    const resource = [key];
+    let lock: any = null;
 
-    const params = [startQuery, endQuery];
-    const results: any[] = await this.productAnalysisRepository.query(
-      getSpecificProductAnalysisClause,
-      params,
-    );
-    const productAnalysisQueryDtos = plainToInstance(
-      ProductAnalysisQueryDto,
-      results,
-    );
-    // const filledZeroProductAnalysis =
-    //   await this.productAnalysisUtils.fillZeroProductAnalysis(
-    //     results,
-    //     false,
-    //     startDate,
-    //     endDate,
-    //   );
-
-    const groupedProductAnalysisByProduct: ProductAnalysisQueryDto[][] =
-      this.productAnalysisUtils.groupProductAnalysisByProduct(
-        productAnalysisQueryDtos,
+    try {
+      lock = await redlock.acquire(resource, ttl);
+      this.logger.log(
+        `Lock success for product analysis refresh in specific time range`,
+        context,
       );
 
-    const updateProducts: Product[] = [];
-    const productAnalysesPromise = groupedProductAnalysisByProduct.map(
-      async (groupedItem) => {
-        const product = await this.productRepository.findOne({
-          where: {
-            id: _.first(groupedItem).productId,
-          },
-        });
-        // if (!product)
-        //   throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
-        if (!product) return [];
+      const startQuery = moment(requestData.startDate).format('YYYY-MM-DD');
+      const endQuery = moment(requestData.endDate)
+        .add(1, 'days')
+        .format('YYYY-MM-DD');
 
-        let newTotalSaleQuantity = product.saleQuantityHistory;
-        const oldTotalSaleQuantity = product.saleQuantityHistory;
+      const startDate = new Date(requestData.startDate);
+      startDate.setHours(7, 0, 0, 0);
+      const endDate = new Date(requestData.endDate);
+      endDate.setHours(7, 0, 0, 0);
 
-        const hasProductAnalysesByProduct: ProductAnalysis[] =
-          await this.productAnalysisRepository.find({
+      const params = [startQuery, endQuery];
+      const results: any[] = await this.productAnalysisRepository.query(
+        getSpecificProductAnalysisClause,
+        params,
+      );
+      const productAnalysisQueryDtos = plainToInstance(
+        ProductAnalysisQueryDto,
+        results,
+      );
+      // const filledZeroProductAnalysis =
+      //   await this.productAnalysisUtils.fillZeroProductAnalysis(
+      //     results,
+      //     false,
+      //     startDate,
+      //     endDate,
+      //   );
+
+      const groupedProductAnalysisByProduct: ProductAnalysisQueryDto[][] =
+        this.productAnalysisUtils.groupProductAnalysisByProduct(
+          productAnalysisQueryDtos,
+        );
+
+      const updateProducts: Product[] = [];
+      const productAnalysesPromise = groupedProductAnalysisByProduct.map(
+        async (groupedItem) => {
+          const product = await this.productRepository.findOne({
             where: {
-              product: { id: product.id },
-              orderDate: Between(startDate, endDate),
+              id: _.first(groupedItem).productId,
             },
-            relations: ['branch', 'product'],
           });
+          // if (!product)
+          //   throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+          if (!product) return [];
 
-        const productAnalysesByProductPromise = groupedItem.map(
-          async (item) => {
-            const branch = await this.branchRepository.findOne({
-              where: { id: item.branchId },
+          let newTotalSaleQuantity = product.saleQuantityHistory;
+          const oldTotalSaleQuantity = product.saleQuantityHistory;
+
+          const hasProductAnalysesByProduct: ProductAnalysis[] =
+            await this.productAnalysisRepository.find({
+              where: {
+                product: { id: product.id },
+                orderDate: Between(startDate, endDate),
+              },
+              relations: ['branch', 'product'],
             });
-            // if (!branch)
-            //   throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
-            if (!branch) return null;
 
-            const existedProductAnalysis = hasProductAnalysesByProduct.find(
-              (hasItem) =>
-                hasItem.product.id === item.productId &&
-                hasItem.branch.id === item.branchId &&
-                moment(item.orderDate).add(7, 'hours').toDate().getTime() ===
-                  new Date(hasItem.orderDate).getTime(),
-              // add 7 hours because mapper ProductAnalysisQueryDto to ProductAnalysis
-            );
+          const productAnalysesByProductPromise = groupedItem.map(
+            async (item) => {
+              const branch = await this.branchRepository.findOne({
+                where: { id: item.branchId },
+              });
+              // if (!branch)
+              //   throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+              if (!branch) return null;
 
-            if (existedProductAnalysis) {
-              if (existedProductAnalysis.totalQuantity !== item.totalProducts) {
-                // update sale quantity in product
-                newTotalSaleQuantity -= existedProductAnalysis.totalQuantity; // subtract old total quantity
-                newTotalSaleQuantity += item.totalProducts; // add new total quantity
-
-                // update product analysis
-                Object.assign(existedProductAnalysis, {
-                  totalQuantity: item.totalProducts,
-                });
-                return existedProductAnalysis;
-              }
-            } else {
-              const pa = this.mapper.map(
-                item,
-                ProductAnalysisQueryDto,
-                ProductAnalysis,
+              const existedProductAnalysis = hasProductAnalysesByProduct.find(
+                (hasItem) =>
+                  hasItem.product.id === item.productId &&
+                  hasItem.branch.id === item.branchId &&
+                  moment(item.orderDate).add(7, 'hours').toDate().getTime() ===
+                    new Date(hasItem.orderDate).getTime(),
+                // add 7 hours because mapper ProductAnalysisQueryDto to ProductAnalysis
               );
-              newTotalSaleQuantity += pa.totalQuantity;
-              pa.branch = branch;
-              pa.product = product;
-              return pa;
-            }
-          },
-        );
 
-        const productAnalysesByProduct = await Promise.all(
-          productAnalysesByProductPromise,
-        );
+              if (existedProductAnalysis) {
+                if (
+                  existedProductAnalysis.totalQuantity !== item.totalProducts
+                ) {
+                  // update sale quantity in product
+                  newTotalSaleQuantity -= existedProductAnalysis.totalQuantity; // subtract old total quantity
+                  newTotalSaleQuantity += item.totalProducts; // add new total quantity
 
-        if (newTotalSaleQuantity !== oldTotalSaleQuantity) {
-          product.saleQuantityHistory = newTotalSaleQuantity;
-          updateProducts.push(product);
-        }
+                  // update product analysis
+                  Object.assign(existedProductAnalysis, {
+                    totalQuantity: item.totalProducts,
+                  });
+                  return existedProductAnalysis;
+                }
+              } else {
+                const pa = this.mapper.map(
+                  item,
+                  ProductAnalysisQueryDto,
+                  ProductAnalysis,
+                );
+                newTotalSaleQuantity += pa.totalQuantity;
+                pa.branch = branch;
+                pa.product = product;
+                return pa;
+              }
+            },
+          );
 
-        return productAnalysesByProduct;
-      },
-    );
+          const productAnalysesByProduct = await Promise.all(
+            productAnalysesByProductPromise,
+          );
 
-    await this.transactionManagerService.execute<void>(
-      async (manager) => {
-        const productAnalyses = await Promise.all(productAnalysesPromise);
-        let productAnalysesArr: ProductAnalysis[] = _.flatten(productAnalyses);
-        productAnalysesArr = productAnalysesArr.filter(Boolean);
+          if (newTotalSaleQuantity !== oldTotalSaleQuantity) {
+            product.saleQuantityHistory = newTotalSaleQuantity;
+            updateProducts.push(product);
+          }
 
-        await manager.save(productAnalysesArr);
-        // update product
-        await manager.save(updateProducts);
+          return productAnalysesByProduct;
+        },
+      );
 
+      await this.transactionManagerService.execute<void>(
+        async (manager) => {
+          const productAnalyses = await Promise.all(productAnalysesPromise);
+          let productAnalysesArr: ProductAnalysis[] =
+            _.flatten(productAnalyses);
+          productAnalysesArr = productAnalysesArr.filter(Boolean);
+
+          await manager.save(productAnalysesArr);
+          // update product
+          await manager.save(updateProducts);
+
+          this.logger.log(
+            `Product analysis from ${startQuery} to ${endQuery} updated`,
+            context,
+          );
+        },
+        () => {
+          this.logger.log(`Refresh product analysis success`, context);
+        },
+        async (error) => {
+          if (lock) {
+            await lock.release();
+            this.logger.log(
+              `Lock released for product analysis refresh in specific time range`,
+              context,
+            );
+          }
+          this.logger.error(
+            `Error when refresh product analysis: ${error.message}`,
+            error.stack,
+            context,
+          );
+        },
+      );
+
+      if (lock) {
+        await lock.release();
         this.logger.log(
-          `Product analysis from ${startQuery} to ${endQuery} updated`,
+          `Lock released for product analysis refresh in specific time range`,
           context,
         );
-      },
-      () => {
-        this.logger.log(`Refresh product analysis success`, context);
-      },
-      (error) => {
-        this.logger.error(
-          `Error when refresh product analysis: ${error.message}`,
-          error.stack,
+      }
+    } catch (error) {
+      if (lock) {
+        await lock.release();
+        this.logger.log(
+          `Lock released for product analysis refresh in specific time range`,
           context,
         );
-      },
-    );
+      }
+      this.logger.error(
+        `Error when acquire lock for product analysis refresh in specific time range`,
+        error.stack,
+        context,
+      );
+    }
   }
 
   denyRefreshProductAnalysisManuallyInTimeAutoRefresh() {

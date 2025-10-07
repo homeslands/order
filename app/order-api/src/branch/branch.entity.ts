@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import { Base } from 'src/app/base.entity';
 import { AutoMap } from '@automapper/classes';
 import { Menu } from 'src/menu/menu.entity';
@@ -10,6 +10,8 @@ import { ProductAnalysis } from 'src/product-analysis/product-analysis.entity';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { ChefArea } from 'src/chef-area/chef-area.entity';
 import { InvoiceArea } from 'src/invoice-area/invoice-area.entity';
+import { BranchConfig } from 'src/branch-config/branch-config.entity';
+import { Address } from 'src/google-map/entities/address.entity';
 
 @Entity('branch_tbl')
 export class Branch extends Base {
@@ -20,6 +22,13 @@ export class Branch extends Base {
   @AutoMap()
   @Column({ name: 'address_column' })
   address: string;
+
+  @OneToOne(() => Address, (address) => address.branch, {
+    cascade: ['insert', 'update', 'remove'],
+  })
+  @JoinColumn({ name: 'address_detail_column' })
+  @AutoMap(() => Address)
+  addressDetail: Address;
 
   // one to many with menu
   @OneToMany(() => Menu, (menu) => menu.branch)
@@ -53,4 +62,7 @@ export class Branch extends Base {
 
   @OneToMany(() => InvoiceArea, (invoiceArea) => invoiceArea.branch)
   invoiceAreas: InvoiceArea[];
+
+  @OneToMany(() => BranchConfig, (branchConfig) => branchConfig.branch)
+  branchConfigs: BranchConfig[];
 }

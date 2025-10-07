@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
+import { DownloadIcon, Loader2 } from 'lucide-react'
 
 import { useExportOrderInvoice, useOrderBySlug } from '@/hooks'
 import { IOrder, OrderStatus, OrderTypeEnum } from '@/types'
@@ -22,7 +23,6 @@ import {
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { OrderStatusBadge, PaymentStatusBadge } from '../badge'
 import { PaymentMethod, VOUCHER_TYPE } from '@/constants'
-import { DownloadIcon, Loader2 } from 'lucide-react'
 
 interface IOrderHistoryDetailSheetProps {
   order: IOrder | null
@@ -120,6 +120,18 @@ export default function OrderHistoryDetailSheet({
                         </span>
                       </p>
                     </div>
+                    {orderDetail?.type === OrderTypeEnum.DELIVERY && (
+                      <div className="flex gap-1 items-center">
+                        <span className='text-sm font-bold'>{t('order.deliveryAddress')}: </span>
+                        <span className="text-sm text-muted-foreground">{orderDetail?.deliveryTo?.formattedAddress}</span>
+                      </div>
+                    )}
+                    {orderDetail?.type === OrderTypeEnum.DELIVERY && (
+                      <div className="flex gap-1 items-center">
+                        <span className='text-sm font-bold'>{t('order.deliveryPhone')}: </span>
+                        <span className="text-sm text-muted-foreground">{orderDetail?.deliveryPhone}</span>
+                      </div>
+                    )}
                     {orderDetail?.description ? (
                       <div className="flex items-center w-full text-sm">
                         <h3 className="w-20 text-sm font-semibold">
@@ -161,10 +173,14 @@ export default function OrderHistoryDetailSheet({
                         <p className="col-span-1 text-sm">
                           {orderDetail?.type === OrderTypeEnum.AT_TABLE
                             ? t('order.dineIn')
-                            : `${t('order.takeAway')} - ${orderDetail?.timeLeftTakeOut === 0
-                              ? t('menu.immediately')
-                              : `${orderDetail?.timeLeftTakeOut} ${t('menu.minutes')}`
-                            }`}
+                            : orderDetail?.type === OrderTypeEnum.TAKE_OUT
+                              ? `${t('order.takeAway')} - ${orderDetail?.timeLeftTakeOut === 0
+                                ? t('menu.immediately')
+                                : `${orderDetail?.timeLeftTakeOut} ${t('menu.minutes')}`
+                              }`
+                              : orderDetail?.type === OrderTypeEnum.DELIVERY
+                                ? `${t('order.delivery')}`
+                                : t('order.takeAway')}
                         </p>
                       </p>
                       {orderDetail?.type === OrderTypeEnum.AT_TABLE && (
@@ -197,7 +213,10 @@ export default function OrderHistoryDetailSheet({
                               {orderDetail?.payment.paymentMethod ===
                                 PaymentMethod.CASH && <span>{t('paymentMethod.cash')}</span>}
                               {orderDetail?.payment.paymentMethod ===
-                                PaymentMethod.CREDIT_CARD && <span>{t('paymentMethod.creditCard')}</span>}
+                                PaymentMethod.CREDIT_CARD && <div className="flex flex-col gap-1">
+                                  <span>{t('paymentMethod.creditCard')}</span>
+                                  <span>{t('paymentMethod.transactionId')}: {orderDetail?.payment?.transactionId}</span>
+                                </div>}
                               {orderDetail?.payment.paymentMethod ===
                                 PaymentMethod.POINT && <span>{t('paymentMethod.point')}</span>}
                             </>
@@ -365,12 +384,6 @@ export default function OrderHistoryDetailSheet({
                               <span className="text-xs text-muted-foreground">{item.note}</span>
                             </div>
                           )}
-
-                          {/* Total */}
-                          {/* <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-600">
-                            <span className="text-xs font-medium text-muted-foreground">{t('order.grandTotal')}:</span>
-                            <span className="font-bold text-primary">{formatCurrency(item.subtotal)}</span>
-                          </div> */}
                         </div>
                       )
                     })}
@@ -392,7 +405,7 @@ export default function OrderHistoryDetailSheet({
                   {orderDetail?.voucher &&
                     <div className="flex justify-between pb-4 w-full border-b">
                       <h3 className="text-sm italic font-medium text-green-500">
-                        {t('order.voucher')}
+                        {t('order.voucher')} ({voucher?.title})
                       </h3>
                       <p className="text-sm italic font-semibold text-green-500">
                         - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
@@ -407,6 +420,16 @@ export default function OrderHistoryDetailSheet({
                         - {`${formatCurrency(orderDetail?.accumulatedPointsToUse || 0)}`}
                       </p>
                     </div>}
+                  {orderDetail?.type === OrderTypeEnum.DELIVERY && (
+                    <div className="flex justify-between pb-4 w-full">
+                      <h3 className="text-sm italic font-medium text-muted-foreground/60">
+                        {t('order.deliveryFee')}
+                      </h3>
+                      <p className="text-sm italic font-semibold text-muted-foreground/60">
+                        {`${formatCurrency(orderDetail?.deliveryFee || 0)}`}
+                      </p>
+                    </div>
+                  )}
                   {orderDetail?.loss > 0 &&
                     <div className="flex justify-between pb-4 w-full">
                       <h3 className="text-sm italic font-medium text-green-500">

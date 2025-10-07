@@ -14,10 +14,10 @@ import { Button, ScrollArea } from '@/components/ui'
 import { useIsMobile, useOrderBySlug } from '@/hooks'
 import UpdateOrderSkeleton from '../skeleton/page'
 import { OrderStatus, OrderTypeEnum } from '@/types'
-import { ClientMenuTabs } from '@/components/app/tabs'
 import { OrderCountdown } from '@/components/app/countdown'
 import { useOrderFlowStore } from '@/stores'
 import ClientUpdateOrderContent from './components/client-update-order-content'
+import { ClientMenuTabs } from '@/components/app/tabs'
 
 export default function ClientUpdateOrderPage() {
     const isMobile = useIsMobile()
@@ -26,7 +26,7 @@ export default function ClientUpdateOrderPage() {
     const { slug } = useParams()
     const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug)
     const [isExpired, setIsExpired] = useState<boolean>(false)
-    const [isPolling, setIsPolling] = useState<boolean>(false)
+    const [_isPolling, setIsPolling] = useState<boolean>(false)
     const [shouldReinitialize, setShouldReinitialize] = useState<boolean>(false)
     const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false) // Track if data is loaded to store
     const {
@@ -35,131 +35,88 @@ export default function ClientUpdateOrderPage() {
         clearUpdatingData,
     } = useOrderFlowStore()
 
+    // Simple data initialization - only when order changes
     useEffect(() => {
-        if (order?.result && order.result.orderItems && (!isDataLoaded || shouldReinitialize)) {
-            // Đảm bảo order data đầy đủ trước khi initialize
-            const orderData = order.result
+        if (!order?.result || !slug) return
 
-            // Validate order data có đầy đủ không
-            if (!orderData.slug || !orderData.orderItems || orderData.orderItems.length === 0) {
-                return
-            }
+        const orderData = order.result
+        const isValidOrder = orderData.slug && orderData.orderItems && orderData.orderItems.length > 0
 
-            // ✅ Force initialize updating phase với original order (không check currentStep)
+        if (isValidOrder && !isDataLoaded) {
             try {
                 initializeUpdating(orderData)
-                setIsDataLoaded(true) // Mark data as loaded
-                setShouldReinitialize(false) // Reset reinitialize flag
+                setIsDataLoaded(true)
             } catch (error) {
                 // eslint-disable-next-line no-console
                 console.error('❌ Update Order: Failed to initialize updating data:', error)
             }
         }
-    }, [order, isDataLoaded, shouldReinitialize, initializeUpdating])
+    }, [order?.result, slug, isDataLoaded, initializeUpdating])
 
-    // Separate useEffect for polling control
+    // Handle reinitialize flag
     useEffect(() => {
-        if (order?.result && isDataLoaded) {
-            const orderData = order.result
-            // Start/stop polling based on order status
-            if (orderData.status === OrderStatus.PENDING && !isExpired) {
-                setIsPolling(true)
-            } else {
-                setIsPolling(false)
+        if (shouldReinitialize && order?.result) {
+            try {
+                initializeUpdating(order.result)
+                setIsDataLoaded(true)
+                setShouldReinitialize(false)
+            } catch (error) {
+                // eslint-disable-next-line no-console
+                console.error('❌ Update Order: Reinitialize failed:', error)
             }
         }
-    }, [order, isDataLoaded, isExpired])
-
-    // Reset store when slug changes (navigating to different order)
-    useEffect(() => {
-        if (slug) {
-            // Check if current updating data matches the slug
-            const isDataMismatch = updatingData?.originalOrder?.slug &&
-                updatingData.originalOrder.slug !== slug
-
-            if (isDataMismatch || !updatingData) {
-                clearUpdatingData()
-                setIsDataLoaded(false) // Reset data loaded flag for new order
-            }
-        }
-    }, [slug, updatingData, clearUpdatingData])
+    }, [shouldReinitialize, order?.result, initializeUpdating])
 
     // Get current order data from Order Flow Store for updates
-    const currentOrder = updatingData?.updateDraft
-    const orderType = currentOrder?.type as OrderTypeEnum || order?.result?.type as OrderTypeEnum || OrderTypeEnum.AT_TABLE
-    const table = currentOrder?.table || order?.result?.table?.slug || ""
+    const _currentOrder = updatingData?.updateDraft
+    const _orderType = _currentOrder?.type as OrderTypeEnum || order?.result?.type as OrderTypeEnum || OrderTypeEnum.AT_TABLE
+    const _table = _currentOrder?.table || order?.result?.table?.slug || ""
 
-    // Fallback initialization nếu data không được load vào store sau 2 giây
+    // Simple polling - only when order is pending
     useEffect(() => {
-        if (order?.result && isDataLoaded && !updatingData && slug) {
-            const timeoutId = setTimeout(() => {
-                try {
-                    initializeUpdating(order.result)
-                } catch (error) {
-                    // eslint-disable-next-line no-console
-                    console.error('❌ Update Order: Retry initialization failed:', error)
-                }
-            }, 2000)
+        if (!order?.result || !isDataLoaded || isExpired) return
 
-            return () => clearTimeout(timeoutId)
+        const orderData = order.result
+        const shouldPoll = orderData.status === OrderStatus.PENDING
+
+        if (!shouldPoll) {
+            setIsPolling(false)
+            return
         }
-    }, [order, isDataLoaded, updatingData, slug, initializeUpdating])
 
-    // Polling for order status changes every 5 seconds
-    useEffect(() => {
-        let pollingInterval: NodeJS.Timeout | null = null
+        setIsPolling(true)
 
-        if (isPolling && !isExpired) {
-            pollingInterval = setInterval(async () => {
+        const pollingInterval = setInterval(async () => {
+            try {
                 const updatedOrder = await refetchOrder()
                 const orderData = updatedOrder.data?.result
 
-                if (orderData) {
-                    // Stop polling if order status changed from PENDING
-                    if (orderData.status !== OrderStatus.PENDING) {
-                        setIsPolling(false)
-
-                        // Show notification to user about status change
-                        // TODO: Add toast notification here
-                        // showToast('Order status has changed. Please refresh the page.')
-                    }
+                if (orderData && orderData.status !== OrderStatus.PENDING) {
+                    setIsPolling(false)
+                    // TODO: Add toast notification here
+                    // showToast('Order status has changed. Please refresh the page.')
                 }
-            }, 5000) // Poll every 5 seconds
-        }
-
-        return () => {
-            if (pollingInterval) {
-                clearInterval(pollingInterval)
+            } catch (error) {
+                // eslint-disable-next-line no-console
+                console.error('❌ Update Order: Polling failed:', error)
             }
-        }
-    }, [isPolling, isExpired, refetchOrder])
+        }, 5000)
 
-    // Stop polling when page expires
-    useEffect(() => {
-        if (isExpired) {
-            setIsPolling(false)
-        }
-    }, [isExpired])
+        return () => clearInterval(pollingInterval)
+    }, [order?.result, isDataLoaded, isExpired, refetchOrder])
 
     const handleExpire = useCallback((value: boolean) => {
         setIsExpired(value)
         if (value) {
             setIsPolling(false)
-
-            // ✅ Clear updating data khi đơn hết hạn
             clearUpdatingData()
             setIsDataLoaded(false)
         }
     }, [clearUpdatingData])
 
-    const handleRefetchAndReinitialize = useCallback(async () => {
-        try {
-            await refetchOrder()
-            setShouldReinitialize(true)
-        } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error('❌ Update Order: Failed to refetch and reinitialize:', error)
-        }
+    const _handleRefetchAndReinitialize = useCallback(async () => {
+        await refetchOrder()
+        setShouldReinitialize(true)
     }, [refetchOrder])
 
     if (isPending) { return <UpdateOrderSkeleton /> }
@@ -206,8 +163,8 @@ export default function ClientUpdateOrderPage() {
                             {/* Content trên mobile */}
                             <div className="w-full">
                                 <ClientUpdateOrderContent
-                                    orderType={orderType}
-                                    table={table}
+                                    orderType={_orderType}
+                                    table={_table}
                                 />
                             </div>
 
@@ -225,7 +182,7 @@ export default function ClientUpdateOrderPage() {
 
                                 {/* Menu & Table select */}
                                 <div className="min-h-[50vh]">
-                                    <ClientMenuTabs onSuccess={handleRefetchAndReinitialize} />
+                                    <ClientMenuTabs onSuccess={_handleRefetchAndReinitialize} />
                                 </div>
                             </div>
                         </>
@@ -245,14 +202,14 @@ export default function ClientUpdateOrderPage() {
 
                                 {/* Menu & Table select */}
                                 <ScrollArea className="h-[calc(100vh-9rem)]">
-                                    <ClientMenuTabs onSuccess={handleRefetchAndReinitialize} />
+                                    <ClientMenuTabs onSuccess={_handleRefetchAndReinitialize} />
                                 </ScrollArea>
                             </div>
 
                             {/* Desktop layout - Content right */}
                             <ClientUpdateOrderContent
-                                orderType={orderType}
-                                table={table}
+                                orderType={_orderType}
+                                table={_table}
                             />
                         </>
                     )}

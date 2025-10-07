@@ -23,6 +23,7 @@ import { ButtonLoading } from '@/components/app/loading'
 import { ROUTE } from '@/constants'
 import { IRegisterSchema } from '@/types'
 import { PasswordWithRulesInput } from '../input'
+import { DatePicker } from '../picker'
 
 interface IFormRegisterProps {
   onSubmit: (data: IRegisterSchema) => void
@@ -38,6 +39,9 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
   const form = useForm<TRegisterSchema>({
     resolver: zodResolver(useRegisterSchema()),
     defaultValues: {
+      dob: '',
+      firstName: '',
+      lastName: '',
       phonenumber: '',
       password: '',
       confirmPassword: '',
@@ -49,31 +53,83 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
   }
 
   const formFields = {
-    // email: (
-    //   <FormField
-    //     control={form.control}
-    //     name="email"
-    //     render={({ field }) => (
-    //       <FormItem>
-    //         <FormLabel>{t('login.email')}</FormLabel>
-    //         <FormControl>
-    //           <Input placeholder={t('login.enterEmail')} {...field} />
-    //         </FormControl>
-    //         <FormMessage />
-    //       </FormItem>
-    //     )}
-    //   />
-    // ),
+    firstName: (
+      <FormField
+        control={form.control}
+        name="firstName"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('register.firstName')}</FormLabel>
+            <FormControl>
+              <Input
+                placeholder={t('register.enterFirstName')}
+                {...field}
+                onKeyDown={(e) => {
+                  if (/[0-9]/.test(e.key)) {
+                    e.preventDefault(); // chặn không cho nhập số
+                  }
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    lastName: (
+      <FormField
+        control={form.control}
+        name="lastName"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('register.lastName')}</FormLabel>
+            <FormControl>
+              <Input
+                placeholder={t('register.enterLastName')}
+                {...field}
+                onKeyDown={(e) => {
+                  if (/[0-9]/.test(e.key)) {
+                    e.preventDefault(); // chặn không cho nhập số
+                  }
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    dob: (
+      <FormField
+        control={form.control}
+        name="dob"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('register.dob')}</FormLabel>
+            <FormControl>
+              <DatePicker
+                backgroundColor="bg-transparent"
+                date={field.value}
+                onSelect={(selectedDate) => field.onChange(selectedDate)}
+                validateDate={(date) => date <= new Date()}
+                disableFutureDate
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
     phonenumber: (
       <FormField
         control={form.control}
         name="phonenumber"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('login.phoneNumber')}</FormLabel>
+            <FormLabel>{t('register.phoneNumber')}</FormLabel>
             <FormControl>
               <Input
-                placeholder={t('login.enterPhoneNumber')}
+                placeholder={t('register.enterPhoneNumber')}
                 {...field}
                 onChange={(e) => {
                   // Chỉ giữ lại các ký tự là số
@@ -89,23 +145,22 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
         )}
       />
     ),
-
     password: (
       <FormField
         control={form.control}
         name="password"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('login.password')}</FormLabel>
+            <FormLabel>{t('register.password')}</FormLabel>
             <FormControl>
               {/* <PasswordInput
-                placeholder={t('login.enterPassword')}
+                placeholder={t('register.enterPassword')}
                 {...field}
               /> */}
               <PasswordWithRulesInput
                 value={field.value}
                 onChange={field.onChange}
-                placeholder={t('login.enterPassword')}
+                placeholder={t('register.enterPassword')}
                 disabled={field.disabled}
               />
             </FormControl>
@@ -120,10 +175,10 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
         name="confirmPassword"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('login.confirmPassword')}</FormLabel>
+            <FormLabel>{t('register.confirmPassword')}</FormLabel>
             <FormControl>
               <PasswordInput
-                placeholder={t('login.enterPassword')}
+                placeholder={t('register.enterPassword')}
                 {...field}
               />
             </FormControl>
@@ -132,43 +187,13 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
         )}
       />
     ),
-    // firstName: (
-    //   <FormField
-    //     control={form.control}
-    //     name="firstName"
-    //     render={({ field }) => (
-    //       <FormItem>
-    //         <FormLabel>{t('login.firstName')}</FormLabel>
-    //         <FormControl>
-    //           <Input placeholder={t('login.enterFirstName')} {...field} />
-    //         </FormControl>
-    //         <FormMessage />
-    //       </FormItem>
-    //     )}
-    //   />
-    // ),
-    // lastName: (
-    //   <FormField
-    //     control={form.control}
-    //     name="lastName"
-    //     render={({ field }) => (
-    //       <FormItem>
-    //         <FormLabel>{t('login.lastName')}</FormLabel>
-    //         <FormControl>
-    //           <Input placeholder={t('login.enterLastName')} {...field} />
-    //         </FormControl>
-    //         <FormMessage />
-    //       </FormItem>
-    //     )}
-    //   />
-    // ),
   }
 
   return (
     <div className="mt-3">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 gap-2 text-white">
+          <div className="grid grid-cols-1 gap-2 text-white sm:grid-cols-2">
             {Object.keys(formFields).map((key) => (
               <React.Fragment key={key}>
                 {formFields[key as keyof typeof formFields]}
@@ -201,7 +226,7 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
           </div>
           <Button
             type="submit"
-            className="w-full mt-5"
+            className="mt-5 w-full"
             disabled={isLoading || !isTermsAccepted}
           >
             {isLoading ? <ButtonLoading /> : t('register.title')}

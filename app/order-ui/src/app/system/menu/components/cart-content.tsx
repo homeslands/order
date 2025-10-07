@@ -7,19 +7,20 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Badge, Button, ScrollArea } from '@/components/ui'
 import { QuantitySelector } from '@/components/app/button'
 import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components/app/input'
-import { useOrderFlowStore } from '@/stores'
+import { useOrderFlowStore, useUserStore } from '@/stores'
 import { CreateCustomerDialog, CreateOrderDialog } from '@/components/app/dialog'
-import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
+import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, parseKm, showErrorToast, showToast, useCalculateDeliveryFee } from '@/utils'
 import { OrderTypeSelect, PickupTimeSelect } from '@/components/app/select'
 import { OrderTypeEnum } from '@/types'
 import { StaffVoucherListSheet } from '@/components/app/sheet'
-import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, Role, VOUCHER_TYPE } from '@/constants'
 
 export function CartContent() {
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation(['toast'])
   const { t: tVoucher } = useTranslation(['voucher'])
+  const { userInfo } = useUserStore()
   const { removeVoucher, getCartItems, removeOrderingItem, removeOrderingCustomer } = useOrderFlowStore()
 
   const cartItems = getCartItems()
@@ -30,6 +31,7 @@ export function CartContent() {
   )
 
   const cartTotals = calculateCartTotals(displayItems, cartItems?.voucher || null)
+  const deliveryFee = useCalculateDeliveryFee(parseKm(cartItems?.deliveryDistance) || 0, userInfo?.branch?.slug || '')
 
   // Kiểm tra voucher validity cho SAME_PRICE_PRODUCT
   useEffect(() => {
@@ -107,9 +109,14 @@ export function CartContent() {
       {/* Header */}
       <div className="flex flex-col gap-2 p-2 backdrop-blur-sm shrink-0 bg-background/95">
         <div className='flex items-center'>
-          {cartItems?.orderItems && cartItems?.orderItems?.length > 0 && cartItems?.ownerFullName === '' && cartItems?.ownerPhoneNumber === '' && (
-            <CreateCustomerDialog />
-          )}
+          {(cartItems?.orderItems?.length ?? 0) > 0 &&
+            (
+              !cartItems?.ownerFullName ||
+              !cartItems?.ownerPhoneNumber ||
+              cartItems?.ownerRole !== Role.CUSTOMER
+            ) && (
+              <CreateCustomerDialog />
+            )}
         </div>
       </div>
 
@@ -269,14 +276,21 @@ export function CartContent() {
                   </div>
                 )}
 
+                {cartItems?.type === OrderTypeEnum.DELIVERY && (
+                  <div className="flex justify-between text-xs italic text-muted-foreground/80">
+                    <span>{t('order.deliveryFee')}</span>
+                    <span>{formatCurrency(deliveryFee.deliveryFee)}</span>
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
                   <span>{t('order.totalPayment')}</span>
-                  <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
+                  <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee.deliveryFee)}</span>
                 </div>
               </div>
               <div className='flex justify-end items-center'>
                 <CreateOrderDialog
-                  disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
+                  disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) || (cartItems.type === OrderTypeEnum.DELIVERY && !cartItems.deliveryAddress) || (cartItems.type === OrderTypeEnum.DELIVERY && !cartItems.deliveryPhone) || (cartItems.type === OrderTypeEnum.DELIVERY && !cartItems.deliveryPlaceId)}
                 />
               </div>
             </div>

@@ -42,6 +42,11 @@ export class RegisterAuthRequestDto extends LoginAuthRequestDto {
   @IsOptional()
   @AutoMap()
   email?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @AutoMap()
+  dob?: string;
 }
 
 export class LoginAuthResponseDto {

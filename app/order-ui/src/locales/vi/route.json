@@ -12,7 +12,7 @@
     "detail": "Tổng quan các chi nhánh",
     "details": "Chi tiết",
     "docs": "Tài liệu",
-    "feature-lock-management": "Quản lý khóa chức năng",
+    "gift-card-feature-lock-management": "Quản lý khóa chức năng thẻ quà tặng",
     "gift-card": "Quản lý thẻ quà tặng",
     "home": "Trang chủ",
     "log-management": "Quản lý log",
@@ -20,6 +20,7 @@
     "menu-management": "Quản lý thực đơn",
     "notification": "Thông báo",
     "order-management": "Quản lý đơn hàng",
+    "order-history": "Lịch sử đơn hàng",
     "order-payment": "Thanh toán",
     "order-success": "Đơn hàng thành công",
     "overview": "Tổng quan",
@@ -43,6 +44,9 @@
     "card": "Thẻ quà tặng",
     "catalog": "Danh mục thẻ quà tặng",
     "checkout": "Thanh toán",
-    "confirmation": "Xác nhận"
+    "confirmation": "Xác nhận",
+    "feature-lock-management": "Quản lý khóa chức năng thẻ quà tặng",
+    "system-lock-management": "Quản lý khóa chức năng",
+    "customer-group-management": "Quản lý nhóm khách hàng"
   }
 }

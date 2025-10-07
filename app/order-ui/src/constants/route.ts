@@ -36,6 +36,7 @@ export const ROUTE = {
   STAFF_LOG_MANAGEMENT: '/system/log',
   STAFF_USER_MANAGEMENT: '/system/staff',
   STAFF_CUSTOMER_MANAGEMENT: '/system/customers',
+  STAFF_CUSTOMER_GROUP_MANAGEMENT: '/system/customer-group-management',
   STAFF_ROLE_MANAGEMENT: '/system/role',
   STAFF_BANK_CONFIG: '/system/bank-config',
   STAFF_STATIC_PAGE: '/system/static-page',
@@ -47,9 +48,9 @@ export const ROUTE = {
   STAFF_GIFT_CARD: '/system/gift-card',
   STAFF_GIFT_CARD_MENU: '/system/card/catalog',
   STAFF_GIFT_CARD_FEATURE_FLAG: '/system/feature-lock-management',
+  STAFF_SYSTEM_LOCK_MANAGEMENT: '/system/system-lock-management',
   STAFF_GIFT_CARD_CHECKOUT: '/system/card/catalog/checkout',
   STAFF_GIFT_CARD_CHECKOUT_WITH_SLUG: '/system/card/catalog/checkout/:slug',
-  STAFF_LOYALTY_POINT: '/system/loyalty-point',
 
   //Client Routes
   CLIENT_HOME: '/',

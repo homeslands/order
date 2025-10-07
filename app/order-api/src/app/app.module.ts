@@ -29,6 +29,8 @@ import { TrackingModule } from 'src/tracking/tracking.module';
 import { TrackingOrderItemModule } from 'src/tracking-order-item/tracking-order-item.module';
 import { RobotConnectorModule } from 'src/robot-connector/robot-connector.module';
 import { UserModule } from 'src/user/user.module';
+import { UserGroupModule } from 'src/user-group/user-group.module';
+import { UserGroupMemberModule } from 'src/user-group-member/user-group-member.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'src/logger/logger.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -71,6 +73,10 @@ import { ZaloOaConnectorModule } from 'src/zalo-oa-connector/zalo-oa-connector.m
 import { SharedModule } from 'src/shared/shared.module';
 import { InvoiceAreaModule } from 'src/invoice-area/invoice-area.module';
 import { AccumulatedPointModule } from 'src/accumulated-point/accumulated-point.module';
+import { BranchConfigModule } from 'src/branch-config/branch-config.module';
+import { FeatureFlagSystemModule } from 'src/feature-flag-system/feature-flag-system.module';
+import { FeatureGuard } from 'src/feature-flag-system/guard/fureture.guard';
+import { GoogleMapModule } from 'src/google-map/google-map.module';
 
 @Module({
   imports: [
@@ -133,6 +139,8 @@ import { AccumulatedPointModule } from 'src/accumulated-point/accumulated-point.
     TrackingOrderItemModule,
     RobotConnectorModule,
     UserModule,
+    UserGroupModule,
+    UserGroupMemberModule,
     InvoiceModule,
     InvoiceItemModule,
     WorkflowModule,
@@ -164,6 +172,9 @@ import { AccumulatedPointModule } from 'src/accumulated-point/accumulated-point.
     SharedModule,
     InvoiceAreaModule,
     AccumulatedPointModule,
+    BranchConfigModule,
+    FeatureFlagSystemModule,
+    GoogleMapModule,
   ],
   controllers: [AppController],
   providers: [
@@ -184,6 +195,10 @@ import { AccumulatedPointModule } from 'src/accumulated-point/accumulated-point.
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: FeatureGuard,
     },
   ],
 })

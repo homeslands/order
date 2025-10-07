@@ -41,7 +41,7 @@ export default function EmployeeListPage() {
     ...((userInfo?.role?.name === Role.SUPER_ADMIN || userInfo?.role?.name === Role.ADMIN) ? {} : { branch: userInfo?.branch?.slug, })
   }), [page, size, phonenumber, role, userInfo?.role?.name, userInfo?.branch?.slug])
 
-  const { data, isLoading } = useUsers(employeesParams)
+  const { data, isLoading } = useUsers(employeesParams, true)
 
   // add page size to query params
   useEffect(() => {

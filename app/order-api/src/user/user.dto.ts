@@ -2,6 +2,7 @@ import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsOptional } from 'class-validator';
+import { AccumulatedPointResponseDto } from 'src/accumulated-point/accumulated-point.dto';
 import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 import {
   INVALID_ADDRESS,
@@ -100,6 +101,24 @@ export class UserResponseDto extends BaseResponseDto {
   @AutoMap()
   @ApiProperty()
   isVerifiedPhonenumber: boolean;
+
+  @AutoMap(() => AccumulatedPointResponseDto)
+  @ApiProperty()
+  accumulatedPoint: AccumulatedPointResponseDto;
+}
+
+export class GeneralUserResponseDto extends BaseResponseDto {
+  @ApiProperty()
+  @AutoMap()
+  readonly phonenumber: string;
+
+  @ApiProperty()
+  @AutoMap()
+  readonly firstName: string;
+
+  @ApiProperty()
+  @AutoMap()
+  readonly lastName: string;
 }
 
 export class UpdateUserRoleRequestDto {

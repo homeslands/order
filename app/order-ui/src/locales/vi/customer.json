@@ -1,5 +1,39 @@
 {
   "customer": {
+    "userGroup": {
+      "title": "Nhóm khách hàng",
+      "searchByName": "Tìm kiếm theo tên",
+      "createdAt": "Ngày tạo",
+      "createdBy": "Người tạo",
+      "slug": "Mã nhóm khách hàng",
+      "name": "Tên nhóm khách hàng",
+      "description": "Mô tả",
+      "userGroupMemberTitle": "Thành viên nhóm khách hàng",
+      "searchByPhoneNumber": "Nhập số điện thoại",
+      "create": "Tạo nhóm khách hàng",
+      "createDescription": "Tạo nhóm khách hàng",
+      "enterName": "Nhập tên nhóm khách hàng",
+      "enterDescription": "Nhập mô tả nhóm khách hàng",
+      "nameRequired": "Tên nhóm khách hàng là bắt buộc",
+      "update": "Cập nhật",
+      "updateDescription": "Cập nhật nhóm khách hàng",
+      "delete": "Xóa",
+      "deleteDescription": "Xóa nhóm khách hàng",
+      "deleteUserGroupContent": "Bạn sắp sửa xóa nhóm khách hàng ",
+      "deleteUserGroupContent2": "Bạn có chắc muốn xóa không?",
+      "userGroupName": "Tên nhóm khách hàng",
+      "addMember": "Thêm thành viên",
+      "addMemberDescription": "Thêm thành viên vào nhóm khách hàng",
+      "selectedUsers": "Thành viên đã chọn",
+      "fullName": "Họ và tên",
+      "phoneNumber": "Số điện thoại",
+      "totalMembers": "Tổng thành viên",
+      "deleteUserGroupMemberContent": "Bạn sắp sửa xóa thành viên ",
+      "deleteUserGroupMemberContent2": " khỏi nhóm khách hàng ",
+      "deleteUserGroupMemberContent3": "Bạn có chắc muốn xóa không?"
+    },
+    "verified": "Đã xác thực",
+    "notVerified": "Chưa xác thực",
     "address": "Địa chỉ",
     "branch": "Chi nhánh",
     "confirmPassword": "Xác nhận mật khẩu",
@@ -30,6 +64,10 @@
     "updateRole": "Cập nhật chức danh",
     "updateRoleDescription": "Cập nhật chức danh cho khách hàng",
     "viewDetail": "Xem chi tiết",
-    "searchByPhoneNumber": "Nhập số điện thoại"
+    "searchByPhoneNumber": "Nhập số điện thoại",
+    "viewOrders": "Xem đơn hàng",
+    "info": "Hồ sơ",
+    "orderHistory": "Lịch sử đơn hàng",
+    "loyaltyPoint": "Điểm tích lũy"
   }
 }

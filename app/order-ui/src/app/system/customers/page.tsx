@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
@@ -7,13 +7,15 @@ import { SquareMenu } from 'lucide-react'
 import { DataTable } from '@/components/ui'
 import { useUsers, usePagination } from '@/hooks'
 import { useUserListColumns } from './DataTable/columns'
-import { Role } from '@/constants'
+import { Role, ROUTE } from '@/constants'
 import { CustomerAction } from './DataTable/actions'
+import { IUserInfo } from '@/types'
 
 export default function CustomerPage() {
   const { t } = useTranslation('customer')
   const { t: tHelmet } = useTranslation('helmet')
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const page = Number(searchParams.get('page')) || 1
   const size = Number(searchParams.get('size')) || 10
   const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
@@ -35,10 +37,14 @@ export default function CustomerPage() {
     phonenumber,
     hasPaging: true,
     role: Role.CUSTOMER,
-  })
+  }, true)
 
   const handleSearchChange = (value: string) => {
     setPhoneNumber(value)
+  }
+
+  const handleRowClick = (row: IUserInfo) => {
+    navigate(`${ROUTE.STAFF_CUSTOMER_MANAGEMENT}/${row.slug}`)
   }
 
   return (
@@ -65,6 +71,7 @@ export default function CustomerPage() {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         actionOptions={CustomerAction}
+        onRowClick={handleRowClick}
       />
     </div>
   )

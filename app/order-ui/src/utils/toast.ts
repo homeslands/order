@@ -73,6 +73,7 @@ const errorCodes: { [key: number]: string } = {
   123002: 'toast.paymentNotFound',
   123003: 'toast.transactionNotFound',
   123008: 'toast.orderAlreadyHasPayment',
+  123010: 'toast.creditCardTransactionIdRequired',
   125000: 'toast.tableNameExist',
   125001: 'toast.tableNotFound',
   125002: 'toast.tableDoNotHaveLocation',
@@ -290,7 +291,9 @@ const errorCodes: { [key: number]: string } = {
   158406: 'toast.errorWhenUseGiftCard',
   158408: 'toast.giftCardExpired',
   158409: 'toast.giftCardAlreadyUsed',
+  159008: 'toast.featureOnlyForRegisteredCustomer',
   159016: 'toast.loyaltyPointAlreadyReserved',
+  159017: 'toast.userGroupMemberNotFound',
   // User error code
   119006: 'toast.userNotFound',
 }

@@ -178,6 +178,27 @@ export const CustomerPage = React.lazy(() =>
   })),
 )
 
+// Customer info page
+export const CustomerInfoPage = React.lazy(() =>
+  import('@/app/system/customers/components').then((module) => ({
+    default: module.CustomerInfoPage,
+  })),
+)
+
+// Customer group page
+export const UserGroupPage = React.lazy(() =>
+  import('@/app/system/customer-group').then((module) => ({
+    default: module.UserGroupPage,
+  })),
+)
+
+// Customer group members page
+export const UserGroupMembersPage = React.lazy(() =>
+  import('@/app/system/customer-group/components').then((module) => ({
+    default: module.UserGroupMembersPage,
+  })),
+)
+
 // Role page
 export const RolePage = React.lazy(() =>
   import('@/app/system/role').then((module) => ({
@@ -465,9 +486,9 @@ export const CardOrderHistoryPage = React.lazy(() =>
   })),
 )
 
-// System loyalty point page
-export const SystemLoyaltyPointPage = React.lazy(() =>
-  import('@/app/system/loyalty-point').then((module) => ({
-    default: module.LoyaltyPointPage,
+// System lock management page
+export const SystemLockManagementPage = React.lazy(() =>
+  import('@/app/system/system-lock-management').then((module) => ({
+    default: module.SystemLockManagementPage,
   })),
 )

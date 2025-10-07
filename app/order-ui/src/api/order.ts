@@ -21,6 +21,10 @@ import {
   IUpdateNoteRequest,
   IOrderItemsParam,
   IOrderItem,
+  IDistanceAndDuration,
+  IAddressDirection,
+  IAddressByPlaceId,
+  IAddressSuggestion,
 } from '@/types'
 import { useDownloadStore } from '@/stores'
 
@@ -366,5 +370,79 @@ export async function reprintFailedInvoicePrinterJobs(
   const response = await http.patch(
     `/orders/${slug}/re-print-failed-invoice-printer-jobs`,
   )
+  return response.data
+}
+
+// google map
+export async function getAddressSuggestions(
+  address: string,
+): Promise<IApiResponse<IAddressSuggestion[]>> {
+  const safeAddress = encodeURIComponent(address) // <--- encode trước khi đưa vào URL
+
+  const response = await http.get<IApiResponse<IAddressSuggestion[]>>(
+    `/orders/delivery/address/suggestion/${safeAddress}`,
+    {
+      // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
+      doNotShowLoading: true,
+    },
+  )
+
+  // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
+  return response.data
+}
+
+export async function getAddressByPlaceId(
+  placeId: string,
+): Promise<IApiResponse<IAddressByPlaceId>> {
+  const response = await http.get<IApiResponse<IAddressByPlaceId>>(
+    `/orders/delivery/location/${placeId}`,
+    {
+      // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
+      doNotShowLoading: true,
+    },
+  )
+
+  // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
+  return response.data
+}
+
+export async function getAddressDirection(
+  branch: string,
+  lat: number,
+  lng: number,
+): Promise<IApiResponse<IAddressDirection>> {
+  const response = await http.get<IApiResponse<IAddressDirection>>(
+    `/orders/delivery/direction`,
+    {
+      params: {
+        branch,
+        lat,
+        lng,
+      },
+      // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
+      doNotShowLoading: true,
+    },
+  )
+
+  // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
+  return response.data
+}
+
+export async function getDistanceAndDuration(
+  branch: string,
+  lat: number,
+  lng: number,
+): Promise<IApiResponse<IDistanceAndDuration>> {
+  const response = await http.get<IApiResponse<IDistanceAndDuration>>(
+    `/orders/delivery/distance-and-duration`,
+    {
+      params: {
+        branch,
+        lat,
+        lng,
+      },
+    },
+  )
+
   return response.data
 }

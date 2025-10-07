@@ -19,6 +19,8 @@ export const GIFT_CARD_HAS_ALREADY_GENERATED =
   'GIFT_CARD_HAS_ALREADY_GENERATED';
 export const INVALID_CARD_ORDER_STATUS = 'INVALID_CARD_ORDER_STATUS';
 export const INVALID_PAYMENT_METHOD = 'INVALID_PAYMENT_METHOD';
+export const INVALID_CASHIER_SLUG = "INVALID_CASHIER_SLUG";
+export const CASHIER_NOT_FOUND = 'CASHIER_NOT_FOUND';
 
 export type TCardOrderErrorCodeKey =
   | typeof ERROR_WHEN_CREATE_CARD_ORDER
@@ -37,7 +39,9 @@ export type TCardOrderErrorCodeKey =
   | typeof GIFT_CARD_HAS_ALREADY_GENERATED
   | typeof INVALID_CARD_ORDER_STATUS
   | typeof GIFT_CARD_HAS_ALREADY_GENERATED
-  | typeof INVALID_PAYMENT_METHOD;
+  | typeof INVALID_PAYMENT_METHOD
+  | typeof INVALID_CASHIER_SLUG
+  | typeof CASHIER_NOT_FOUND;
 
 // 158101- 158200
 export type TCardOrderErrorCode = Record<
@@ -97,5 +101,13 @@ export const CardOrderValidation: TCardOrderErrorCode = {
   INVALID_PAYMENT_METHOD: createErrorCode(
     158116,
     'Invalid payment method',
+  ),
+  INVALID_CASHIER_SLUG: createErrorCode(
+    158117,
+    'Invalid cashier slug',
+  ),
+  CASHIER_NOT_FOUND: createErrorCode(
+    158118,
+    'Cashier not found',
   ),
 };

@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import {
   INVALID_CARD_ORDER_SLUG,
+  INVALID_CASHIER_SLUG,
   INVALID_PAYMENT_METHOD,
 } from '../card-order.validation';
 
@@ -15,4 +16,8 @@ export class InitiateCardOrderPaymentAdminDto extends InitiateCardOrderPaymentDt
   @IsNotEmpty({ message: INVALID_PAYMENT_METHOD })
   @ApiProperty()
   paymentMethod: string;
+
+  @ApiProperty()
+  @IsNotEmpty({ message: INVALID_CASHIER_SLUG })
+  cashierSlug: string;
 }

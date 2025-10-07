@@ -8,7 +8,7 @@ export enum QueueRegisterKey {
 }
 
 export enum DistributeLockJobKey {
-  BRANCH_REVENUE_REFRESH_EVERY_DAY_AT_1AM = 'branch-revenue-refresh-every-day-at-1am',
+  REFRESH_BRANCH_REVENUE = 'refresh-branch-revenue',
   GENERATE_MENU_EVERY_DAY_AT_1AM = 'generate-menu-every-day-at-1am',
-  PRODUCT_ANALYSIS_REFRESH_EVERY_DAY_AT_1AM = 'product-analysis-refresh-every-day-at-1am',
+  REFRESH_PRODUCT_ANALYSIS = 'refresh-product-analysis',
 }
