@@ -45,6 +45,7 @@
     "catalog": "Gift Card Catalog",
     "checkout": "Checkout",
     "confirmation": "Confirmation",
-    "system-lock-management": "System Lock Management"
+    "system-lock-management": "System Lock Management",
+    "customer-group-management": "Customer Group Management"
   }
 }

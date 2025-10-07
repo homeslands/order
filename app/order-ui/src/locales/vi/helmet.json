@@ -179,6 +179,12 @@
       "keywords": "hệ thống, quản lý hệ thống, hệ thống quán ăn",
       "manageSystem": "Quản lý hệ thống",
       "title": "Quản lý hệ thống"
+    },
+    "userGroup": {
+      "description": "Quản lý nhóm khách hàng của bạn tại đây",
+      "keywords": "nhóm khách hàng, quản lý nhóm khách hàng, nhóm khách hàng quán ăn",
+      "manageUserGroup": "Quản lý nhóm khách hàng",
+      "title": "Quản lý nhóm khách hàng"
     }
   }
 }

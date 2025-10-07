@@ -36,6 +36,7 @@ export const ROUTE = {
   STAFF_LOG_MANAGEMENT: '/system/log',
   STAFF_USER_MANAGEMENT: '/system/staff',
   STAFF_CUSTOMER_MANAGEMENT: '/system/customers',
+  STAFF_CUSTOMER_GROUP_MANAGEMENT: '/system/customer-group-management',
   STAFF_ROLE_MANAGEMENT: '/system/role',
   STAFF_BANK_CONFIG: '/system/bank-config',
   STAFF_STATIC_PAGE: '/system/static-page',
