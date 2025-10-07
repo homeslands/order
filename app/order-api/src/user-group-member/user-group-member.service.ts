@@ -135,7 +135,6 @@ export class UserGroupMemberService {
 
     for (const user of users) {
       if (!existingUserSlugs.includes(user.slug)) {
-        const user = users.find((m) => m.slug === user.slug);
         const userGroupMember = new UserGroupMember();
         userGroupMember.user = user;
         userGroupMember.userGroup = userGroup;
