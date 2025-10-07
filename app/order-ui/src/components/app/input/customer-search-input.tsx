@@ -34,6 +34,7 @@ export default function CustomerSearchInput() {
                 hasPaging: true,
             }
             : null,
+        true
     )
 
     useEffect(() => {

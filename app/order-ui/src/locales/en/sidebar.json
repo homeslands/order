@@ -90,6 +90,7 @@
     "voucherGroup": "Voucher Group",
     "cardOrderManagement": "Card Order Management",
     "loyaltyPoint": "Accumulated Point",
-    "systemLockManagement": "System Lock Management"
+    "systemLockManagement": "System Lock Management",
+    "customerGroupManagement": "Customer Group Management"
   }
 }
