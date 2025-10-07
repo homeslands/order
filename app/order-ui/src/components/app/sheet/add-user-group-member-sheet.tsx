@@ -13,7 +13,7 @@ import {
   DataTable,
   SheetFooter,
 } from '@/components/ui'
-import { usePagination, useUsers } from '@/hooks'
+import { useUsers } from '@/hooks'
 import { AddMultipleUsersToUserGroupDialog } from '../dialog'
 import { IUserInfo } from '@/types'
 import { useUserListColumns } from '@/app/system/customer-group/DataTable/columns'
@@ -21,17 +21,31 @@ import { useUserListColumns } from '@/app/system/customer-group/DataTable/column
 export default function AddUserGroupMemberSheet() {
   const { t } = useTranslation('customer')
   const { t: tCommon } = useTranslation('common')
-  const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
+
+  // Independent pagination state for sheet
+  const [sheetPagination, setSheetPagination] = useState({
+    pageIndex: 1,
+    pageSize: 10
+  })
+
   const [isOpen, setIsOpen] = useState(false)
   const [phonenumber, setPhoneNumber] = useState<string>('')
   const [selectedUsers, setSelectedUsers] = useState<IUserInfo[]>([])
   const [, setUserMapping] = useState<Map<string, IUserInfo>>(new Map())
 
-  // Separate pagination state for sheet
+  // Sheet pagination handlers
+  const handleSheetPageChange = (pageIndex: number) => {
+    setSheetPagination(prev => ({ ...prev, pageIndex }))
+  }
+
+  const handleSheetPageSizeChange = (pageSize: number) => {
+    setSheetPagination(prev => ({ ...prev, pageSize, pageIndex: 1 }))
+  }
+
 
   const { data: users, isLoading, refetch } = useUsers({
-    page: pagination.pageIndex,
-    size: pagination.pageSize,
+    page: sheetPagination.pageIndex,
+    size: sheetPagination.pageSize,
     order: 'DESC',
     hasPaging: true,
     phonenumber: phonenumber,
@@ -52,8 +66,19 @@ export default function AddUserGroupMemberSheet() {
     }
   }
 
+  const handleSheetOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (!open) {
+      // Reset states khi đóng sheet
+      setSelectedUsers([])
+      setUserMapping(new Map())
+      setPhoneNumber('')
+      setSheetPagination({ pageIndex: 1, pageSize: 10 })
+    }
+  }
+
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet open={isOpen} onOpenChange={handleSheetOpenChange}>
       <SheetTrigger asChild className="w-full">
         <Button className="z-50 w-fit">
           <PlusCircle className="icon" />
@@ -80,8 +105,8 @@ export default function AddUserGroupMemberSheet() {
                 onInputChange={setPhoneNumber}
                 searchPlaceholder={t('customer.userGroup.searchByPhoneNumber')}
                 pages={users?.result.totalPages || 1}
-                onPageChange={handlePageChange}
-                onPageSizeChange={handlePageSizeChange}
+                onPageChange={handleSheetPageChange}
+                onPageSizeChange={handleSheetPageSizeChange}
               />
             </div>
           </ScrollArea>
@@ -101,7 +126,7 @@ export default function AddUserGroupMemberSheet() {
               >
                 {tCommon('common.cancel')}
               </Button>
-              <AddMultipleUsersToUserGroupDialog onSubmit={handleSubmitSuccess} users={selectedUsers} />
+              <AddMultipleUsersToUserGroupDialog disabled={selectedUsers.length === 0} onSubmit={handleSubmitSuccess} users={selectedUsers} />
             </div>
           )}
         </SheetFooter>
