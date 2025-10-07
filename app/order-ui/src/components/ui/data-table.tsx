@@ -58,7 +58,6 @@ import { useDebouncedInput } from '@/hooks'
 import { SimpleDatePicker } from '../app/picker'
 import { PeriodOfTimeSelect } from '../app/select'
 import { timeChange } from './utils/data-table.utils'
-
 interface DataTablePaginationProps<TData> {
   table: ReactTable<TData>
   onPageChange: (page: number) => void
@@ -234,7 +233,7 @@ export function DataTable<TData, TValue>({
                     value={startDate}
                     onChange={setStartDate}
                     disabledDates={endDate ? (date: Date) => {
-                      const endDateObj = new Date(endDate.split('/').reverse().join('-'))
+                      const endDateObj = moment(endDate.split('/').reverse().join('-'), 'YYYY-MM-DD').startOf('day').toDate();
                       return date > endDateObj
                     } : undefined}
                     disableFutureDates={true}
@@ -246,7 +245,7 @@ export function DataTable<TData, TValue>({
                     value={endDate}
                     onChange={setEndDate}
                     disabledDates={startDate ? (date: Date) => {
-                      const startDateObj = new Date(startDate.split('/').reverse().join('-'))
+                      const startDateObj = moment(startDate.split('/').reverse().join('-'), 'YYYY-MM-DD').startOf('day').toDate();
                       return date < startDateObj
                     } : undefined}
                     disableFutureDates={true}
