@@ -59,8 +59,8 @@ export default function DeleteUserGroupDialog({ userGroup }: { userGroup: IUserG
           <DialogDescription>{t('customer.userGroup.deleteDescription')}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-2 py-4 text-sm text-muted-foreground">
-          <span>{t('customer.userGroup.deleteContent')} <strong>{userGroup?.name}</strong></span>
-          <span>{t('customer.userGroup.deleteContent2')}</span>
+          <span>{t('customer.userGroup.deleteUserGroupContent')} <strong>{userGroup?.name}</strong></span>
+          <span>{t('customer.userGroup.deleteUserGroupContent2')}</span>
         </div>
         <DialogFooter className="flex flex-row gap-2 justify-between sm:justify-end">
           <Button
