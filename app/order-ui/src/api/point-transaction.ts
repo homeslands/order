@@ -64,24 +64,19 @@ export async function exportAllPointTransactions(
   }
 }
 
-export async function exportAllSystemPointTransactions(
-  fromDate: string | undefined,
-  toDate: string | undefined,
-  type: string | undefined,
-): Promise<Blob> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function exportAllSystemPointTransactions(params: any): Promise<Blob> {
   const { setProgress, setFileName, setIsDownloading, reset } =
     useDownloadStore.getState()
 
   const currentDate = new Date().toISOString().split('T')[0]
-  setFileName(`point-transactions-${currentDate}.pdf`)
+  setFileName(`point-transactions-${currentDate}.xlsx`)
   setIsDownloading(true)
 
   try {
-    const response = await http.get(`/point-transaction/system/export`, {
+    const response = await http.get(`/point-transaction/export/system`, {
       params: {
-        fromDate,
-        toDate,
-        type,
+        ...params
       },
       responseType: 'blob',
       headers: {
