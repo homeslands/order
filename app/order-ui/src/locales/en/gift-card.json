@@ -191,7 +191,10 @@
             "self": "Top up for myself",
             "receipientInfo": "Receipient information",
             "message": "Message",
-            "name": "Receipient name"
+            "name": "Receipient name",
+            "pageTitle": "Card order management",
+            "shortTitle": "Card order management",
+            "coinTitle": "Point transactions management"
         },
         "customer": {
             "title": "Customer",
@@ -204,6 +207,13 @@
             "title": "Cashier Information",
             "cashierName": "Cashier name",
             "cashierPhone": "Phone number"
+        },
+        "pointTransaction": {
+            "customerName": "Customer name",
+            "phonenumber": "Phone number",
+            "type": "Type",
+            "points": "Points",
+            "createdAt": "Created at"
         }
     },
     "schema": {
