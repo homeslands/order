@@ -1,118 +1,102 @@
-import { useEffect, useRef, useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
-import {
-  Coins,
-  ArrowUp,
-  ArrowDown,
-  Clock,
-  Tag,
-  ShoppingBag,
-  Gift,
-  CoinsIcon,
-  Filter,
-  X,
-  Download,
-  TrendingUp,
-  TrendingDown,
-} from 'lucide-react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useIsMobile, useSystemPointTransactions } from '@/hooks'
+import { useTranslation } from 'react-i18next'
+
+import { useExportSystemPointTransactions, useIsMobile, usePagination, useSystemPointTransactions } from '@/hooks'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
-import { formatCurrency } from '@/utils'
-import { IPointTransaction } from '@/types'
-import { PointTransactionObjectType, PointTransactionType } from '@/constants'
+import { PointTransactionType } from '@/constants'
+import { useMemo, useState } from 'react'
+import { SortContext } from '@/contexts'
+import { Button, Collapsible, CollapsibleContent, DataTable, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui'
+import { usePointTransactionColumns } from '@/app/system/card-order-history/DataTable/columns/point-transaction-columns'
+import { ArrowUpIcon, CoinsIcon, DownloadIcon, FilterIcon, TagIcon, TrendingDownIcon, TrendingUpIcon, XIcon } from 'lucide-react'
+import { SimpleDatePicker } from '../picker'
+import _ from 'lodash'
 import moment from 'moment'
-import { TransactionCardSkeleton } from '@/components/app/skeleton/transaction-card-skeleton'
-import { Tooltip } from 'react-tooltip'
-import { TransactionGiftCardDetailDialog } from '@/components/app/dialog'
-import SimpleDatePicker from '@/components/app/picker/simple-date-picker'
-import { useState } from 'react'
+import { ArrowDownIcon } from '@radix-ui/react-icons'
+import { formatCurrency } from '@/utils'
+import { saveAs } from 'file-saver'
 
 export function SystemTransactionPointHistoryTabContent() {
+  const defaultFilter = {
+    type: PointTransactionType.ALL,
+    fromDate: moment().startOf('month').format('YYYY-MM-DD'),
+    toDate: moment().endOf('month').format('YYYY-MM-DD'),
+  }
   const { t } = useTranslation(['profile'])
   const isMobile = useIsMobile()
-
-  // Filter panel state
   const [isFilterOpen, setIsFilterOpen] = useState(true)
+  const [filter, setFilter] = useState<any>(defaultFilter);
+  const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
+  const { isLoading, data, refetch } = useSystemPointTransactions({
+    ...filter,
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    type: filter?.type === PointTransactionType.ALL ? null : filter.type
+  });
+  const { mutate: exportMutation, isPending } = useExportSystemPointTransactions();
+  const pointTransactions = useMemo(() => {
+    return data?.result?.items || []
+  }, [data])
 
-  // Point transactions hook
-  const {
-    transactions,
-    summary,
-    totalCount,
-    isLoading,
-    loadingAllTransactions,
-    isFetchingNextPage,
-    isError,
-    hasNextPage,
-    fetchNextPage,
-    filters,
-    updateFilters,
-    clearFilters,
-    hasActiveFilters,
-    exportAll,
-    isExportingAll,
-  } = useSystemPointTransactions({
-    userSlug: undefined,
-    pageSize: 10,
-  })
+  const totalCount = pointTransactions.length;
 
-  // Intersection observer for infinite scroll
-  const observerRef = useRef<IntersectionObserver | null>(null)
-  const lastElementRef = useRef<HTMLDivElement | null>(null)
-
-  const handleLoadMore = useCallback(() => {
-    if (!isFetchingNextPage && hasNextPage) {
-      fetchNextPage()
+  const summary = useMemo(() => {
+    const totalEarned = pointTransactions.filter(item => item.type === PointTransactionType.IN)
+      .reduce((prev, curr) => prev + curr?.points, 0);
+    const totalSpent = pointTransactions.filter(item => item.type === PointTransactionType.OUT)
+      .reduce((prev, curr) => prev + curr?.points, 0);;
+    const netDifference = Math.abs(totalEarned - totalSpent);
+    return {
+      totalEarned,
+      totalSpent,
+      netDifference
     }
-  }, [isFetchingNextPage, hasNextPage, fetchNextPage])
+  }, [pointTransactions])
 
-  const handleClearFilter = useCallback(() => {
-    clearFilters()
+  const handleClearFilter = () => {
+    setFilter(defaultFilter)
     setIsFilterOpen(false)
-  }, [clearFilters])
+  }
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (
-          entries[0].isIntersecting &&
-          hasNextPage &&
-          !isFetchingNextPage &&
-          !isLoading
-        ) {
-          handleLoadMore()
-        }
+  const hasActiveFilters = () => {
+    if (_.isEmpty(filter)) return false;
+    const filtered = _.pickBy(filter, v => v !== null && v !== undefined && v !== '');
+    return !_.isEmpty(filtered);
+  }
+
+  const handleSortChange = () => {
+    // Sort field updated based on operation type
+    // if (operation === SortOperation.CREATE) {
+    //   setSortField('createdAt,desc')
+    // } else if (operation === SortOperation.UPDATE) {
+    //   setSortField('updatedAt,desc')
+    // }
+  }
+
+  const handleRefresh = () => {
+    handlePageChange(1)
+    refetch()
+  }
+
+  const handleExport = () => {
+    const ITEM_MAX = 1000000;
+    const params = {
+      ...filter,
+      page: pagination.pageIndex,
+      size: ITEM_MAX,
+      type: filter?.type === PointTransactionType.ALL ? null : filter.type
+    }
+    exportMutation(params, {
+      onSuccess: (data) => {
+        saveAs(data.blob, data.filename);
       },
-      { threshold: 0.5 },
-    )
-
-    if (lastElementRef.current) {
-      observer.observe(lastElementRef.current)
-    }
-
-    observerRef.current = observer
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect()
-      }
-    }
-  }, [hasNextPage, isFetchingNextPage, isLoading, handleLoadMore])
+    })
+  }
 
   // Coin Summary Cards Component
-  const CoinSummaryCards = () => {
-    if (loadingAllTransactions) {
+  const PointTransactionSummary = () => {
+    if (isLoading) {
       return (
         <div className="mb-6">
           <div
@@ -137,7 +121,7 @@ export function SystemTransactionPointHistoryTabContent() {
       {
         title: t('profile.totalEarned'),
         value: summary.totalEarned,
-        icon: TrendingUp,
+        icon: TrendingUpIcon,
         color: 'text-green-600',
         bg: 'bg-green-50 dark:bg-green-900/10',
         border: 'border-green-200 dark:border-green-800',
@@ -147,7 +131,7 @@ export function SystemTransactionPointHistoryTabContent() {
       {
         title: t('profile.totalSpent'),
         value: summary.totalSpent,
-        icon: TrendingDown,
+        icon: TrendingDownIcon,
         color: 'text-red-600',
         bg: 'bg-red-50 dark:bg-red-900/10',
         border: 'border-red-200 dark:border-red-800',
@@ -156,7 +140,7 @@ export function SystemTransactionPointHistoryTabContent() {
       {
         title: t('profile.netDifference'),
         value: summary.netDifference,
-        icon: summary.netDifference >= 0 ? ArrowUp : ArrowDown,
+        icon: summary.netDifference >= 0 ? ArrowUpIcon : ArrowDownIcon,
         color: summary.netDifference >= 0 ? 'text-green-600' : 'text-red-600',
         bg:
           summary.netDifference >= 0
@@ -212,97 +196,6 @@ export function SystemTransactionPointHistoryTabContent() {
     )
   }
 
-  const CoinTransactionCard = ({
-    transaction,
-  }: {
-    transaction: IPointTransaction
-  }) => {
-    const isAdd = transaction.type === PointTransactionType.IN
-    const amountClass = isAdd
-      ? 'text-green-600 font-medium'
-      : 'text-red-600 font-medium'
-    const bgClass = isAdd
-      ? 'bg-green-50 dark:bg-green-900/10'
-      : 'bg-red-50 dark:bg-red-900/10'
-    const borderClass = isAdd
-      ? 'border-l-4 border-green-500'
-      : 'border-l-4 border-red-500'
-
-    // Determine object type specific styling
-    const isGiftCard =
-      transaction.objectType === PointTransactionObjectType.GIFT_CARD ||
-      PointTransactionObjectType.CARD_ORDER
-    const isOrder = transaction.objectType === PointTransactionObjectType.ORDER
-
-    // Get object type icon
-    const getTransactionIcon = () => {
-      if (isGiftCard) {
-        return <Gift size={16} />
-      } else if (isOrder) {
-        return <ShoppingBag size={16} />
-      } else {
-        // Default arrow icons
-        return isAdd ? <ArrowUp size={16} /> : <ArrowDown size={16} />
-      }
-    }
-
-    const customerName = `${transaction?.user?.firstName} ${transaction?.user?.lastName} (${transaction?.user?.phonenumber})`;
-
-    return (
-      <TransactionGiftCardDetailDialog transaction={transaction}>
-        <div
-          className={`px-2 py-3 mb-3 rounded-md shadow-sm transition-shadow duration-200 cursor-pointer hover:shadow-md ${bgClass} ${borderClass}`}
-        >
-          <div
-            className={`flex items-center mb-2 text-lg font-bold ${amountClass}`}
-          >
-            <span
-              className={`mr-1 rounded-full p-1 ${isAdd
-                ? isGiftCard
-                  ? 'text-purple-700 bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300'
-                  : 'text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-300'
-                : isOrder
-                  ? 'text-blue-700 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300'
-                  : 'text-red-700 bg-red-100 dark:bg-red-900/30 dark:text-red-300'
-                }`}
-            >
-              {getTransactionIcon()}
-            </span>
-            {isAdd ? '+ ' : '- '}
-            <span className={`${isMobile ? 'text-sm' : 'text-lg'}`}>
-              {formatCurrency(Math.abs(transaction.points), '')}
-            </span>
-            <CoinsIcon className="ml-1 w-5 h-5 text-primary" />
-          </div>
-          <div className='flex items-center gap-1 mb-1 text-sm'>
-            <span className='font-semibold'>Khách hàng:</span>
-            <span>{customerName}</span>
-          </div>
-
-          <div
-            className="mb-2 max-w-[400px] truncate text-sm font-medium text-gray-800 dark:text-gray-200"
-            data-tooltip-id="description-tooltip"
-            data-tooltip-content={String(transaction.desc)}
-          >
-            {transaction.desc}
-          </div>
-          <Tooltip
-            id="description-tooltip"
-            style={{ width: '13rem' }}
-            variant="light"
-          />
-          <div className="flex justify-between items-center">
-            <div
-              className={`flex items-center mt-1 w-full text-gray-500 text-[10px] dark:text-gray-400`}
-            >
-              <Clock size={12} className="mr-1" />
-              {moment(transaction.createdAt).format('HH:mm:ss DD/MM/YYYY')}
-            </div>
-          </div>
-        </div>
-      </TransactionGiftCardDetailDialog>
-    )
-  }
 
   return (
     <div>
@@ -315,7 +208,7 @@ export function SystemTransactionPointHistoryTabContent() {
               className={`${isMobile ? 'text-sm' : 'text-lg'} flex items-center gap-2`}
             >
               <span className="p-1 text-orange-600 bg-orange-100 rounded-full dark:bg-orange-900/30 dark:text-orange-300">
-                <Tag size={isMobile ? 16 : 18} />
+                <TagIcon size={isMobile ? 16 : 18} />
               </span>
               {t('profile.coinTransactions')}
               {totalCount > 0 && (
@@ -333,11 +226,11 @@ export function SystemTransactionPointHistoryTabContent() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={exportAll}
-                disabled={isExportingAll || totalCount === 0}
+                onClick={handleExport}
+                disabled={isPending || totalCount === 0}
                 className="flex min-w-[120px] items-center gap-2"
               >
-                <Download size={16} />
+                <DownloadIcon size={16} />
                 {t('profile.exportAll')}
               </Button>
 
@@ -346,11 +239,11 @@ export function SystemTransactionPointHistoryTabContent() {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className={`${hasActiveFilters ? 'border-primary text-primary' : ''} min-w-[120px]`}
+                className={`${hasActiveFilters() ? 'border-primary text-primary' : ''} min-w-[120px]`}
               >
-                <Filter size={16} className="mr-2" />
+                <FilterIcon size={16} className="mr-2" />
                 {t('profile.filter')}
-                {hasActiveFilters && (
+                {hasActiveFilters() && (
                   <span className="ml-1 text-xl text-primary">•</span>
                 )}
               </Button>
@@ -368,10 +261,10 @@ export function SystemTransactionPointHistoryTabContent() {
                       {t('profile.fromDate')}
                     </Label>
                     <SimpleDatePicker
-                      value={filters.fromDate || ''}
-                      onChange={(date) => updateFilters({ fromDate: date })}
+                      value={filter.fromDate || ''}
+                      onChange={(date) => setFilter({ ...filter, fromDate: date })}
                       disableFutureDates={true}
-                      maxDate={filters.toDate || undefined}
+                      maxDate={filter.toDate || undefined}
                       allowEmpty={true}
                     />
                   </div>
@@ -382,10 +275,10 @@ export function SystemTransactionPointHistoryTabContent() {
                       {t('profile.toDate')}
                     </Label>
                     <SimpleDatePicker
-                      value={filters.toDate || ''}
-                      onChange={(date) => updateFilters({ toDate: date })}
+                      value={filter.toDate || ''}
+                      onChange={(date) => setFilter({ ...filter, toDate: date })}
                       disableFutureDates={true}
-                      minDate={filters.fromDate || undefined}
+                      minDate={filter.fromDate || undefined}
                       allowEmpty={true}
                     />
                   </div>
@@ -396,9 +289,9 @@ export function SystemTransactionPointHistoryTabContent() {
                       {t('profile.transactionType')}
                     </Label>
                     <Select
-                      value={filters.type}
+                      value={filter.type}
                       onValueChange={(value: PointTransactionType) =>
-                        updateFilters({ type: value })
+                        setFilter({ ...filter, type: value })
                       }
                     >
                       <SelectTrigger>
@@ -425,82 +318,39 @@ export function SystemTransactionPointHistoryTabContent() {
                     onClick={handleClearFilter}
                     variant="outline"
                     size="sm"
-                    disabled={!hasActiveFilters}
+                    disabled={!hasActiveFilters()}
                   >
-                    <X className="mr-2 w-4 h-4" />
+                    <XIcon className="mr-2 w-4 h-4" />
                     {t('profile.clearFilter')}
                   </Button>
                 </div>
               </div>
             </CollapsibleContent>
           </Collapsible>
-          {/* Coin Summary Cards */}
-          <CoinSummaryCards />
+          {/* Point transaction summary */}
+          <PointTransactionSummary />
         </CardHeader>
 
         <CardContent className={`${isMobile ? 'p-3' : 'p-4'}`}>
-          {isLoading ? (
-            // Loading skeleton
-            Array(5)
-              .fill(0)
-              .map((_, index) => (
-                <TransactionCardSkeleton key={`skeleton-${index}`} />
-              ))
-          ) : isError ? (
-            // Error state
-            <div className="flex flex-col justify-center items-center py-10 text-center">
-              <div className="p-3 mb-4 bg-red-100 rounded-full dark:bg-red-900/30">
-                <Coins className="w-8 h-8 text-red-400" />
-              </div>
-              <h3 className="mb-2 text-lg font-medium">
-                {t('profile.errorLoadingTransactions')}
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {t('profile.pleaseTryAgainLater')}
-              </p>
-            </div>
-          ) : transactions.length === 0 ? (
-            // Empty state
-            <div className="flex flex-col justify-center items-center py-10 text-center">
-              <div className="p-3 mb-4 bg-gray-100 rounded-full dark:bg-gray-800">
-                <Coins className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="mb-2 text-lg font-medium">
-                {t('profile.noTransactions')}
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {t('profile.transactionsWillAppearHere')}
-              </p>
-            </div>
-          ) : (
-            // Transaction cards
+          {
             <div className="space-y-1">
-              {transactions.map((transaction, index) => (
-                <div
-                  key={transaction.slug}
-                  ref={
-                    index === transactions.length - 5 ? lastElementRef : null
-                  }
-                >
-                  <CoinTransactionCard transaction={transaction} />
-                </div>
-              ))}
-
-              {/* Loading more indicator */}
-              {isFetchingNextPage && (
-                <div className="py-2">
-                  <TransactionCardSkeleton />
-                </div>
-              )}
-
-              {/* End of list message */}
-              {!hasNextPage && transactions.length > 0 && (
-                <div className="py-4 text-sm text-center text-gray-500 dark:text-gray-400">
-                  {t('profile.noMoreTransactions')}
-                </div>
-              )}
+              <SortContext.Provider value={{ onSort: handleSortChange }}>
+                <DataTable
+                  columns={usePointTransactionColumns()}
+                  data={pointTransactions}
+                  isLoading={isLoading}
+                  pages={data?.result.totalPages || 0}
+                  hiddenDatePicker={true}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                  onRefresh={handleRefresh}
+                // onRowClick={(row) => {
+                //   setSelectedRow(row)
+                // }}
+                />
+              </SortContext.Provider>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
     </div>

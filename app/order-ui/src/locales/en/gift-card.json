@@ -207,6 +207,13 @@
             "title": "Cashier Information",
             "cashierName": "Cashier name",
             "cashierPhone": "Phone number"
+        },
+        "pointTransaction": {
+            "customerName": "Customer name",
+            "phonenumber": "Phone number",
+            "type": "Type",
+            "points": "Points",
+            "createdAt": "Created at"
         }
     },
     "schema": {
