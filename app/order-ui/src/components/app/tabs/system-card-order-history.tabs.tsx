@@ -1,18 +1,27 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { SystemCardOrderTabContent } from '../tabscontent/system-card-order-history.tabscontent'
 import { SystemTransactionPointHistoryTabContent } from '../tabscontent/system-transaction-point-history.tabscontent'
+import { useSearchParams } from 'react-router-dom'
 
 export enum SystemCardOrderHistoryTabEnum {
-  CARD_ORDER_TAB = 'CARD_ORDER_TAB',
-  COIN_TAB = 'COIN_TAB'
+  CARD_ORDER_TAB = 'card-order',
+  COIN_TAB = 'coin'
 }
 
 export function SystemCardOrderHistoryTabs() {
   const { t } = useTranslation(['giftCard'])
-  const [tab, setTab] = useState(SystemCardOrderHistoryTabEnum.CARD_ORDER_TAB)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [tab, setTab] = useState(searchParams.get('panel') || SystemCardOrderHistoryTabEnum.CARD_ORDER_TAB)
+
+  useEffect(() => {
+    setSearchParams(prev => {
+      prev.set('panel', tab)
+      return prev
+    })
+  }, [tab, setSearchParams])
 
   return (
     <Tabs defaultValue={tab} className="w-full">

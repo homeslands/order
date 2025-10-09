@@ -206,6 +206,13 @@
             "title": "Thông tin thu ngân",
             "cashierName": "Tên thu ngân",
             "cashierPhone": "Số điện thoại"
+        },
+        "pointTransaction": {
+            "customerName": "Tên khách hàng",
+            "phonenumber": "Số điện thoại",
+            "type": "Loại giao dịch",
+            "points": "Xu quy đổi",
+            "createdAt": "Ngày tạo"
         }
     },
     "schema": {
