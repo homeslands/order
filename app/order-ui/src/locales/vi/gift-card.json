@@ -191,7 +191,9 @@
             "self": "Nạp cho bản thân",
             "receipientInfo": "Thông tin người nhận",
             "message": "Lời nhắn",
-            "name": "Tên người nhận"
+            "name": "Tên người nhận",
+            "shortTitle": "Đơn hàng thẻ quà tặng",
+            "coinTitle": "Lịch sử giao dịch"
         },
         "customer": {
             "title": "Khách hàng",
@@ -204,6 +206,13 @@
             "title": "Thông tin thu ngân",
             "cashierName": "Tên thu ngân",
             "cashierPhone": "Số điện thoại"
+        },
+        "pointTransaction": {
+            "customerName": "Tên khách hàng",
+            "phonenumber": "Số điện thoại",
+            "type": "Loại giao dịch",
+            "points": "Xu quy đổi",
+            "createdAt": "Ngày tạo"
         }
     },
     "schema": {

@@ -64,6 +64,43 @@ export async function exportAllPointTransactions(
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function exportAllSystemPointTransactions(params: any): Promise<Blob> {
+  const { setProgress, setFileName, setIsDownloading, reset } =
+    useDownloadStore.getState()
+
+  const currentDate = new Date().toISOString().split('T')[0]
+  setFileName(`point-transactions-${currentDate}.xlsx`)
+  setIsDownloading(true)
+
+  try {
+    const response = await http.get(`/point-transaction/export/system`, {
+      params: {
+        ...params
+      },
+      responseType: 'blob',
+      headers: {
+        Accept:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      },
+      onDownloadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total,
+          )
+          setProgress(percentCompleted)
+        }
+      },
+      doNotShowLoading: true,
+    } as AxiosRequestConfig)
+
+    return response.data
+  } finally {
+    setIsDownloading(false)
+    reset()
+  }
+}
+
 // Export single point transaction by slug
 export async function exportPointTransactionBySlug(
   slug: string,

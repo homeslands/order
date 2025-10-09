@@ -1,9 +1,10 @@
 import { useState, useCallback, useMemo } from 'react'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/react-query'
 import {
   getPointTransactions,
   exportAllPointTransactions,
   exportPointTransactionBySlug,
+  exportAllSystemPointTransactions,
 } from '@/api/point-transaction'
 import {
   IPointTransaction,
@@ -233,4 +234,26 @@ export function usePointTransactions({
     // Actions
     refetch,
   }
+}
+
+//  eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const useSystemPointTransactions = (params: any) => {
+  return useQuery({
+    queryKey: ['system-point-transactions', params],
+    queryFn: () => getPointTransactions(params),
+    // placeholderData: keepPreviousData,
+    // enabled: !!params && !!enabled,
+  })
+}
+
+export const useExportSystemPointTransactions = () => {
+  return useMutation({
+    mutationFn: async (params) => {
+      const blob = await exportAllSystemPointTransactions(params)
+      const filename = `point-transactions-${new Date().toISOString().split('T')[0]}.xlsx`
+      return {
+        blob, filename
+      }
+    },
+  })
 }
