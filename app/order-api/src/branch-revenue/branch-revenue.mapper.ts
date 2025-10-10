@@ -122,6 +122,10 @@ export class BranchRevenueProfile extends AutomapperProfile {
           mapFrom((source) => +source.totalDeliveryFee),
         ),
         forMember(
+          (destination) => destination.totalCostGiftProductAmount,
+          mapFrom((source) => +source.totalCostGiftProductAmount),
+        ),
+        forMember(
           (destination) => destination.date,
           mapFrom((source) => {
             // Date format: YYYY-MM-DDT00:00:00Z
@@ -227,6 +231,10 @@ export class BranchRevenueProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.totalDeliveryFee,
           mapFrom((source) => +source.totalDeliveryFee),
+        ),
+        forMember(
+          (destination) => destination.totalCostGiftProductAmount,
+          mapFrom((source) => +source.totalCostGiftProductAmount),
         ),
         forMember(
           (destination) => destination.date,

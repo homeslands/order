@@ -90,4 +90,8 @@ export class BranchRevenue extends Base {
   @AutoMap()
   @Column({ name: 'total_delivery_fee_column', default: 0 })
   totalDeliveryFee: number;
+
+  @AutoMap()
+  @Column({ name: 'total_cost_gift_product_amount_column', default: 0 })
+  totalCostGiftProductAmount: number;
 }
