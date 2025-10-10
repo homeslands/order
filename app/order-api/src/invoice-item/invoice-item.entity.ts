@@ -27,6 +27,14 @@ export class InvoiceItem extends Base {
   total: number;
 
   @AutoMap()
+  @Column({ name: 'total_cost_column', default: 0 })
+  totalCost: number;
+
+  @AutoMap()
+  @Column({ name: 'is_gift_column', default: false })
+  isGift: boolean;
+
+  @AutoMap()
   @Column({ name: 'discount_type_column', default: DiscountType.NONE })
   discountType: string;
 
