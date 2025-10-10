@@ -1,6 +1,8 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 import { BaseResponseDto } from 'src/app/base.dto';
+import { RoleEnum } from 'src/role/role.enum';
 
 export class InvoiceItemResponseDto extends BaseResponseDto {
   @AutoMap()
@@ -34,4 +36,9 @@ export class InvoiceItemResponseDto extends BaseResponseDto {
   @AutoMap()
   @ApiProperty()
   voucherValue: number;
+
+  @AutoMap()
+  @Expose({ groups: [RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager] })
+  @ApiProperty()
+  totalCost: number;
 }

@@ -7,6 +7,8 @@ import { TrackingOrderItemResponseDto } from 'src/tracking-order-item/tracking-o
 import { VariantResponseDto } from 'src/variant/variant.dto';
 import { INVALID_ACTION } from './order-item.validation';
 import { ChefOrderItemResponseDto } from 'src/chef-order-item/chef-order-item.dto';
+import { Expose } from 'class-transformer';
+import { RoleEnum } from 'src/role/role.enum';
 
 export class CreateOrderItemRequestDto {
   @AutoMap()
@@ -124,4 +126,8 @@ export class OrderItemResponseDto extends BaseResponseDto {
 
   @AutoMap()
   voucherValue: number;
+
+  @AutoMap()
+  @Expose({ groups: [RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager] })
+  subtotalCost: number;
 }
