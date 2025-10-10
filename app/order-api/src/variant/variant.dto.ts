@@ -1,8 +1,10 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 import { IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
 import { ProductResponseDto } from 'src/product/product.dto';
+import { RoleEnum } from 'src/role/role.enum';
 import { SizeResponseDto } from 'src/size/size.dto';
 
 export class CreateVariantRequestDto {
@@ -62,6 +64,7 @@ export class VariantResponseDto extends BaseResponseDto {
   price: number;
 
   @AutoMap()
+  @Expose({ groups: [RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager] })
   costPrice: number;
 
   @AutoMap(() => SizeResponseDto)
