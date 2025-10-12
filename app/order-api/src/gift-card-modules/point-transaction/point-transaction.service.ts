@@ -145,8 +145,8 @@ export class PointTransactionService {
       phonenumber: item?.user?.phonenumber,
       type:
         item?.type === PointTransactionTypeEnum.IN
-          ? 'Giao dịch vào'
-          : 'Giao dịch ra',
+          ? 'Nhận xu'
+          : 'Dùng xu',
       points: CurrencyUtil.formatCurrency(item?.points),
       createdAt: item.createdAt
         ? moment(item.createdAt).format('HH:mm:ss DD/MM/YYYY')
