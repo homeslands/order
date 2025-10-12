@@ -6,19 +6,22 @@ import { formatCurrency } from '@/utils'
 import moment from 'moment'
 import { PointTransactionType } from '@/constants'
 
-export const usePointTransactionColumns = (): ColumnDef<IPointTransaction>[] => {
+export const usePointTransactionColumns = (props: { page: number, size: number }): ColumnDef<IPointTransaction>[] => {
   const { t } = useTranslation(['giftCard', 'common'])
+  const { t: tProfile } = useTranslation('profile')
+  const { page, size } = props;
 
   return [
     {
       accessorKey: 'index',
       header: () => <div className="font-semibold text-black text-center dark:text-white">STT</div>,
       cell: ({ row }) => {
+        const currIndex = (page - 1) * size + (row?.index ?? 0) + 1;
         return (
           <div
             className="text-sm text-gray-700 dark:text-gray-300 text-center w-28"
           >
-            {row.index + 1}
+            {currIndex}
           </div>
         )
       },
@@ -58,7 +61,7 @@ export const usePointTransactionColumns = (): ColumnDef<IPointTransaction>[] => 
         const className = rowData?.type === PointTransactionType.IN ? 'text-green-600' : 'text-red-600';
         return (
           <div className={`w-44 text-sm text-gray-700 text-center ${className}`}>
-            {rowData?.type === PointTransactionType.IN ? 'Giao dịch vào' : 'Giao dịch ra'}
+            {rowData?.type === PointTransactionType.IN ? tProfile('profile.coinEarned') : tProfile("profile.coinSpent")}
           </div>
         )
       },
