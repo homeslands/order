@@ -43,6 +43,7 @@ export const VERIFY_PHONE_NUMBER_TOKEN_IS_EXPIRED =
   'VERIFY_PHONE_NUMBER_TOKEN_IS_EXPIRED';
 export const CONFIRM_PHONE_NUMBER_VERIFICATION_ERROR =
   'CONFIRM_PHONE_NUMBER_VERIFICATION_ERROR';
+export const USER_NOT_ACTIVE = 'USER_NOT_ACTIVE';
 
 export type TAuthErrorCodeKey =
   | typeof INVALID_PHONENUMBER
@@ -77,7 +78,8 @@ export type TAuthErrorCodeKey =
   | typeof ERROR_CREATE_VERIFY_EMAIL_TOKEN
   | typeof VERIFY_PHONE_NUMBER_TOKEN_NOT_FOUND
   | typeof VERIFY_PHONE_NUMBER_TOKEN_IS_EXPIRED
-  | typeof CONFIRM_PHONE_NUMBER_VERIFICATION_ERROR;
+  | typeof CONFIRM_PHONE_NUMBER_VERIFICATION_ERROR
+  | typeof USER_NOT_ACTIVE;
 
 export type TAuthErrorCode = Record<TAuthErrorCodeKey, TErrorCodeValue>;
 
@@ -161,4 +163,5 @@ export const AuthValidation: TAuthErrorCode = {
     119032,
     'Error when confirm phone number verification',
   ),
+  USER_NOT_ACTIVE: createErrorCode(119033, 'User not active'),
 };
