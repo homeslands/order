@@ -39,7 +39,7 @@ export function SystemTransactionPointHistoryTabContent() {
     return data?.result?.items || []
   }, [data])
 
-  const totalCount = pointTransactions.length;
+  const totalCount = data?.result?.total;
 
   const summary = useMemo(() => {
     const totalEarned = pointTransactions.filter(item => item.type === PointTransactionType.IN)
@@ -211,8 +211,8 @@ export function SystemTransactionPointHistoryTabContent() {
                 <TagIcon size={isMobile ? 16 : 18} />
               </span>
               {t('profile.coinTransactions')}
-              {totalCount > 0 && (
-                <span className="ml-2 text-xs text-gray-500">
+              {totalCount && totalCount > 0 && (
+                <span className="m1-2 text-xs text-gray-500 dark:text-white">
                   ({totalCount})
                 </span>
               )}
@@ -252,7 +252,7 @@ export function SystemTransactionPointHistoryTabContent() {
 
           {/* Filter Panel */}
           <Collapsible open={isFilterOpen}>
-            <CollapsibleContent className="mt-4">
+            <CollapsibleContent className="my-3">
               <div className="p-4 bg-white rounded-lg border shadow-sm dark:bg-gray-800">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   {/* Date From */}
@@ -294,7 +294,7 @@ export function SystemTransactionPointHistoryTabContent() {
                         setFilter({ ...filter, type: value })
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className='dark:border-gray-700 bg-background'>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -336,7 +336,7 @@ export function SystemTransactionPointHistoryTabContent() {
             <div className="space-y-1">
               <SortContext.Provider value={{ onSort: handleSortChange }}>
                 <DataTable
-                  columns={usePointTransactionColumns()}
+                  columns={usePointTransactionColumns({ page: data?.result.page || 0, size: data?.result?.pageSize || 0 })}
                   data={pointTransactions}
                   isLoading={isLoading}
                   pages={data?.result.totalPages || 0}
