@@ -54,7 +54,7 @@ import { RoleException } from 'src/role/role.exception';
 import { RoleValidation } from 'src/role/role.validation';
 import { VerifyEmailToken } from './entity/verify-email-token.entity';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
-import { AuthUtils } from './auth.utils';
+import { AuthUtils, checkActiveUser } from './auth.utils';
 import { UserUtils } from 'src/user/user.utils';
 import { getRandomString } from 'src/helper';
 import { VerifyPhoneNumberToken } from './entity/verify-phone-number-token.entity';
@@ -1073,6 +1073,8 @@ export class AuthService {
       throw new AuthException(AuthValidation.INVALID_CREDENTIALS);
     }
 
+    checkActiveUser(user);
+
     const payload: AuthJwtPayload = {
       sub: user.id,
       jti: uuidv4(),
@@ -1230,6 +1232,8 @@ export class AuthService {
       },
       relations: ['branch', 'role.permissions.authority.authorityGroup'],
     });
+    checkActiveUser(user);
+
     payload.scope = this.authUtils.buildScope(user);
 
     return this.generateToken(payload);

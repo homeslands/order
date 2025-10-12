@@ -281,4 +281,20 @@ export class UserService {
       totalPages,
     } as AppPaginatedResponseDto<UserResponseDto>;
   }
+
+  async toggleActiveUser(slug: string) {
+    const context = `${UserService.name}.${this.toggleActiveUser.name}`;
+    const user = await this.userRepository.findOne({
+      where: { slug },
+    });
+    if (!user) {
+      this.logger.warn(`User ${slug} not found`, context);
+      throw new UserException(UserValidation.USER_NOT_FOUND);
+    }
+
+    user.isActive = !user.isActive;
+    await this.userRepository.save(user);
+    this.logger.log(`User ${slug} active status has been toggled`, context);
+    return this.mapper.map(user, User, UserResponseDto);
+  }
 }

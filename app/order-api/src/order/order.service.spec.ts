@@ -428,7 +428,7 @@ describe('OrderService', () => {
         password: '',
         firstName: '',
         lastName: '',
-        isActive: false,
+        isActive: true,
         branch: new Branch(),
         id: 'mock-user-id',
         slug: 'mock-user-slug',
@@ -451,7 +451,7 @@ describe('OrderService', () => {
         mockBranch,
       );
       (tableRepositoryMock.findOne as jest.Mock).mockResolvedValue(table);
-      (userRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(owner);
+      (userRepositoryMock.findOne as jest.Mock).mockResolvedValue(owner);
       (mapperMock.map as jest.Mock).mockReturnValue(mockOutput);
       expect(await service.constructOrder(mockInput)).toEqual(mockOutput);
     });
@@ -477,7 +477,7 @@ describe('OrderService', () => {
         password: '',
         firstName: '',
         lastName: '',
-        isActive: false,
+        isActive: true,
         branch: new Branch(),
         id: 'mock-user-id',
         slug: 'mock-user-slug',
@@ -499,7 +499,7 @@ describe('OrderService', () => {
       (branchRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(
         mockBranch,
       );
-      (userRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(owner);
+      (userRepositoryMock.findOne as jest.Mock).mockResolvedValue(owner);
       (mapperMock.map as jest.Mock).mockReturnValue(mockOutput);
       expect(await service.constructOrder(mockInput)).toEqual(mockOutput);
     });
