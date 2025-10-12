@@ -54,6 +54,7 @@ import { PaymentUtils } from 'src/payment/payment.utils';
 import { CurrentUserDto } from 'src/user/user.dto';
 import { UserException } from 'src/user/user.exception';
 import { UserValidation } from 'src/user/user.validation';
+import { checkActiveUser } from 'src/auth/auth.utils';
 
 @Injectable()
 export class CardOrderService {
@@ -77,7 +78,7 @@ export class CardOrderService {
     private readonly ptService: SharedPointTransactionService,
     private readonly cashStrategy: CashStrategy,
     private readonly paymentUtils: PaymentUtils,
-  ) { }
+  ) {}
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
     const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
@@ -132,8 +133,8 @@ export class CardOrderService {
     this.logger.log(`Initiate a payment: ${JSON.stringify(payload)}`, context);
 
     const cashier = await this.userRepository.findOne({
-      where: { slug: payload.cashierSlug }
-    })
+      where: { slug: payload.cashierSlug },
+    });
     if (!cashier)
       throw new CardOrderException(CardOrderValidation.CASHIER_NOT_FOUND);
 
@@ -211,7 +212,7 @@ export class CardOrderService {
       cashierId: cashier.id,
       cashierName: `${cashier.firstName} ${cashier.lastName}`,
       cashierPhone: cashier.phonenumber,
-      cashierSlug: cashier.slug
+      cashierSlug: cashier.slug,
     } as Partial<CardOrder>);
 
     if (payment.paymentMethod === PaymentMethod.CASH) {
@@ -248,11 +249,15 @@ export class CardOrderService {
 
     const canceler = await this.userRepository.findOne({
       where: {
-        id: userDto.userId
-      }
-    })
+        id: userDto.userId,
+      },
+    });
 
-    if (!canceler) throw new UserException(UserValidation.USER_NOT_FOUND, 'Canceler not found');
+    if (!canceler)
+      throw new UserException(
+        UserValidation.USER_NOT_FOUND,
+        'Canceler not found',
+      );
 
     const cardOrder = await this.cardOrderRepository.findOne({
       where: { slug },
@@ -275,7 +280,7 @@ export class CardOrderService {
       paymentStatus: PaymentStatus.CANCELLED,
       cancelBySlug: canceler.slug,
       cancelByName: `${canceler.firstName} ${canceler.lastName}`,
-      cancelAt: new Date()
+      cancelAt: new Date(),
     } as CardOrder);
 
     await this.cardOrderRepository.save(cardOrder);
@@ -329,6 +334,8 @@ export class CardOrderService {
         CardOrderValidation.CARD_ORDER_CUSTOMER_NOT_FOUND,
       );
     }
+
+    checkActiveUser(customer);
 
     const cashier = await this.userRepository.findOne({
       where: {

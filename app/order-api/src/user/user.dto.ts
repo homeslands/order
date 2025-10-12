@@ -114,6 +114,9 @@ export class UserResponseDto extends BaseResponseDto {
   @AutoMap(() => AccumulatedPointResponseDto)
   @ApiProperty()
   accumulatedPoint: AccumulatedPointResponseDto;
+
+  @AutoMap()
+  isActive: boolean;
 }
 
 export class GeneralUserResponseDto extends BaseResponseDto {

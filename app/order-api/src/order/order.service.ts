@@ -75,6 +75,7 @@ import {
   FeatureFlagSystems,
   FeatureSystemGroups,
 } from 'src/feature-flag-system/feature-flag-system.constant';
+import { checkActiveUser } from 'src/auth/auth.utils';
 @Injectable()
 export class OrderService {
   constructor(
@@ -1210,6 +1211,8 @@ export class OrderService {
       where: { slug: data.owner ?? IsNull() },
     });
     if (!owner) owner = defaultCustomer;
+
+    checkActiveUser(owner);
 
     // Get cashier
     // let approvalBy = await this.userUtils.getUser({
