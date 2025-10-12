@@ -51,6 +51,7 @@ import { CashStrategy } from 'src/payment/strategy/cash.strategy';
 import { PaymentException } from 'src/payment/payment.exception';
 import { PaymentValidation } from 'src/payment/payment.validation';
 import { PaymentUtils } from 'src/payment/payment.utils';
+import { checkActiveUser } from 'src/auth/auth.utils';
 
 @Injectable()
 export class CardOrderService {
@@ -74,7 +75,7 @@ export class CardOrderService {
     private readonly ptService: SharedPointTransactionService,
     private readonly cashStrategy: CashStrategy,
     private readonly paymentUtils: PaymentUtils,
-  ) { }
+  ) {}
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
     const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
@@ -129,8 +130,8 @@ export class CardOrderService {
     this.logger.log(`Initiate a payment: ${JSON.stringify(payload)}`, context);
 
     const cashier = await this.userRepository.findOne({
-      where: { slug: payload.cashierSlug }
-    })
+      where: { slug: payload.cashierSlug },
+    });
     if (!cashier)
       throw new CardOrderException(CardOrderValidation.CASHIER_NOT_FOUND);
 
@@ -208,7 +209,7 @@ export class CardOrderService {
       cashierId: cashier.id,
       cashierName: `${cashier.firstName} ${cashier.lastName}`,
       cashierPhone: cashier.phonenumber,
-      cashierSlug: cashier.slug
+      cashierSlug: cashier.slug,
     } as Partial<CardOrder>);
 
     if (payment.paymentMethod === PaymentMethod.CASH) {
@@ -310,6 +311,8 @@ export class CardOrderService {
         CardOrderValidation.CARD_ORDER_CUSTOMER_NOT_FOUND,
       );
     }
+
+    checkActiveUser(customer);
 
     const cashier = await this.userRepository.findOne({
       where: {
