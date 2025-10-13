@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui'
 import { IUserInfo } from '@/types'
-import { ResetPasswordDialog, UpdateEmployeeDialog, UserInfoDialog } from '@/components/app/dialog'
+import { ResetEmployeePasswordDialog, UpdateEmployeeDialog, UpdateEmployeeStatusDialog, UserInfoDialog } from '@/components/app/dialog'
 import UpdateUserRoleDialog from '@/components/app/dialog/update-user-role-dialog'
 
 export const useEmployeeListColumns = (): ColumnDef<IUserInfo>[] => {
@@ -41,6 +41,16 @@ export const useEmployeeListColumns = (): ColumnDef<IUserInfo>[] => {
       cell: ({ row }) => {
         const user = row.original
         return <div className="text-xs sm:text-sm">{user?.slug}</div>
+      },
+    },
+    {
+      accessorKey: 'status',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('employee.status')} />
+      ),
+      cell: ({ row }) => {
+        const user = row.original
+        return <div className={`text-xs sm:text-sm ${user?.isActive ? 'text-green-500' : 'text-destructive'}`}>{user?.isActive ? t('employee.active') : t('employee.inactive')}</div>
       },
     },
     {
@@ -122,9 +132,10 @@ export const useEmployeeListColumns = (): ColumnDef<IUserInfo>[] => {
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
                 <UserInfoDialog user={user} />
-                <ResetPasswordDialog user={user} />
+                <ResetEmployeePasswordDialog user={user} />
                 <UpdateUserRoleDialog user={user} />
                 <UpdateEmployeeDialog employee={user} />
+                <UpdateEmployeeStatusDialog user={user} />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

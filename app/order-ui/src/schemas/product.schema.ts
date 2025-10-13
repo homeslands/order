@@ -40,6 +40,12 @@ export function useCreateProductVariantSchema() {
         invalid_type_error: t('product.priceInvalid'),
       })
       .min(0, t('product.priceMin')),
+    costPrice: z.coerce
+      .number({
+        required_error: t('product.costPriceRequired'),
+        invalid_type_error: t('product.costPriceInvalid'),
+      })
+      .min(0, t('product.costPriceMin')),
     size: z.string().min(1, t('product.sizeRequired')),
     product: z.string().min(1, t('product.productRequired')),
   })
@@ -54,6 +60,12 @@ export function useUpdateProductVariantSchema() {
         invalid_type_error: t('product.priceInvalid'),
       })
       .min(0, t('product.priceMin')),
+    costPrice: z.coerce
+      .number({
+        required_error: t('product.costPriceRequired'),
+        invalid_type_error: t('product.costPriceInvalid'),
+      })
+      .min(0, t('product.costPriceMin')),
     product: z.string().min(1, t('product.productRequired')),
   })
 }
