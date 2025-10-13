@@ -14,6 +14,7 @@ import { IUserInfo } from '@/types'
 import { formatCurrency } from '@/utils'
 import { GiftCardTransactionSheet } from '@/components/app/sheet'
 import { MoreHorizontal } from 'lucide-react'
+import UpdateUserStatusDialog from '@/components/app/dialog/update-user-status-dialog'
 
 export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
   const { t } = useTranslation(['customer'])
@@ -31,6 +32,16 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
             {createdAt ? moment(createdAt).format('HH:mm DD/MM/YYYY') : ''}
           </div>
         )
+      },
+    },
+    {
+      accessorKey: 'status',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('customer.status')} />
+      ),
+      cell: ({ row }) => {
+        const user = row.original
+        return <div className={`text-sm ${user?.isActive ? 'text-green-500' : 'text-destructive'}`}>{user?.isActive ? t('customer.active') : t('customer.inactive')}</div>
       },
     },
     {
@@ -110,6 +121,9 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
                 <GiftCardTransactionSheet user={user} />
+                <div onClick={(e) => e.stopPropagation()}>
+                  <UpdateUserStatusDialog user={user} />
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

@@ -34,6 +34,7 @@ export interface IUserInfo {
     createdAt: string
     slug: string
   }
+  isActive: boolean
 }
 
 export interface ICreateUserRequest {
