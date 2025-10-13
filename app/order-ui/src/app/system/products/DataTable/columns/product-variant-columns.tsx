@@ -13,6 +13,7 @@ import {
 } from '@/components/ui'
 import { IProductVariant } from '@/types'
 import { UpdateProductVariantDialog, DeleteProductVariantDialog } from '@/components/app/dialog'
+import { formatCurrencyWithSymbol } from '@/utils'
 
 export const useProductVariantColumns = (): ColumnDef<IProductVariant>[] => {
   const { t } = useTranslation(['product'])
@@ -39,7 +40,21 @@ export const useProductVariantColumns = (): ColumnDef<IProductVariant>[] => {
       accessorKey: 'price',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('productVariant.price')} />
-      )
+      ),
+      cell: ({ row }) => {
+        const price = row.original.price
+        return price !== null && price !== undefined ? formatCurrencyWithSymbol(price) : ''
+      }
+    },
+    {
+      accessorKey: 'costPrice',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('productVariant.costPrice')} />
+      ),
+      cell: ({ row }) => {
+        const costPrice = row.original.costPrice
+        return costPrice !== null && costPrice !== undefined ? formatCurrencyWithSymbol(costPrice, true) : ''
+      }
     },
     {
       id: 'actions',
@@ -50,7 +65,7 @@ export const useProductVariantColumns = (): ColumnDef<IProductVariant>[] => {
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-8 h-8 p-0">
+                <Button variant="ghost" className="p-0 w-8 h-8">
                   <span className="sr-only">{tCommon('common.action')}</span>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
