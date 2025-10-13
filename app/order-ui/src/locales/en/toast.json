@@ -364,6 +364,8 @@
     "createUserGroupSuccess": "Create user group successfully",
     "updateUserGroupSuccess": "Update user group successfully",
     "deleteUserGroupSuccess": "Delete user group successfully",
-    "addMultipleUsersToUserGroupSuccess": "Add multiple users to user group successfully"
+    "addMultipleUsersToUserGroupSuccess": "Add multiple users to user group successfully",
+    "deleteUserGroupMemberSuccess": "Delete user group member successfully",
+    "accountDisabled": "Account disabled"
   }
 }
