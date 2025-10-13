@@ -361,6 +361,7 @@
         "updateUserGroupSuccess": "Cập nhật nhóm khách hàng thành công",
         "deleteUserGroupSuccess": "Xóa nhóm khách hàng thành công",
         "addMultipleUsersToUserGroupSuccess": "Thêm nhiều thành viên vào nhóm khách hàng thành công",
-        "deleteUserGroupMemberSuccess": "Xóa thành viên nhóm khách hàng thành công"
+        "deleteUserGroupMemberSuccess": "Xóa thành viên nhóm khách hàng thành công",
+        "accountDisabled": "Tài khoản đã bị vô hiệu hóa"
       }
     }
