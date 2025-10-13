@@ -314,6 +314,7 @@
         "updateTableSuccess": "Cập nhật bàn thành công",
         "updateUserRoleSuccess": "Cập nhật chức danh người dùng thành công",
         "updateUserSuccess": "Cập nhật người dùng thành công",
+        "updateUserStatusSuccess": "Cập nhật trạng thái người dùng thành công",
         "updateVoucherGroupSuccess": "Cập nhật nhóm voucher thành công",
         "updateVoucherSuccess": "Cập nhật voucher thành công",
         "uploadDatabaseError": "Lỗi tải lên cơ sở dữ liệu",

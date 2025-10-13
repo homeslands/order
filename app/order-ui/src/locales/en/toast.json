@@ -314,6 +314,7 @@
     "updateTableSuccess": "Table updated successfully",
     "updateUserRoleSuccess": "User role updated successfully",
     "updateUserSuccess": "User updated successfully",
+    "updateUserStatusSuccess": "User status updated successfully",
     "updateVoucherGroupSuccess": "Voucher group updated successfully",
     "updateVoucherSuccess": "Voucher updated successfully",
     "uploadDatabaseError": "Error uploading database",
