@@ -53,6 +53,7 @@ import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { VoucherException } from 'src/voucher/voucher.exception';
 import { VoucherValidation } from 'src/voucher/voucher.validation';
 import { CreditCardStrategy } from './strategy/credit-card.strategy';
+import { checkActiveUser } from 'src/auth/auth.utils';
 
 @Injectable()
 export class PaymentService {
@@ -198,6 +199,8 @@ export class PaymentService {
     const order = await this.orderUtils.getOrder({
       where: { slug: createPaymentDto.orderSlug },
     });
+
+    checkActiveUser(order.owner);
 
     // if order subtotal is less than 2000,
     // set loss === subtotal
@@ -411,6 +414,8 @@ export class PaymentService {
         PaymentValidation.INITIATE_PUBLIC_PAYMENT_DENIED,
       );
     }
+
+    checkActiveUser(order.owner);
 
     if (order.status !== OrderStatus.PENDING) {
       this.logger.error('Order is not pending', null, context);

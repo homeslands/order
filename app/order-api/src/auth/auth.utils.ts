@@ -27,7 +27,7 @@ export class AuthUtils {
 }
 
 export function checkActiveUser(user: User): void {
-  if (!user.isActive) {
+  if (!user?.isActive) {
     throw new AuthException(AuthValidation.USER_NOT_ACTIVE);
   }
 }

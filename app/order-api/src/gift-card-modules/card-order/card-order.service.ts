@@ -86,13 +86,15 @@ export class CardOrderService {
 
     const cardOrder = await this.cardOrderRepository.findOne({
       where: { slug: payload.cardorderSlug ?? IsNull() },
-      relations: ['payment'],
+      relations: ['payment', 'customer'],
     });
     if (!cardOrder)
       throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
 
     if (cardOrder.status !== CardOrderStatus.PENDING)
       throw new OrderException(CardOrderValidation.CARD_ORDER_NOT_PENDING);
+
+    checkActiveUser(cardOrder.customer);
 
     if (cardOrder.payment)
       return this.mapper.map(cardOrder, CardOrder, CardOrderResponseDto);
@@ -147,6 +149,8 @@ export class CardOrderService {
 
     if (cardOrder.status !== CardOrderStatus.PENDING)
       throw new OrderException(CardOrderValidation.CARD_ORDER_NOT_PENDING);
+
+    checkActiveUser(cardOrder.customer);
 
     if (_.isEmpty(payload.paymentMethod)) {
       this.logger.error('Invalid payment method', null, context);
