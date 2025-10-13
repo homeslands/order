@@ -41,6 +41,7 @@ export const UpdateProductVariantForm: React.FC<
     resolver: zodResolver(useUpdateProductVariantSchema()),
     defaultValues: {
       price: productVariant.price,
+      costPrice: productVariant.costPrice,
       product: productVariant.slug,
     },
   })
@@ -87,6 +88,44 @@ export const UpdateProductVariantForm: React.FC<
                     }
                   }}
                   onWheel={(e) => e.currentTarget.blur()} // tránh scroll đổi số
+                  className="pr-8 font-medium tracking-wide text-right"
+                />
+                <span className="absolute right-2 text-muted-foreground">₫</span>
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    costPrice: (
+      <FormField
+        control={form.control}
+        name="costPrice"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('productVariant.costPrice')}</FormLabel>
+            <FormControl>
+              <div className="flex relative items-center">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder={t('productVariant.enterCostPrice')}
+                  value={
+                    field.value === 0
+                      ? '0'
+                      : field.value
+                        ? field.value.toLocaleString()
+                        : ''
+                  }
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/,/g, '')
+                    const num = raw === '' ? '' : Number(raw)
+                    if (num === '' || !isNaN(num)) {
+                      field.onChange(num === '' ? '' : num)
+                    }
+                  }}
+                  onWheel={(e) => e.currentTarget.blur()}
                   className="pr-8 font-medium tracking-wide text-right"
                 />
                 <span className="absolute right-2 text-muted-foreground">₫</span>
