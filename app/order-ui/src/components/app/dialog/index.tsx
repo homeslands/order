@@ -175,3 +175,7 @@ export { default as DeleteUserGroupDialog } from './delete-user-group-dialog'
 
 export { default as AddMultipleUsersToUserGroupDialog } from './add-multiple-users-to-user-group-dialog'
 export { default as DeleteUserGroupMemberDialog } from './delete-user-group-member-dialog'
+
+export { default as UpdateUserStatusDialog } from './update-user-status-dialog'
+export { default as UpdateEmployeeStatusDialog } from './update-employee-status-dialog'
+export { default as ResetEmployeePasswordDialog } from './reset-employee-password-dialog'

@@ -12,6 +12,7 @@ import {
 } from '@/components/ui'
 import { IUserInfo } from '@/types'
 import { MoreHorizontal } from 'lucide-react'
+import UpdateUserStatusDialog from '@/components/app/dialog/update-user-status-dialog'
 
 export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
   const { t } = useTranslation(['customer'])
@@ -29,6 +30,16 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
             {createdAt ? moment(createdAt).format('HH:mm DD/MM/YYYY') : ''}
           </div>
         )
+      },
+    },
+    {
+      accessorKey: 'status',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('customer.status')} />
+      ),
+      cell: ({ row }) => {
+        const user = row.original
+        return <div className={`text-sm ${user?.isActive ? 'text-green-500' : 'text-destructive'}`}>{user?.isActive ? t('customer.active') : t('customer.inactive')}</div>
       },
     },
     {
@@ -78,7 +89,8 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
     {
       id: 'actions',
       header: tCommon('common.action'),
-      cell: () => {
+      cell: ({ row }) => {
+        const user = row.original
         return (
           <div>
             <DropdownMenu>
@@ -92,6 +104,9 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
+                <div onClick={(e) => e.stopPropagation()}>
+                  <UpdateUserStatusDialog user={user} />
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
