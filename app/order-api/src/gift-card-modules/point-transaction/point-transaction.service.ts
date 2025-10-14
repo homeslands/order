@@ -12,7 +12,6 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
-import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { PointTransactionResponseDto } from './dto/point-transaction-response.dto';
 import { createSortOptions } from 'src/shared/utils/obj.util';
 import { AppPaginatedResponseDto } from 'src/app/app.dto';
@@ -29,18 +28,24 @@ import { GiftCard } from '../gift-card/entities/gift-card.entity';
 import { User } from 'src/user/user.entity';
 import { PdfService } from 'src/pdf/pdf.service';
 import { fileToBase64DataUri } from 'src/shared/utils/file.util';
-import { ExportAllPointTransactionDto } from './dto/export-all-point-transaction.dto';
+import {
+  ExportAllPointTransactionDto,
+  ExportAllSystemPointTransactionDto,
+} from './dto/export-all-point-transaction.dto';
 import { AuthException } from 'src/auth/auth.exception';
 import { AuthValidation } from 'src/auth/auth.validation';
 import { CardOrder } from '../card-order/entities/card-order.entity';
 import { SharedPointTransactionService } from 'src/shared/services/shared-point-transaction.service';
 import _ from 'lodash';
+import { SharedExportFileService } from 'src/shared/services/shared-export-file.service';
+import { ExcelConfig } from 'src/shared/interfaces/commons/excel-config.interface';
+import { ExcelUtil } from 'src/shared/utils/excel.util';
+import moment from 'moment';
+import { ExportFilename } from 'src/shared/constants/export-filename.constant';
+import { CurrencyUtil } from 'src/shared/utils/currency.util';
 
 @Injectable()
 export class PointTransactionService {
-  /**
-   *
-   */
   constructor(
     @InjectRepository(PointTransaction)
     private ptRepository: Repository<PointTransaction>,
@@ -56,10 +61,99 @@ export class PointTransactionService {
     private readonly logger: Logger,
     @InjectMapper()
     private readonly mapper: Mapper,
-    private readonly transactionService: TransactionManagerService,
     private readonly pdfService: PdfService,
-    private readonly sharedPtService: SharedPointTransactionService
+    private readonly sharedPtService: SharedPointTransactionService,
+    private readonly sharedExportFileService: SharedExportFileService,
   ) { }
+
+  async exportAllSystem(query: ExportAllSystemPointTransactionDto) {
+    const context = `${PointTransactionService.name}.${this.export.name}`;
+    this.logger.log(
+      `Export all point transaction req: ${JSON.stringify(query)}`,
+      context,
+    );
+
+    const whereOpts: FindOptionsWhere<PointTransaction> = {};
+
+    if (query.type) {
+      whereOpts.type = query.type;
+    }
+
+    if (query.fromDate && !query.toDate) {
+      whereOpts.createdAt = MoreThan(query.fromDate);
+    }
+
+    if (query.fromDate && query.toDate) {
+      whereOpts.createdAt = Between(query.fromDate, query.toDate);
+    }
+
+    const pts = await this.ptRepository.find({
+      where: whereOpts,
+      relations: ['user'],
+      order: {
+        createdAt: 'ASC',
+      },
+    });
+
+    const filename = ExportFilename.EXPORT_ALL_SYSTEM_POINT_TRANSACTION;
+    const excelConfig = this.buildExcelConfig();
+    const data = this.builData(pts);
+
+    return await this.sharedExportFileService.exportExcel(
+      filename,
+      excelConfig,
+      data,
+    );
+  }
+
+  private buildExcelConfig() {
+    const excelConfig = new ExcelConfig();
+    const headers = [
+      { header: 'STT', key: 'index', width: ExcelUtil.WIDTH_COL_STT },
+      {
+        header: 'Khách hàng',
+        key: 'customerName',
+        width: ExcelUtil.WIDTH_COL_MEDIUM,
+      },
+      {
+        header: 'Số diện thoại',
+        key: 'phonenumber',
+        width: ExcelUtil.WIDTH_COL_MEDIUM,
+      },
+      {
+        header: 'Loại giao dịch',
+        key: 'type',
+        width: ExcelUtil.WIDTH_COL_CODE,
+      },
+      { header: 'Số xu', key: 'points', width: ExcelUtil.WIDTH_COL_SHORT },
+      { header: 'Mô tả', key: 'desc', width: ExcelUtil.WIDTH_COL_LONG },
+      {
+        header: 'Ngày sử dụng',
+        key: 'createdAt',
+        width: ExcelUtil.WIDTH_COL_SHORT,
+      },
+    ];
+    excelConfig.headers = headers;
+    return excelConfig;
+  }
+
+  private builData(data: any[]) {
+    const exportData = data.map((item, index) => ({
+      ...item,
+      index: index + 1,
+      customerName: `${item?.user?.firstName} ${item?.user?.lastName}`,
+      phonenumber: item?.user?.phonenumber,
+      type:
+        item?.type === PointTransactionTypeEnum.IN
+          ? 'Nhận xu'
+          : 'Dùng xu',
+      points: CurrencyUtil.formatCurrency(item?.points),
+      createdAt: item.createdAt
+        ? moment(item.createdAt).format('HH:mm:ss DD/MM/YYYY')
+        : null,
+    }));
+    return exportData;
+  }
 
   async exportAll(query: ExportAllPointTransactionDto) {
     const context = `${PointTransactionService.name}.${this.export.name}`;
@@ -101,21 +195,23 @@ export class PointTransactionService {
       where: whereOpts,
       relations: ['user'],
       order: {
-        createdAt: 'ASC'
-      }
+        createdAt: 'ASC',
+      },
     });
 
-    const totalIn = pts.filter(item => item.type === PointTransactionTypeEnum.IN).reduce((prev, cur) => prev + cur.points, 0)
-    const totalOut = pts.filter(item => item.type === PointTransactionTypeEnum.OUT).reduce((prev, cur) => prev + cur.points, 0)
+    const totalIn = pts
+      .filter((item) => item.type === PointTransactionTypeEnum.IN)
+      .reduce((prev, cur) => prev + cur.points, 0);
+    const totalOut = pts
+      .filter((item) => item.type === PointTransactionTypeEnum.OUT)
+      .reduce((prev, cur) => prev + cur.points, 0);
     let totalPoints = 0;
 
     if (!_.isEmpty(pts)) {
-      const lastItem = pts.at(pts.length - 1)
+      const lastItem = pts.at(pts.length - 1);
       if (lastItem.type === PointTransactionTypeEnum.IN)
         totalPoints = +lastItem.balance + lastItem.points;
-      else
-        totalPoints = +lastItem.balance - lastItem.points;
-
+      else totalPoints = +lastItem.balance - lastItem.points;
     }
 
     const logoUri = fileToBase64DataUri('public/images/logo.png', 'image/png');
@@ -131,10 +227,10 @@ export class PointTransactionService {
         query,
         totalIn,
         totalOut,
-        totalPoints
+        totalPoints,
       },
       {
-        format: "A4",
+        format: 'A4',
       },
     );
   }

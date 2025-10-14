@@ -11,13 +11,20 @@ import {
   StreamableFile,
 } from '@nestjs/common';
 import { PointTransactionService } from './point-transaction.service';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { PointTransactionResponseDto } from './dto/point-transaction-response.dto';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { FindAllPointTransactionDto } from './dto/find-all-point-transaction.dto';
 import { CreatePointTransactionDto } from './dto/create-point-transaction.dto';
-import { ExportAllPointTransactionDto } from './dto/export-all-point-transaction.dto';
+import {
+  ExportAllPointTransactionDto,
+  ExportAllSystemPointTransactionDto,
+} from './dto/export-all-point-transaction.dto';
 import { ExportFilename } from 'src/shared/constants/export-filename.constant';
 
 @Controller('point-transaction')
@@ -26,7 +33,7 @@ import { ExportFilename } from 'src/shared/constants/export-filename.constant';
 export class PointTransactionController {
   constructor(
     private readonly pointTransactionService: PointTransactionService,
-  ) {}
+  ) { }
 
   @Get(':slug/export')
   @ApiOperation({ summary: 'Export point transaction' })
@@ -56,6 +63,22 @@ export class PointTransactionController {
       type: 'application/pdf',
       length: result.length,
       disposition: `attachment; filename="${filename}"`,
+    });
+  }
+
+  @Get('/export/system')
+  @ApiOperation({ summary: 'Export all system point transactions' })
+  @HttpCode(HttpStatus.OK)
+  async exportAllSystem(
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
+    query: ExportAllSystemPointTransactionDto,
+  ): Promise<StreamableFile> {
+    const result = await this.pointTransactionService.exportAllSystem(query);
+
+    return new StreamableFile(result.data, {
+      type: 'application/vnd.ms-excel',
+      length: result.size,
+      disposition: `attachment; filename="${result.name}"`,
     });
   }
 

@@ -58,6 +58,7 @@ import { useDebouncedInput } from '@/hooks'
 import { SimpleDatePicker } from '../app/picker'
 import { PeriodOfTimeSelect } from '../app/select'
 import { timeChange } from './utils/data-table.utils'
+import { useSearchParams } from 'react-router-dom'
 interface DataTablePaginationProps<TData> {
   table: ReactTable<TData>
   onPageChange: (page: number) => void
@@ -533,13 +534,15 @@ export function DataTablePagination<TData>({
   onPageChange,
   onPageSizeChange,
 }: DataTablePaginationProps<TData>) {
+  const [searchParams] = useSearchParams();
+
   return (
     <div className="flex flex-wrap justify-between items-center px-2">
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium sr-only">Rows per page</p>
           <Select
-            value={`${table.getState().pagination.pageSize}`}
+            value={`${searchParams.get('size') || table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
               table.setPageSize(Number(value))
               onPageSizeChange?.(Number(value))
