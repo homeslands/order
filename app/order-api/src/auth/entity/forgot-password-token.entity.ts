@@ -1,6 +1,7 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Base } from 'src/app/base.entity';
 import { User } from 'src/user/user.entity';
+import { AutoMap } from '@automapper/classes';
 
 @Entity('forgot_password_token_tbl')
 export class ForgotPasswordToken extends Base {
@@ -13,6 +14,7 @@ export class ForgotPasswordToken extends Base {
   @Column({ name: 'token_column', unique: true })
   token: string;
 
+  @AutoMap()
   @Column({ name: 'expires_at_column' })
   expiresAt: Date;
 }
