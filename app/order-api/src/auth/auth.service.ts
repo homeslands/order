@@ -24,6 +24,8 @@ import {
   ConfirmPhoneNumberVerificationCodeRequestDto,
   ForgotPasswordResponseDto,
   ConfirmForgotPasswordRequestDto,
+  ConfirmForgotPasswordResponseDto,
+  ChangeForgotPasswordRequestDto,
 } from './auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
@@ -551,7 +553,7 @@ export class AuthService {
 
   async confirmForgotPassword(
     requestData: ConfirmForgotPasswordRequestDto,
-  ): Promise<number> {
+  ): Promise<ConfirmForgotPasswordResponseDto> {
     const context = `${AuthService.name}.${this.confirmForgotPassword.name}`;
     this.logger.log(`Request confirm forgot password`, context);
 
@@ -576,24 +578,87 @@ export class AuthService {
       throw new AuthException(AuthValidation.USER_NOT_FOUND);
     }
 
+    const payload: AuthJwtPayload = { sub: existToken.user.id, jti: uuidv4() };
+    const expiresIn = 5 * 60; // 5 minutes
+    const token = this.jwtService.sign(payload, {
+      expiresIn: expiresIn,
+    });
+
+    // Set code expired after forgot password successfully
+    existToken.expiresAt = new Date(Date.now() - 120000); // Set expiry time to the past
+    await this.forgotPasswordRepository.save(existToken);
+
+    return {
+      token,
+    } as ConfirmForgotPasswordResponseDto;
+  }
+
+  async ChangeForgotPassword(
+    requestData: ChangeForgotPasswordRequestDto,
+  ): Promise<void> {
+    const context = `${AuthService.name}.${this.ChangeForgotPassword.name}`;
+    this.logger.log(`Request change forgot password`, context);
+
+    // const existToken = await this.forgotPasswordRepository.findOne({
+    //   where: {
+    //     token: requestData.token,
+    //     expiresAt: MoreThan(new Date()),
+    //   },
+    //   relations: {
+    //     user: true,
+    //   },
+    // });
+    // if (!existToken) {
+    //   this.logger.warn(`Forgot token is not existed`, context);
+    //   throw new AuthException(
+    //     AuthValidation.FORGOT_TOKEN_EXPIRED,
+    //     FORGOT_TOKEN_EXPIRED,
+    //   );
+    // }
+    // if (!existToken.user) {
+    //   this.logger.warn(`User is not existed`, context);
+    //   throw new AuthException(AuthValidation.USER_NOT_FOUND);
+    // }
+
+    // Verify token
+    let isExpiredToken = false;
+    try {
+      this.jwtService.verify(requestData.token);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      isExpiredToken = true;
+    }
+    if (isExpiredToken) {
+      this.logger.warn(`Forgot token is expired`, context);
+      throw new AuthException(
+        AuthValidation.FORGOT_TOKEN_EXPIRED,
+        FORGOT_TOKEN_EXPIRED,
+      );
+    }
+
+    // Get payload
+    const payload: AuthJwtPayload = this.jwtService.decode(requestData.token);
+    this.logger.log(`Payload: ${JSON.stringify(payload)}`);
+
+    const user = await this.userUtils.getUser({
+      where: {
+        id: payload.sub,
+      },
+    });
+
     const hashedPass = await bcrypt.hash(
       requestData.newPassword,
       this.saltOfRounds,
     );
 
-    existToken.user.password = hashedPass;
-    await this.userRepository.save(existToken.user);
-    this.logger.log(
-      `User ${existToken.user.slug} has been updated password`,
-      context,
-    );
+    user.password = hashedPass;
+    await this.userRepository.save(user);
+    this.logger.log(`User ${user.slug} has been updated password`, context);
 
     // Set token expired after forgot password successfully
-    existToken.expiresAt = new Date(Date.now() - 120000); // Set expiry time to the past
-    await this.forgotPasswordRepository.save(existToken);
-    this.logger.log(`Token ${existToken.token} is expired`, context);
-
-    return 0;
+    // existToken.expiresAt = new Date(Date.now() - 120000); // Set expiry time to the past
+    // await this.forgotPasswordRepository.save(existToken);
+    // this.logger.log(`Token ${existToken.token} is expired`, context);
   }
 
   async initiateVerifyEmail(
