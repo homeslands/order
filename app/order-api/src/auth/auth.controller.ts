@@ -31,6 +31,7 @@ import {
   ForgotPasswordResponseDto,
   ConfirmForgotPasswordRequestDto,
   ChangeForgotPasswordRequestDto,
+  ConfirmForgotPasswordResponseDto,
 } from './auth.dto';
 import {
   ApiBearerAuth,
@@ -416,20 +417,20 @@ export class AuthController {
   @ApiOperation({ summary: 'Confirm forgot password token' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiResponseWithType({
-    type: String,
+    type: ConfirmForgotPasswordResponseDto,
     description: 'Token confirmed successfully',
   })
   async confirmForgotPassword(
     @Body(new ValidationPipe({ transform: true }))
     requestData: ConfirmForgotPasswordRequestDto,
   ) {
-    await this.authService.confirmForgotPassword(requestData);
+    const result = await this.authService.confirmForgotPassword(requestData);
     return {
       message: 'Token confirmed successfully',
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
-      result: 'Forgot password confirmed successfully',
-    } as AppResponseDto<string>;
+      result,
+    } as AppResponseDto<ConfirmForgotPasswordResponseDto>;
   }
 
   @Public()
