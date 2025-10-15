@@ -361,6 +361,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @Post('forgot-password/initiate')
   @ApiOperation({ summary: 'Create forgot password token' })
@@ -384,6 +385,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @Post('forgot-password/resend')
   @ApiOperation({ summary: 'Resend forgot password token' })
@@ -407,6 +409,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @Post('forgot-password/confirm')
   @ApiOperation({ summary: 'Confirm forgot password token' })
