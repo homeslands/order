@@ -69,6 +69,13 @@ export async function updateUser(
   return response.data
 }
 
+export async function lockUser(slug: string): Promise<IApiResponse<null>> {
+  const response = await http.patch<IApiResponse<null>>(
+    `/user/${slug}/toggle-active`,
+  )
+  return response.data
+}
+
 export async function createUserGroup(
   data: ICreateUserGroupRequest,
 ): Promise<IApiResponse<IUserGroup>> {

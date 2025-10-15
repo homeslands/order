@@ -16,6 +16,7 @@ import { Role } from '@/constants'
 export default function CustomerSearchInput() {
     const { t } = useTranslation(['menu'])
     const { t: tCommon } = useTranslation(['common'])
+    const { t: tCustomer } = useTranslation(['customer'])
     const [users, setUsers] = useState<IUserInfo[]>([])
     const { pagination, setPagination } = usePagination()
     const { inputValue, setInputValue, debouncedInputValue } = useDebouncedInput()
@@ -122,15 +123,27 @@ export default function CustomerSearchInput() {
                     {users.map((user, index) => (
                         <div
                             key={user.slug}
-                            onClick={handleAddOwner(user)}
-                            className={`flex gap-2 items-center cursor-pointer p-2 rounded-md transition-all duration-300 hover:bg-primary/20 ${index < users.length - 1 ? 'border-b' : ''}`}
+                            onClick={user.isActive ? handleAddOwner(user) : undefined}
+                            className={`flex gap-2 items-center p-2 rounded-md transition-all duration-300 ${user.isActive
+                                ? 'cursor-pointer hover:bg-primary/20'
+                                : 'cursor-not-allowed opacity-50 bg-gray-50 dark:bg-gray-900'
+                                } ${index < users.length - 1 ? 'border-b' : ''}`}
                         >
-                            <div className='flex justify-center items-center p-2 rounded-full bg-primary/10'>
-                                <User2Icon className='w-4 h-4 text-primary' />
+                            <div className={`flex justify-center items-center p-2 rounded-full ${user.isActive ? 'bg-primary/10' : 'bg-gray-300 dark:bg-gray-700'
+                                }`}>
+                                <User2Icon className={`w-4 h-4 ${user.isActive ? 'text-primary' : 'text-gray-500'}`} />
                             </div>
-                            <div className='flex flex-col'>
-                                <div className="text-sm font-bold text-muted-foreground">
-                                    {user.firstName} {user.lastName}
+                            <div className='flex flex-col flex-1'>
+                                <div className="flex gap-2 justify-between items-center">
+                                    <div className="text-sm font-bold text-muted-foreground">
+                                        {user.firstName} {user.lastName}
+                                    </div>
+                                    <span className={`text-xs font-semibold px-2 py-0.5 rounded ${user.isActive
+                                        ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                                        : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                                        }`}>
+                                        {user.isActive ? tCustomer('customer.active') : tCustomer('customer.inactive')}
+                                    </span>
                                 </div>
                                 <div className="text-xs xl:text-sm text-muted-foreground">
                                     {user.phonenumber}

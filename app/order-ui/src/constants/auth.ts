@@ -7,3 +7,8 @@ export enum AuthRules {
   MAX_NAME_LENGTH = 100,
   MAX_ADDRESS_LENGTH = 255,
 }
+
+export enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+}

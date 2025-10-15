@@ -13,6 +13,7 @@ import {
   getUserGroupMemberBySlug,
   getUserGroupMembers,
   getUsers,
+  lockUser,
   resetPassword,
   updateUser,
   updateUserGroup,
@@ -69,6 +70,14 @@ export const useResetPassword = () => {
   return useMutation({
     mutationFn: async (user: string) => {
       return resetPassword(user)
+    },
+  })
+}
+
+export const useLockUser = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return lockUser(slug)
     },
   })
 }
