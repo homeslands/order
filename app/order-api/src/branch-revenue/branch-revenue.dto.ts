@@ -75,6 +75,9 @@ export class BranchRevenueQueryResponseDto {
 
   @AutoMap()
   totalDeliveryFee: string;
+
+  @AutoMap()
+  totalCostGiftProductAmount: string;
 }
 
 export class BranchRevenueQueryResponseForHourDto {
@@ -143,6 +146,9 @@ export class BranchRevenueQueryResponseForHourDto {
 
   @AutoMap()
   totalDeliveryFee: string;
+
+  @AutoMap()
+  totalCostGiftProductAmount: string;
 }
 
 export class GetBranchRevenueQueryDto {
@@ -275,6 +281,10 @@ export class AggregateBranchRevenueResponseDto {
   @AutoMap()
   @ApiProperty()
   totalDeliveryFee: number;
+
+  @AutoMap()
+  @ApiProperty()
+  totalCostGiftProductAmount: number;
 }
 
 export class RefreshSpecificRangeBranchRevenueQueryDto {

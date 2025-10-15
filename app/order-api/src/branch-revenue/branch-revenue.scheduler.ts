@@ -192,6 +192,7 @@ export class BranchRevenueScheduler {
           totalAmountCreditCard: 0,
           totalOrderCreditCard: 0,
           totalDeliveryFee: 0,
+          totalCostGiftProductAmount: 0,
         });
         results.push(revenue);
       }

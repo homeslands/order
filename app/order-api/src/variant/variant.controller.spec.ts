@@ -98,6 +98,7 @@ describe('VariantController', () => {
         product: new ProductResponseDto(),
         createdAt: new Date().toString(),
         slug: 'mock-variant-slug',
+        costPrice: 0,
       };
       const mockOutput = [variant];
 
@@ -149,6 +150,7 @@ describe('VariantController', () => {
       const slug: string = 'mock-variant-slug';
       const mockInput: UpdateVariantRequestDto = {
         price: 0,
+        costPrice: 0,
       };
 
       (service.updateVariant as jest.Mock).mockRejectedValue(

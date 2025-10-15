@@ -81,6 +81,17 @@ export class VariantService {
       throw new VariantException(VariantValidation.VARIANT_DOES_EXIST);
     }
 
+    if (product.isGift) {
+      // except cost price is 0
+      if (
+        createVariantDto.costPrice === undefined ||
+        createVariantDto.costPrice === null
+      ) {
+        this.logger.warn(`Cost price is required for gift product`, context);
+        throw new VariantException(VariantValidation.COST_PRICE_REQUIRED);
+      }
+    }
+
     const variantData = this.mapper.map(
       createVariantDto,
       CreateVariantRequestDto,
