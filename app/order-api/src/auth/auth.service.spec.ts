@@ -51,6 +51,7 @@ import { VerifyPhoneNumberToken } from './entity/verify-phone-number-token.entit
 import { HttpService } from '@nestjs/axios';
 import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
 import { Balance } from 'src/gift-card-modules/balance/entities/balance.entity';
+import { VerificationMethod } from './auth.constants';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -489,6 +490,8 @@ describe('AuthService', () => {
   describe('Testing creation forgot password token func', () => {
     const mockRequestData: ForgotPasswordTokenRequestDto = {
       email: 'mock-email',
+      verificationMethod: VerificationMethod.EMAIL,
+      phonenumber: '',
     };
     const mockUser: User = {
       id: 'user-id',

@@ -16,7 +16,7 @@ export class MailService {
     private readonly logger: Logger,
   ) {}
 
-  async sendForgotPasswordToken(user: User, url: string) {
+  async sendForgotPasswordToken(user: User, code: string, expiresAt: string) {
     const context = `${MailService.name}.${this.sendForgotPasswordToken.name}`;
     await this.mailProducer.sendMail({
       to: user.email, // list of receivers
@@ -24,7 +24,8 @@ export class MailService {
       template: resolve('public/templates/mail/forgot-password'), // `.ejs` extension is appended automatically
       context: {
         name: `${user.firstName} ${user.lastName}`,
-        url,
+        code,
+        expiresAt,
       },
     });
     this.logger.log(`Email is sending to ${user.email}`, context);
