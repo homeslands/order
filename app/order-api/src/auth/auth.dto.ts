@@ -6,6 +6,7 @@ import {
   IsString,
   IsEmail,
   Matches,
+  IsEnum,
 } from 'class-validator';
 import {
   INVALID_DOB,
@@ -22,6 +23,7 @@ import { AutoMap } from '@automapper/classes';
 import { BranchResponseDto } from 'src/branch/branch.dto';
 import { RoleResponseDto } from 'src/role/role.dto';
 import { VIETNAMESE_PHONE_REGEX } from './constants';
+import { VerificationMethod } from './auth.constants';
 
 export class LoginAuthRequestDto {
   @ApiProperty({ example: '0376295216' })
@@ -96,20 +98,42 @@ export class AuthRefreshRequestDto {
   @IsString()
   refreshToken: string;
 }
-
-export class ForgotPasswordTokenRequestDto {
-  @ApiProperty()
-  @AutoMap()
-  @IsNotEmpty()
-  @IsEmail({}, { message: INVALID_EMAIL })
-  email: string;
-}
-
 export class AuthChangePasswordRequestDto {
   @ApiProperty()
   @AutoMap()
   @IsString()
   oldPassword: string;
+
+  @ApiProperty()
+  @AutoMap()
+  @IsString()
+  newPassword: string;
+}
+
+export class ForgotPasswordTokenRequestDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsOptional()
+  email?: string;
+
+  @ApiProperty()
+  @AutoMap()
+  @IsOptional()
+  phonenumber?: string;
+
+  @ApiProperty()
+  @AutoMap()
+  @IsNotEmpty()
+  @IsString()
+  @IsEnum(VerificationMethod)
+  verificationMethod: string;
+}
+
+export class ConfirmForgotPasswordRequestDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsString()
+  code: string;
 
   @ApiProperty()
   @AutoMap()
@@ -127,6 +151,13 @@ export class ForgotPasswordRequestDto {
   @AutoMap()
   @IsString()
   newPassword: string;
+}
+
+export class ForgotPasswordResponseDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsDate()
+  expiresAt: Date;
 }
 
 export class InitiateVerifyEmailRequestDto {

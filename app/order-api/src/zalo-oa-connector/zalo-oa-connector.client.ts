@@ -39,8 +39,8 @@ export class ZaloOaConnectorClient {
     return zaloOaApiUrl;
   }
 
-  async initiateSms(requestData: ZaloOaInitiateSmsRequestDto) {
-    const context = `${ZaloOaConnectorClient.name}.${this.initiateSms.name}`;
+  async initiateVerifyPhoneNumberSms(requestData: ZaloOaInitiateSmsRequestDto) {
+    const context = `${ZaloOaConnectorClient.name}.${this.initiateVerifyPhoneNumberSms.name}`;
     const requestUrl = `${await this.getZaloOaApiUrl()}/MainService.svc/json/SendZaloMessage_V6/`;
     const { data } = await firstValueFrom(
       this.httpService
@@ -52,7 +52,7 @@ export class ZaloOaConnectorClient {
         .pipe(
           catchError((error: AxiosError) => {
             this.logger.error(
-              `Initiate SMS verify account failed: ${JSON.stringify(error.response?.data)}`,
+              `Initiate SMS verify phone number failed: ${JSON.stringify(error.response?.data)}`,
               error.stack,
               context,
             );
@@ -63,7 +63,35 @@ export class ZaloOaConnectorClient {
           }),
         ),
     );
-    this.logger.log(`Initiate SMS verify account success`, context);
+    this.logger.log(`Initiate SMS verify phone number success`, context);
+    return data;
+  }
+
+  async initiateForgotPasswordSms(requestData: ZaloOaInitiateSmsRequestDto) {
+    const context = `${ZaloOaConnectorClient.name}.${this.initiateForgotPasswordSms.name}`;
+    const requestUrl = `${await this.getZaloOaApiUrl()}/MainService.svc/json/SendZaloMessage_V6/`;
+    const { data } = await firstValueFrom(
+      this.httpService
+        .post<ZaloOaInitiateSmsResponseDto>(requestUrl, requestData, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        .pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(
+              `Initiate SMS forgot password failed: ${JSON.stringify(error.response?.data)}`,
+              error.stack,
+              context,
+            );
+            throw new ZaloOaConnectorException(
+              ZaloOaConnectorValidation.INITIATE_SMS_VERIFY_ACCOUNT_FAIL,
+              error.message,
+            );
+          }),
+        ),
+    );
+    this.logger.log(`Initiate SMS forgot password success`, context);
     return data;
   }
 }

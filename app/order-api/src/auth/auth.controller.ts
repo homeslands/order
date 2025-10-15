@@ -28,6 +28,8 @@ import {
   VerifyEmailResponseDto,
   VerifyPhoneNumberResponseDto,
   ConfirmPhoneNumberVerificationCodeRequestDto,
+  ForgotPasswordResponseDto,
+  ConfirmForgotPasswordRequestDto,
 } from './auth.dto';
 import {
   ApiBearerAuth,
@@ -359,12 +361,13 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
-  @Post('forgot-password/token')
+  @Post('forgot-password/initiate')
   @ApiOperation({ summary: 'Create forgot password token' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiResponseWithType({
-    type: AuthProfileResponseDto,
+    type: ForgotPasswordResponseDto,
     description: 'Token created successfully',
   })
   async createForgotPasswordToken(
@@ -378,6 +381,53 @@ export class AuthController {
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,
+    } as AppResponseDto<ForgotPasswordResponseDto>;
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @Post('forgot-password/resend')
+  @ApiOperation({ summary: 'Resend forgot password token' })
+  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+  @ApiResponseWithType({
+    type: ForgotPasswordResponseDto,
+    description: 'Token resend successfully',
+  })
+  async resendForgotPasswordToken(
+    @Body(new ValidationPipe({ transform: true }))
+    requestData: ForgotPasswordTokenRequestDto,
+  ) {
+    const result =
+      await this.authService.resendForgotPasswordToken(requestData);
+    return {
+      message: 'Token resend successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<ForgotPasswordResponseDto>;
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @Post('forgot-password/confirm')
+  @ApiOperation({ summary: 'Confirm forgot password token' })
+  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+  @ApiResponseWithType({
+    type: String,
+    description: 'Token confirmed successfully',
+  })
+  async confirmForgotPassword(
+    @Body(new ValidationPipe({ transform: true }))
+    requestData: ConfirmForgotPasswordRequestDto,
+  ) {
+    await this.authService.confirmForgotPassword(requestData);
+    return {
+      message: 'Token confirmed successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result: 'Forgot password confirmed successfully',
     } as AppResponseDto<string>;
   }
 
