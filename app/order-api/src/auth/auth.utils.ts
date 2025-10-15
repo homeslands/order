@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { UserScopeDto } from 'src/user/user.dto';
 import { User } from 'src/user/user.entity';
+import { AuthValidation } from './auth.validation';
+import { AuthException } from './auth.exception';
 
 @Injectable()
 export class AuthUtils {
@@ -21,5 +23,11 @@ export class AuthUtils {
 
   parseScope(scope: string): { role: string; permissions: string[] } {
     return JSON.parse(scope);
+  }
+}
+
+export function checkActiveUser(user: User): void {
+  if (!user?.isActive) {
+    throw new AuthException(AuthValidation.USER_NOT_ACTIVE);
   }
 }
