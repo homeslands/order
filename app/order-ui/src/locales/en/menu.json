@@ -261,6 +261,7 @@
     "owner": "Ordered by",
     "ownerChanged": "Owner changed",
     "paid": "Paid",
+    "transactionId": "Transaction ID",
     "partialAppliedNote": "Voucher discount up to order value",
     "paymentInformation": "Payment information",
     "paymentMethod": "Payment method",
