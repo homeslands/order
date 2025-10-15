@@ -30,6 +30,7 @@ import {
   ConfirmPhoneNumberVerificationCodeRequestDto,
   ForgotPasswordResponseDto,
   ConfirmForgotPasswordRequestDto,
+  ChangeForgotPasswordRequestDto,
 } from './auth.dto';
 import {
   ApiBearerAuth,
@@ -428,6 +429,29 @@ export class AuthController {
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result: 'Forgot password confirmed successfully',
+    } as AppResponseDto<string>;
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @Post('forgot-password/change')
+  @ApiOperation({ summary: 'Change forgot password token' })
+  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+  @ApiResponseWithType({
+    type: String,
+    description: 'Token confirmed successfully',
+  })
+  async ChangeForgotPassword(
+    @Body(new ValidationPipe({ transform: true }))
+    requestData: ChangeForgotPasswordRequestDto,
+  ) {
+    await this.authService.ChangeForgotPassword(requestData);
+    return {
+      message: 'Token confirmed successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result: 'Forgot password changed successfully',
     } as AppResponseDto<string>;
   }
 

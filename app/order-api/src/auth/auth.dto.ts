@@ -134,11 +134,23 @@ export class ConfirmForgotPasswordRequestDto {
   @AutoMap()
   @IsString()
   code: string;
-
+}
+export class ChangeForgotPasswordRequestDto {
   @ApiProperty()
   @AutoMap()
   @IsString()
   newPassword: string;
+
+  @ApiProperty()
+  @AutoMap()
+  @IsString()
+  token: string;
+}
+export class ConfirmForgotPasswordResponseDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsString()
+  token: string;
 }
 
 export class ForgotPasswordRequestDto {
