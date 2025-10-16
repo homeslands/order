@@ -580,13 +580,43 @@ export class AuthService {
 
     const payload: AuthJwtPayload = { sub: existToken.user.id, jti: uuidv4() };
     const expiresIn = 5 * 60; // 5 minutes
+    const now = new Date();
     const token = this.jwtService.sign(payload, {
       expiresIn: expiresIn,
     });
 
     // Set code expired after forgot password successfully
     existToken.expiresAt = new Date(Date.now() - 120000); // Set expiry time to the past
-    await this.forgotPasswordRepository.save(existToken);
+
+    const tokenToChangePassword = new ForgotPasswordToken();
+    tokenToChangePassword.token = payload.jti;
+    tokenToChangePassword.expiresAt = new Date(
+      now.getTime() + expiresIn * 1000,
+    );
+    tokenToChangePassword.user = existToken.user;
+
+    await this.transactionManagerService.execute<void>(
+      async (manager) => {
+        await manager.save(existToken);
+        await manager.save(tokenToChangePassword);
+      },
+      () => {
+        this.logger.log(
+          `Token change password for user ${existToken.user.slug} is created`,
+          context,
+        );
+      },
+      (error) => {
+        this.logger.error(
+          `Error when create token to change password`,
+          error.stack,
+          context,
+        );
+        throw new AuthException(
+          AuthValidation.ERROR_CREATE_TOKEN_TO_CHANGE_PASSWORD,
+        );
+      },
+    );
 
     return {
       token,
@@ -598,27 +628,6 @@ export class AuthService {
   ): Promise<void> {
     const context = `${AuthService.name}.${this.ChangeForgotPassword.name}`;
     this.logger.log(`Request change forgot password`, context);
-
-    // const existToken = await this.forgotPasswordRepository.findOne({
-    //   where: {
-    //     token: requestData.token,
-    //     expiresAt: MoreThan(new Date()),
-    //   },
-    //   relations: {
-    //     user: true,
-    //   },
-    // });
-    // if (!existToken) {
-    //   this.logger.warn(`Forgot token is not existed`, context);
-    //   throw new AuthException(
-    //     AuthValidation.FORGOT_TOKEN_EXPIRED,
-    //     FORGOT_TOKEN_EXPIRED,
-    //   );
-    // }
-    // if (!existToken.user) {
-    //   this.logger.warn(`User is not existed`, context);
-    //   throw new AuthException(AuthValidation.USER_NOT_FOUND);
-    // }
 
     // Verify token
     let isExpiredToken = false;
@@ -640,6 +649,16 @@ export class AuthService {
     const payload: AuthJwtPayload = this.jwtService.decode(requestData.token);
     this.logger.log(`Payload: ${JSON.stringify(payload)}`);
 
+    const tokenToChangePassword = await this.forgotPasswordRepository.findOne({
+      where: {
+        token: payload.jti,
+      },
+    });
+    if (!tokenToChangePassword) {
+      this.logger.warn(`Token change password is not existed`, context);
+      throw new AuthException(AuthValidation.FORGOT_TOKEN_EXPIRED);
+    }
+
     const user = await this.userUtils.getUser({
       where: {
         id: payload.sub,
@@ -652,13 +671,26 @@ export class AuthService {
     );
 
     user.password = hashedPass;
-    await this.userRepository.save(user);
-    this.logger.log(`User ${user.slug} has been updated password`, context);
 
-    // Set token expired after forgot password successfully
-    // existToken.expiresAt = new Date(Date.now() - 120000); // Set expiry time to the past
-    // await this.forgotPasswordRepository.save(existToken);
-    // this.logger.log(`Token ${existToken.token} is expired`, context);
+    await this.transactionManagerService.execute<void>(
+      async (manager) => {
+        await manager.save(user);
+        await manager.delete(ForgotPasswordToken, {
+          id: tokenToChangePassword.id,
+        });
+      },
+      () => {
+        this.logger.log(`User ${user.slug} has been updated password`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error when change forgot password`,
+          error.stack,
+          context,
+        );
+        throw new AuthException(AuthValidation.ERROR_CHANGE_FORGOT_PASSWORD);
+      },
+    );
   }
 
   async initiateVerifyEmail(
