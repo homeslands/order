@@ -13,32 +13,24 @@ import {
     Form,
     Button,
 } from '@/components/ui'
-import { useForgotPasswordSchema, TForgotPasswordSchema } from '@/schemas'
+import { TForgotPasswordByEmailSchema, useForgotPasswordByEmailSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ButtonLoading } from '@/components/app/loading'
 
 import { ROUTE } from '@/constants'
-import { useForgotPassword } from '@/hooks'
 
-import { showToast } from '@/utils'
 
-export const ForgotPasswordForm: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
+export const ForgotPasswordByEmailForm: React.FC<{ onSubmit: (value: TForgotPasswordByEmailSchema) => void }> = ({ onSubmit }) => {
     const { t } = useTranslation(['auth'])
-    const { mutate: forgotPassword, isPending } = useForgotPassword()
-    const form = useForm<TForgotPasswordSchema>({
-        resolver: zodResolver(useForgotPasswordSchema()),
+    const form = useForm<TForgotPasswordByEmailSchema>({
+        resolver: zodResolver(useForgotPasswordByEmailSchema()),
         defaultValues: {
             email: '',
         }
     })
 
-    const handleSubmit = (value: TForgotPasswordSchema) => {
-        forgotPassword(value, {
-            onSuccess: () => {
-                onSuccess()
-                showToast(t('toast.forgotPasswordSuccess'))
-            },
-        })
+    const handleSubmit = (value: TForgotPasswordByEmailSchema) => {
+        onSubmit(value)
     }
 
     const formFields = {
@@ -73,16 +65,16 @@ export const ForgotPasswordForm: React.FC<{ onSuccess: () => void }> = ({ onSucc
                             </React.Fragment>
                         ))}
                     </div>
-                    <div className="flex items-center justify-between w-full">
-                        <NavLink to={ROUTE.LOGIN} className="text-sm text-center text-primary">
-                            {t('forgotPassword.back')}
+                    <div className="flex justify-between items-center w-full">
+                        <NavLink to={ROUTE.FORGOT_PASSWORD} className="text-sm text-center text-primary">
+                            {t('forgotPassword.backButton')}
                         </NavLink>
                         <Button
                             type="submit"
-                            className="flex items-center justify-center"
-                            disabled={isPending}
+                            className="flex justify-center items-center"
+                            disabled={form.formState.isSubmitting}
                         >
-                            {isPending ? <ButtonLoading /> : t('forgotPassword.send')}
+                            {form.formState.isSubmitting ? <ButtonLoading /> : t('forgotPassword.send')}
                         </Button>
                     </div>
                 </form>
@@ -90,3 +82,4 @@ export const ForgotPasswordForm: React.FC<{ onSuccess: () => void }> = ({ onSucc
         </div>
     )
 }
+

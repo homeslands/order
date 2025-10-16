@@ -25,7 +25,6 @@ import {
   EmployeeListPage,
   ForgotPasswordPage,
   ConfigPage,
-  ForgotPasswordAndResetPasswordPage,
   ClientMenuPage,
   ClientProductDetailPage,
   ClientHomePage,
@@ -73,6 +72,8 @@ import {
   SystemLockManagementPage,
   UserGroupPage,
   UserGroupMembersPage,
+  ForgotPasswordByEmailPage,
+  ForgotPasswordByPhonePage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -97,10 +98,12 @@ export const router = createBrowserRouter([
         element: <SuspenseElement component={ForgotPasswordPage} />,
       },
       {
-        path: `${ROUTE.RESET_PASSWORD}`,
-        element: (
-          <SuspenseElement component={ForgotPasswordAndResetPasswordPage} />
-        ),
+        path: ROUTE.FORGOT_PASSWORD_BY_EMAIL,
+        element: <SuspenseElement component={ForgotPasswordByEmailPage} />,
+      },
+      {
+        path: ROUTE.FORGOT_PASSWORD_BY_PHONE,
+        element: <SuspenseElement component={ForgotPasswordByPhonePage} />,
       },
       {
         path: ROUTE.ABOUT,

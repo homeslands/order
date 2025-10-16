@@ -1,26 +1,31 @@
 import {
   authorityGroup,
   confirmEmailVerification,
+  confirmForgotPassword,
   confirmPhoneNumberVerification,
   createPermission,
   deletePermission,
-  forgotPasswordAndGetToken,
-  forgotPasswordAndResetPassword,
+  initiateForgotPassword,
   login,
   register,
   resendEmailVerification,
+  resendOTPForgotPassword,
   resendPhoneNumberVerification,
   verifyEmail,
+  verifyOTPForgotPassword,
   verifyPhoneNumber,
 } from '@/api'
 // import { QUERYKEY } from '@/constants'
 import {
   ILoginRequest,
   IRegisterRequest,
-  IForgotPasswordRequest,
   IVerifyEmailRequest,
   IGetAuthorityGroupsRequest,
   ICreatePermissionRequest,
+  IInitiateForgotPasswordRequest,
+  IVerifyOTPForgotPasswordRequest,
+  IResendOTPForgotPasswordRequest,
+  IConfirmForgotPasswordRequest,
 } from '@/types'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 
@@ -41,18 +46,34 @@ export const useRegister = () => {
   })
 }
 
-export const useForgotPassword = () => {
+export const useInitiateForgotPassword = () => {
   return useMutation({
-    mutationFn: async (email: IForgotPasswordRequest) => {
-      return forgotPasswordAndGetToken(email)
+    mutationFn: async (params: IInitiateForgotPasswordRequest) => {
+      return initiateForgotPassword(params)
     },
   })
 }
 
-export const useResetPasswordForForgotPassword = () => {
+export const useVerifyOTPForgotPassword = () => {
   return useMutation({
-    mutationFn: async (data: { newPassword: string; token: string }) => {
-      return forgotPasswordAndResetPassword(data)
+    mutationFn: async (params: IVerifyOTPForgotPasswordRequest) => {
+      return verifyOTPForgotPassword(params)
+    },
+  })
+}
+
+export const useResendOTPForgotPassword = () => {
+  return useMutation({
+    mutationFn: async (params: IResendOTPForgotPasswordRequest) => {
+      return resendOTPForgotPassword(params)
+    },
+  })
+}
+
+export const useConfirmForgotPassword = () => {
+  return useMutation({
+    mutationFn: async (params: IConfirmForgotPasswordRequest) => {
+      return confirmForgotPassword(params)
     },
   })
 }

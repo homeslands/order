@@ -4,11 +4,13 @@ import { http } from '@/utils'
 import {
   login,
   register,
-  forgotPasswordAndGetToken,
-  forgotPasswordAndResetPassword,
+  initiateForgotPassword,
+  confirmForgotPassword,
   verifyEmail,
   confirmEmailVerification,
+  verifyOTPForgotPassword,
 } from '@/api'
+import { VerificationMethod } from '@/constants'
 
 vi.mock('@/utils', () => ({
   http: httpMock,
@@ -139,22 +141,25 @@ describe('Auth API', () => {
     })
   })
 
-  describe('forgotPasswordAndGetToken', () => {
+  describe('initiateForgotPassword', () => {
     it('should call forgot password token endpoint', async () => {
       const mockResponse = { data: { success: true } }
       ;(http.post as Mock).mockResolvedValue(mockResponse)
 
-      const email = { email: 'test@example.com' }
-      const result = await forgotPasswordAndGetToken(email)
+      const email = {
+        email: 'test@example.com',
+        verificationMethod: VerificationMethod.EMAIL,
+      }
+      const result = await initiateForgotPassword(email)
 
       expect(http.post).toHaveBeenCalledWith(
-        '/auth/forgot-password/token',
+        '/auth/forgot-password/initiate',
         email,
       )
       expect(result).toEqual(mockResponse.data)
     })
 
-    it('should handle forgot password token error response', async () => {
+    it('should handle initiate forgot password error response', async () => {
       const mockError = {
         response: {
           status: 404,
@@ -163,32 +168,53 @@ describe('Auth API', () => {
       }
       ;(http.post as Mock).mockRejectedValue(mockError)
 
-      const email = { email: 'nonexistent@example.com' }
-      await expect(forgotPasswordAndGetToken(email)).rejects.toEqual(mockError)
+      const params = {
+        email: 'nonexistent@example.com',
+        verificationMethod: VerificationMethod.EMAIL,
+      }
+      await expect(initiateForgotPassword(params)).rejects.toEqual(mockError)
     })
 
     it('should handle server error', async () => {
       ;(http.post as Mock).mockRejectedValue(serverError)
-      const email = { email: 'test@example.com' }
-      await expect(forgotPasswordAndGetToken(email)).rejects.toEqual(
-        serverError,
-      )
+      const params = {
+        email: 'test@example.com',
+        verificationMethod: VerificationMethod.EMAIL,
+      }
+      await expect(initiateForgotPassword(params)).rejects.toEqual(serverError)
     })
   })
 
-  describe('forgotPasswordAndResetPassword', () => {
-    it('should call reset password endpoint with token and new password', async () => {
+  describe('verifyOTPForgotPassword', () => {
+    it('should call verify OTP forgot password endpoint', async () => {
+      const mockResponse = { data: { success: true } }
+      ;(http.post as Mock).mockResolvedValue(mockResponse)
+      const params = { code: '123456' }
+      const result = await verifyOTPForgotPassword(params)
+      expect(http.post).toHaveBeenCalledWith(
+        '/auth/forgot-password/confirm',
+        params,
+      )
+      expect(result).toEqual(mockResponse.data)
+    })
+  })
+
+  describe('confirmForgotPassword', () => {
+    it('should call confirm forgot password endpoint with token and new password', async () => {
       const mockResponse = { data: { success: true } }
       ;(http.post as Mock).mockResolvedValue(mockResponse)
 
       const resetData = { newPassword: 'newpass123', token: 'reset-token' }
-      const result = await forgotPasswordAndResetPassword(resetData)
+      const result = await confirmForgotPassword(resetData)
 
-      expect(http.post).toHaveBeenCalledWith('/auth/forgot-password', resetData)
+      expect(http.post).toHaveBeenCalledWith(
+        '/auth/forgot-password/change',
+        resetData,
+      )
       expect(result).toEqual(mockResponse.data)
     })
 
-    it('should handle reset password error response', async () => {
+    it('should handle confirm forgot password error response', async () => {
       const mockError = {
         response: {
           status: 400,
@@ -197,16 +223,14 @@ describe('Auth API', () => {
       }
       ;(http.post as Mock).mockRejectedValue(mockError)
 
-      const resetData = { newPassword: 'newpass123', token: 'invalid-token' }
-      await expect(forgotPasswordAndResetPassword(resetData)).rejects.toEqual(
-        mockError,
-      )
+      const resetData = { newPassword: 'newpass123', token: 'confirm-token' }
+      await expect(confirmForgotPassword(resetData)).rejects.toEqual(mockError)
     })
 
     it('should handle server error', async () => {
       ;(http.post as Mock).mockRejectedValue(serverError)
-      const resetData = { newPassword: 'newpass123', token: 'reset-token' }
-      await expect(forgotPasswordAndResetPassword(resetData)).rejects.toEqual(
+      const resetData = { newPassword: 'newpass123', token: 'confirm-token' }
+      await expect(confirmForgotPassword(resetData)).rejects.toEqual(
         serverError,
       )
     })

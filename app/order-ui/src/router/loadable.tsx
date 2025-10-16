@@ -32,9 +32,15 @@ export const ForgotPasswordPage = React.lazy(() =>
   })),
 )
 
-export const ForgotPasswordAndResetPasswordPage = React.lazy(() =>
+export const ForgotPasswordByEmailPage = React.lazy(() =>
   import('@/app/auth').then((module) => ({
-    default: module.ForgotPasswordAndResetPasswordPage,
+    default: module.ForgotPasswordByEmailPage,
+  })),
+)
+
+export const ForgotPasswordByPhonePage = React.lazy(() =>
+  import('@/app/auth').then((module) => ({
+    default: module.ForgotPasswordByPhonePage,
   })),
 )
 

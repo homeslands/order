@@ -1,3 +1,5 @@
+import { VerificationMethod } from '@/constants'
+
 export interface ILoginRequest {
   phonenumber: string
   password: string
@@ -33,8 +35,29 @@ export interface IRegisterRequest {
   dob: string
 }
 
-export interface IForgotPasswordRequest {
-  email: string
+export interface IInitiateForgotPasswordRequest {
+  email?: string
+  phonenumber?: string
+  verificationMethod: VerificationMethod
+}
+
+export interface IResendOTPForgotPasswordRequest {
+  email?: string
+  phonenumber?: string
+  verificationMethod: VerificationMethod
+}
+
+export interface IConfirmForgotPasswordRequest {
+  newPassword: string
+  token: string
+}
+
+export interface IVerifyOTPForgotPasswordRequest {
+  code: string
+}
+
+export interface IVerifyOTPForgotPasswordResponse {
+  token: string
 }
 
 export interface IRefreshTokenResponse {
