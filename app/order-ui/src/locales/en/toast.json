@@ -366,6 +366,10 @@
     "deleteUserGroupSuccess": "Delete user group successfully",
     "addMultipleUsersToUserGroupSuccess": "Add multiple users to user group successfully",
     "deleteUserGroupMemberSuccess": "Delete user group member successfully",
-    "accountDisabled": "Account disabled"
+    "accountDisabled": "Account disabled",
+    "userPhoneNumberNotVerified": "Phone number not verified",
+    "userEmailNotVerified": "Email not verified",
+    "verifyOTPSuccess": "Verification successful",
+    "confirmForgotPasswordSuccess": "Password reset successfully"
   }
 }
