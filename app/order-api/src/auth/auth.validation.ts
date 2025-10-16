@@ -46,6 +46,9 @@ export const CONFIRM_PHONE_NUMBER_VERIFICATION_ERROR =
 export const USER_NOT_ACTIVE = 'USER_NOT_ACTIVE';
 export const USER_NOT_VERIFIED_EMAIL = 'USER_NOT_VERIFIED_EMAIL';
 export const USER_NOT_VERIFIED_PHONENUMBER = 'USER_NOT_VERIFIED_PHONENUMBER';
+export const ERROR_CREATE_TOKEN_TO_CHANGE_PASSWORD =
+  'ERROR_CREATE_TOKEN_TO_CHANGE_PASSWORD';
+export const ERROR_CHANGE_FORGOT_PASSWORD = 'ERROR_CHANGE_FORGOT_PASSWORD';
 
 export type TAuthErrorCodeKey =
   | typeof INVALID_PHONENUMBER
@@ -83,7 +86,9 @@ export type TAuthErrorCodeKey =
   | typeof CONFIRM_PHONE_NUMBER_VERIFICATION_ERROR
   | typeof USER_NOT_ACTIVE
   | typeof USER_NOT_VERIFIED_EMAIL
-  | typeof USER_NOT_VERIFIED_PHONENUMBER;
+  | typeof USER_NOT_VERIFIED_PHONENUMBER
+  | typeof ERROR_CREATE_TOKEN_TO_CHANGE_PASSWORD
+  | typeof ERROR_CHANGE_FORGOT_PASSWORD;
 
 export type TAuthErrorCode = Record<TAuthErrorCodeKey, TErrorCodeValue>;
 
@@ -172,5 +177,13 @@ export const AuthValidation: TAuthErrorCode = {
   USER_NOT_VERIFIED_PHONENUMBER: createErrorCode(
     119035,
     'User not verified phone number',
+  ),
+  ERROR_CREATE_TOKEN_TO_CHANGE_PASSWORD: createErrorCode(
+    119036,
+    'Error when create token to change password',
+  ),
+  ERROR_CHANGE_FORGOT_PASSWORD: createErrorCode(
+    119037,
+    'Error when change forgot password',
   ),
 };
