@@ -157,7 +157,7 @@ export const OTPInput = React.forwardRef<HTMLDivElement, OTPInputProps>(
                         onClick={() => handleClick(index)}
                         disabled={disabled}
                         className={cn(
-                            'w-11 h-11 text-center text-lg font-semibold rounded-lg border-2 transition-all duration-200',
+                            'w-11 h-11 bg-transparent text-center text-lg font-semibold rounded-lg border-2 transition-all duration-200 text-white',
                             'focus:outline-none focus:ring-2 focus:ring-primary/20',
                             'disabled:cursor-not-allowed disabled:opacity-50',
                             'cursor-pointer',
@@ -165,7 +165,7 @@ export const OTPInput = React.forwardRef<HTMLDivElement, OTPInputProps>(
                                 ? 'border-primary bg-primary/5'
                                 : value[index]
                                     ? 'border-primary bg-primary/5'
-                                    : 'border-gray-300 bg-white hover:border-gray-400',
+                                    : 'border-primary bg-transparent hover:border-primary',
                             'dark:bg-gray-800 dark:border-gray-600 dark:text-white',
                             'dark:hover:border-gray-500 dark:focus:border-primary'
                         )}

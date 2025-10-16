@@ -73,6 +73,8 @@ export default function HomePage() {
     { newsProducts: [], promotionProducts: [] })
     , [menuItemsAvailable])
 
+
+
   return (
     <>
       {/* <AdPopup /> */}

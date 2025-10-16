@@ -12,3 +12,8 @@ export enum UserStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
 }
+
+export enum VerificationMethod {
+  EMAIL = 'email',
+  PHONE_NUMBER = 'phone-number',
+}

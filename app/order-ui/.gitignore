@@ -25,3 +25,27 @@ dist-ssr
 
 #ENV
 .env
+
+# Capacitor
+ios/
+resources/
+
+# Local Capacitor CLI config
+.capacitor/
+
+# Android
+android/.gradle/
+android/.idea/
+android/build/
+android/app/build/
+android/captures/
+android/local.properties
+android/gradle.properties
+android/*.iml
+android/.externalNativeBuild
+android/.cxx
+android/app/release/
+# Ignore public assets (được copy từ dist) nhưng GIỮ LẠI config files
+android/app/src/main/assets/public/
+# Giữ lại: capacitor.config.json, capacitor.plugins.json
+android/capacitor-cordova-android-plugins/build/

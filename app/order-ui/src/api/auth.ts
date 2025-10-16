@@ -9,6 +9,11 @@ import {
   IRegisterRequest,
   IEmailVerificationResponse,
   IVerifyPhoneNumberRequest,
+  IForgotPasswordResponse,
+  IResendForgotPasswordRequest,
+  IInitiateForgotPasswordRequest,
+  IConfirmForgotPasswordRequest,
+  IVerifyOTPForgotPasswordRequest,
 } from '@/types'
 import { http } from '@/utils'
 
@@ -51,6 +56,46 @@ export async function forgotPasswordAndResetPassword(data: {
   return response.data
 }
 
+export async function initiateForgotPassword(
+  params: IInitiateForgotPasswordRequest,
+): Promise<IApiResponse<IForgotPasswordResponse>> {
+  const response = await http.post<IApiResponse<IForgotPasswordResponse>>(
+    '/auth/forgot-password/initiate',
+    params,
+  )
+  return response.data
+}
+
+export async function resendForgotPassword(
+  params: IResendForgotPasswordRequest,
+): Promise<IApiResponse<IForgotPasswordResponse>> {
+  const response = await http.post<IApiResponse<IForgotPasswordResponse>>(
+    '/auth/forgot-password/resend',
+    params,
+  )
+  return response.data
+}
+
+export async function verifyOTPForgotPassword(
+  params: IVerifyOTPForgotPasswordRequest,
+): Promise<IApiResponse<IForgotPasswordResponse>> {
+  const response = await http.post<IApiResponse<IForgotPasswordResponse>>(
+    '/auth/forgot-password/confirm',
+    params,
+  )
+  return response.data
+}
+
+export async function confirmForgotPassword(
+  params: IConfirmForgotPasswordRequest,
+): Promise<IApiResponse<IForgotPasswordResponse>> {
+  const response = await http.post<IApiResponse<IForgotPasswordResponse>>(
+    '/auth/forgot-password/change',
+    params,
+  )
+  return response.data
+}
+
 export async function verifyEmail(
   verifyParams: IVerifyEmailRequest,
 ): Promise<IApiResponse<IEmailVerificationResponse>> {
@@ -61,9 +106,11 @@ export async function verifyEmail(
   return response.data
 }
 
-export async function verifyPhoneNumber(): Promise<IApiResponse<IVerifyPhoneNumberRequest>> {
+export async function verifyPhoneNumber(): Promise<
+  IApiResponse<IVerifyPhoneNumberRequest>
+> {
   const response = await http.post<IApiResponse<IVerifyPhoneNumberRequest>>(
-    `/auth/initiate-verify-phone-number`
+    `/auth/initiate-verify-phone-number`,
   )
   return response.data
 }

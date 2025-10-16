@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TREND Coffee</string>
+    <string name="title_activity_main">TREND Coffee</string>
+    <string name="package_name">com.trendcoffee.order</string>
+    <string name="custom_url_scheme">com.trendcoffee.order</string>
+</resources>

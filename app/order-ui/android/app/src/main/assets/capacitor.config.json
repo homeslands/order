@@ -1,0 +1,44 @@
+{
+	"appId": "com.trendcoffee.order",
+	"appName": "TREND Coffee",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https"
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 2000,
+			"backgroundColor": "#1a1a1a",
+			"showSpinner": true,
+			"androidSpinnerStyle": "small",
+			"spinnerColor": "#ffffff",
+			"androidScaleType": "CENTER_CROP"
+		},
+		"Keyboard": {
+			"resize": "body",
+			"style": "dark",
+			"resizeOnFullScreen": true
+		},
+		"StatusBar": {
+			"style": "dark",
+			"backgroundColor": "#1a1a1a"
+		},
+		"PushNotifications": {
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
+		},
+		"LocalNotifications": {
+			"smallIcon": "ic_stat_icon_config_sample",
+			"iconColor": "#488AFF",
+			"sound": "beep.wav",
+			"androidPresentationOptions": {
+				"vibrate": true,
+				"sound": true,
+				"lights": true
+			}
+		}
+	}
+}

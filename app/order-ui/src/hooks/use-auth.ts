@@ -2,15 +2,19 @@ import {
   authorityGroup,
   confirmEmailVerification,
   confirmPhoneNumberVerification,
+  confirmForgotPassword,
   createPermission,
   deletePermission,
   forgotPasswordAndGetToken,
   forgotPasswordAndResetPassword,
+  initiateForgotPassword,
   login,
   register,
   resendEmailVerification,
+  resendForgotPassword,
   resendPhoneNumberVerification,
   verifyEmail,
+  verifyOTPForgotPassword,
   verifyPhoneNumber,
 } from '@/api'
 // import { QUERYKEY } from '@/constants'
@@ -21,6 +25,10 @@ import {
   IVerifyEmailRequest,
   IGetAuthorityGroupsRequest,
   ICreatePermissionRequest,
+  IInitiateForgotPasswordRequest,
+  IResendForgotPasswordRequest,
+  IVerifyOTPForgotPasswordRequest,
+  IConfirmForgotPasswordRequest,
 } from '@/types'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 
@@ -125,6 +133,38 @@ export const useDeletePermission = () => {
   return useMutation({
     mutationFn: async (slug: string) => {
       return deletePermission(slug)
+    },
+  })
+}
+
+export const useInitiateForgotPassword = () => {
+  return useMutation({
+    mutationFn: async (params: IInitiateForgotPasswordRequest) => {
+      return initiateForgotPassword(params)
+    },
+  })
+}
+
+export const useResendForgotPassword = () => {
+  return useMutation({
+    mutationFn: async (params: IResendForgotPasswordRequest) => {
+      return resendForgotPassword(params)
+    },
+  })
+}
+
+export const useVerifyOTPForgotPassword = () => {
+  return useMutation({
+    mutationFn: async (params: IVerifyOTPForgotPasswordRequest) => {
+      return verifyOTPForgotPassword(params)
+    },
+  })
+}
+
+export const useConfirmForgotPassword = () => {
+  return useMutation({
+    mutationFn: async (params: IConfirmForgotPasswordRequest) => {
+      return confirmForgotPassword(params)
     },
   })
 }

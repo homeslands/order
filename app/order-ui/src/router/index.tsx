@@ -24,6 +24,8 @@ import {
   OrderDetailPage,
   EmployeeListPage,
   ForgotPasswordPage,
+  ForgotPasswordByEmailPage,
+  ForgotPasswordByPhonePage,
   ConfigPage,
   ForgotPasswordAndResetPasswordPage,
   ClientMenuPage,
@@ -95,6 +97,14 @@ export const router = createBrowserRouter([
       {
         path: ROUTE.FORGOT_PASSWORD,
         element: <SuspenseElement component={ForgotPasswordPage} />,
+      },
+      {
+        path: ROUTE.FORGOT_PASSWORD_BY_EMAIL,
+        element: <SuspenseElement component={ForgotPasswordByEmailPage} />,
+      },
+      {
+        path: ROUTE.FORGOT_PASSWORD_BY_PHONE,
+        element: <SuspenseElement component={ForgotPasswordByPhonePage} />,
       },
       {
         path: `${ROUTE.RESET_PASSWORD}`,

@@ -66,6 +66,24 @@ export function useForgotPasswordSchema() {
   })
 }
 
+export function useForgotPasswordByEmailSchema() {
+  const { t } = useTranslation('auth')
+  return z.object({
+    email: z.string().email(t('register.invalidEmail')),
+  })
+}
+
+export function useForgotPasswordByPhoneSchema() {
+  const { t } = useTranslation('auth')
+  return z.object({
+    phoneNumber: z
+      .string()
+      .min(10, t('register.phoneNumberRequired'))
+      .max(10, t('register.phoneNumberMaxLength'))
+      .regex(PHONE_NUMBER_REGEX, t('register.phoneNumberInvalid')),
+  })
+}
+
 export function useResetPasswordSchema() {
   const { t } = useTranslation('auth')
   return z
@@ -115,5 +133,11 @@ export type TResetPasswordSchema = z.infer<
 
 export type TForgotPasswordSchema = z.infer<
   ReturnType<typeof useForgotPasswordSchema>
+>
+export type TForgotPasswordByEmailSchema = z.infer<
+  ReturnType<typeof useForgotPasswordByEmailSchema>
+>
+export type TForgotPasswordByPhoneSchema = z.infer<
+  ReturnType<typeof useForgotPasswordByPhoneSchema>
 >
 export type TVerifyEmailSchema = z.infer<typeof verifyEmailSchema>
