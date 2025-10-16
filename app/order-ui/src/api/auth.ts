@@ -1,7 +1,6 @@
 import {
   IApiResponse,
   ILoginResponse,
-  IForgotPasswordRequest,
   IVerifyEmailRequest,
   IGetAuthorityGroupsRequest,
   IAuthorityGroup,
@@ -9,6 +8,11 @@ import {
   IRegisterRequest,
   IEmailVerificationResponse,
   IVerifyPhoneNumberRequest,
+  IInitiateForgotPasswordRequest,
+  IVerifyOTPForgotPasswordRequest,
+  IResendOTPForgotPasswordRequest,
+  IConfirmForgotPasswordRequest,
+  IVerifyOTPForgotPasswordResponse,
 } from '@/types'
 import { http } from '@/utils'
 
@@ -30,23 +34,41 @@ export async function register(
   return response.data
 }
 
-export async function forgotPasswordAndGetToken(
-  email: IForgotPasswordRequest,
+export async function initiateForgotPassword(
+  params: IInitiateForgotPasswordRequest,
 ): Promise<IApiResponse<null>> {
   const response = await http.post<IApiResponse<null>>(
-    '/auth/forgot-password/token',
-    email,
+    '/auth/forgot-password/initiate',
+    params,
   )
   return response.data
 }
 
-export async function forgotPasswordAndResetPassword(data: {
-  newPassword: string
-  token: string
-}): Promise<IApiResponse<null>> {
+export async function verifyOTPForgotPassword(
+  params: IVerifyOTPForgotPasswordRequest,
+): Promise<IApiResponse<IVerifyOTPForgotPasswordResponse>> {
+  const response = await http.post<
+    IApiResponse<IVerifyOTPForgotPasswordResponse>
+  >('/auth/forgot-password/confirm', params)
+  return response.data
+}
+
+export async function resendOTPForgotPassword(
+  params: IResendOTPForgotPasswordRequest,
+): Promise<IApiResponse<null>> {
   const response = await http.post<IApiResponse<null>>(
-    '/auth/forgot-password',
-    data,
+    '/auth/forgot-password/resend',
+    params,
+  )
+  return response.data
+}
+
+export async function confirmForgotPassword(
+  params: IConfirmForgotPasswordRequest,
+): Promise<IApiResponse<null>> {
+  const response = await http.post<IApiResponse<null>>(
+    '/auth/forgot-password/change',
+    params,
   )
   return response.data
 }
@@ -61,9 +83,11 @@ export async function verifyEmail(
   return response.data
 }
 
-export async function verifyPhoneNumber(): Promise<IApiResponse<IVerifyPhoneNumberRequest>> {
+export async function verifyPhoneNumber(): Promise<
+  IApiResponse<IVerifyPhoneNumberRequest>
+> {
   const response = await http.post<IApiResponse<IVerifyPhoneNumberRequest>>(
-    `/auth/initiate-verify-phone-number`
+    `/auth/initiate-verify-phone-number`,
   )
   return response.data
 }
