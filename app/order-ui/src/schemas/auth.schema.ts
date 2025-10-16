@@ -62,7 +62,29 @@ export function useRegisterSchema() {
 export function useForgotPasswordSchema() {
   const { t } = useTranslation('auth')
   return z.object({
-    email: z.string().email(t('register.invalidEmail')),
+    email: z.string().email(t('forgotPassword.emailRequired')).optional(),
+    phoneNumber: z
+      .string()
+      .regex(PHONE_NUMBER_REGEX, t('forgotPassword.phoneNumberInvalid'))
+      .optional(),
+  })
+}
+
+export function useForgotPasswordByEmailSchema() {
+  const { t } = useTranslation('auth')
+  return z.object({
+    email: z.string().email(t('forgotPassword.emailRequired')),
+  })
+}
+
+export function useForgotPasswordByPhoneSchema() {
+  const { t } = useTranslation('auth')
+  return z.object({
+    phoneNumber: z
+      .string()
+      .min(10, t('forgotPassword.phoneNumberRequired'))
+      .max(10, t('forgotPassword.phoneNumberMaxLength'))
+      .regex(PHONE_NUMBER_REGEX, t('forgotPassword.phoneNumberInvalid')),
   })
 }
 
@@ -113,6 +135,12 @@ export type TResetPasswordSchema = z.infer<
   ReturnType<typeof useResetPasswordSchema>
 >
 
+export type TForgotPasswordByEmailSchema = z.infer<
+  ReturnType<typeof useForgotPasswordByEmailSchema>
+>
+export type TForgotPasswordByPhoneSchema = z.infer<
+  ReturnType<typeof useForgotPasswordByPhoneSchema>
+>
 export type TForgotPasswordSchema = z.infer<
   ReturnType<typeof useForgotPasswordSchema>
 >

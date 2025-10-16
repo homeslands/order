@@ -5,6 +5,8 @@ export const ROUTE = {
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
   FORGOT_PASSWORD: '/auth/forgot-password',
+  FORGOT_PASSWORD_BY_EMAIL: '/auth/forgot-password-by-email',
+  FORGOT_PASSWORD_BY_PHONE: '/auth/forgot-password-by-phone',
   RESET_PASSWORD: '/reset-password',
   ORDER_SUCCESS: '/order-success',
   CLIENT_ORDER_SUCCESS: '/client/order-success',

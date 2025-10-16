@@ -366,6 +366,11 @@
     "deleteUserGroupSuccess": "Delete user group successfully",
     "addMultipleUsersToUserGroupSuccess": "Add multiple users to user group successfully",
     "deleteUserGroupMemberSuccess": "Delete user group member successfully",
-    "accountDisabled": "Account disabled"
+    "accountDisabled": "Account disabled",
+    "forgotPasswordTokenExists": "OTP has been sent before, please enter the code to reset the password.",
+    "userPhoneNumberNotVerified": "Phone number is not verified, please verify phone number to reset the password.",
+    "verifyOTPSuccess": "OTP verified successfully",
+    "passwordNotMatch": "Password does not match",
+    "confirmForgotPasswordSuccess": "Password reset successfully"
   }
 }

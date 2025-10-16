@@ -1,3 +1,5 @@
+import { VerificationMethod } from '@/constants'
+
 export interface ILoginRequest {
   phonenumber: string
   password: string
@@ -49,4 +51,18 @@ export interface IToken {
     role: string
     permissions: string[]
   }
+}
+
+export interface IForgotPasswordStore {
+  token: string
+  step: number
+  email: string
+  phoneNumber: string
+  verificationMethod: VerificationMethod
+  setToken: (token: string) => void
+  setStep: (step: number) => void
+  setEmail: (email: string) => void
+  setPhoneNumber: (phoneNumber: string) => void
+  setVerificationMethod: (verificationMethod: VerificationMethod) => void
+  clearForgotPassword: () => void
 }

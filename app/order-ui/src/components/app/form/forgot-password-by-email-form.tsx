@@ -13,32 +13,23 @@ import {
     Form,
     Button,
 } from '@/components/ui'
-import { useForgotPasswordSchema, TForgotPasswordSchema } from '@/schemas'
+
+import { useForgotPasswordByEmailSchema, TForgotPasswordByEmailSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ButtonLoading } from '@/components/app/loading'
-
 import { ROUTE } from '@/constants'
-import { useForgotPassword } from '@/hooks'
 
-import { showToast } from '@/utils'
-
-export const ForgotPasswordForm: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
+export const ForgotPasswordByEmailForm: React.FC<{ onSubmit: (value: TForgotPasswordByEmailSchema) => void }> = ({ onSubmit }) => {
     const { t } = useTranslation(['auth'])
-    const { mutate: forgotPassword, isPending } = useForgotPassword()
-    const form = useForm<TForgotPasswordSchema>({
-        resolver: zodResolver(useForgotPasswordSchema()),
+    const form = useForm<TForgotPasswordByEmailSchema>({
+        resolver: zodResolver(useForgotPasswordByEmailSchema()),
         defaultValues: {
             email: '',
         }
     })
 
-    const handleSubmit = (value: TForgotPasswordSchema) => {
-        forgotPassword(value, {
-            onSuccess: () => {
-                onSuccess()
-                showToast(t('toast.forgotPasswordSuccess'))
-            },
-        })
+    const handleSubmit = (value: TForgotPasswordByEmailSchema) => {
+        onSubmit(value)
     }
 
     const formFields = {
@@ -74,15 +65,15 @@ export const ForgotPasswordForm: React.FC<{ onSuccess: () => void }> = ({ onSucc
                         ))}
                     </div>
                     <div className="flex items-center justify-between w-full">
-                        <NavLink to={ROUTE.LOGIN} className="text-sm text-center text-primary">
+                        <NavLink to={ROUTE.FORGOT_PASSWORD} className="text-sm text-center text-primary">
                             {t('forgotPassword.back')}
                         </NavLink>
                         <Button
                             type="submit"
                             className="flex items-center justify-center"
-                            disabled={isPending}
+                            disabled={form.formState.isSubmitting}
                         >
-                            {isPending ? <ButtonLoading /> : t('forgotPassword.send')}
+                            {form.formState.isSubmitting ? <ButtonLoading /> : t('forgotPassword.send')}
                         </Button>
                     </div>
                 </form>

@@ -1,7 +1,40 @@
+import { VerificationMethod } from '@/constants'
 import { IBase } from './base.type'
 
 export interface IProfileResponse {
   userId: string
+}
+
+export interface IInitiateForgotPasswordRequest {
+  email?: string
+  phonenumber?: string
+  verificationMethod: VerificationMethod
+}
+
+export interface IResendForgotPasswordRequest {
+  email?: string
+  phoneNumber?: string
+  verificationMethod: VerificationMethod
+}
+
+export interface IVerifyOTPForgotPasswordRequest {
+  email?: string
+  phoneNumber?: string
+  verificationMethod: VerificationMethod
+  code: string
+}
+
+export interface IForgotPasswordResponse extends IBase {
+  expiresAt: string
+}
+
+export interface IVerifyOTPForgotPasswordResponse extends IBase {
+  token: string
+}
+
+export interface IConfirmForgotPasswordRequest {
+  newPassword: string
+  token: string
 }
 
 export interface IVerifyEmailRequest {

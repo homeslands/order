@@ -4,23 +4,28 @@ import {
   confirmPhoneNumberVerification,
   createPermission,
   deletePermission,
-  forgotPasswordAndGetToken,
-  forgotPasswordAndResetPassword,
+  initiateForgotPassword,
+  confirmForgotPassword,
   login,
   register,
   resendEmailVerification,
   resendPhoneNumberVerification,
   verifyEmail,
   verifyPhoneNumber,
+  resendForgotPassword,
+  verifyOTPForgotPassword,
 } from '@/api'
 // import { QUERYKEY } from '@/constants'
 import {
   ILoginRequest,
   IRegisterRequest,
-  IForgotPasswordRequest,
   IVerifyEmailRequest,
   IGetAuthorityGroupsRequest,
   ICreatePermissionRequest,
+  IInitiateForgotPasswordRequest,
+  IConfirmForgotPasswordRequest,
+  IResendForgotPasswordRequest,
+  IVerifyOTPForgotPasswordRequest,
 } from '@/types'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 
@@ -41,18 +46,34 @@ export const useRegister = () => {
   })
 }
 
-export const useForgotPassword = () => {
+export const useInitiateForgotPassword = () => {
   return useMutation({
-    mutationFn: async (email: IForgotPasswordRequest) => {
-      return forgotPasswordAndGetToken(email)
+    mutationFn: async (email: IInitiateForgotPasswordRequest) => {
+      return initiateForgotPassword(email)
     },
   })
 }
 
-export const useResetPasswordForForgotPassword = () => {
+export const useResendForgotPassword = () => {
   return useMutation({
-    mutationFn: async (data: { newPassword: string; token: string }) => {
-      return forgotPasswordAndResetPassword(data)
+    mutationFn: async (data: IResendForgotPasswordRequest) => {
+      return resendForgotPassword(data)
+    },
+  })
+}
+
+export const useVerifyOTPForgotPassword = () => {
+  return useMutation({
+    mutationFn: async (data: IVerifyOTPForgotPasswordRequest) => {
+      return verifyOTPForgotPassword(data)
+    },
+  })
+}
+
+export const useConfirmForgotPassword = () => {
+  return useMutation({
+    mutationFn: async (data: IConfirmForgotPasswordRequest) => {
+      return confirmForgotPassword(data)
     },
   })
 }

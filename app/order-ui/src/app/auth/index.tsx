@@ -1,4 +1,5 @@
 export { default as ForgotPasswordPage } from './forgot-password'
 export { default as LoginPage } from './Login'
 export { default as RegisterPage } from './Register'
-export { default as ForgotPasswordAndResetPasswordPage } from './forgot-password-and-reset-password'
+export { default as ForgotPasswordByEmailPage } from './forgot-password-by-email'
+export { default as ForgotPasswordByPhonePage } from './forgot-password-by-phone'
