@@ -184,7 +184,7 @@ export class VoucherUtils {
       where: {
         slug: userSlug ?? IsNull(),
       },
-      relations: ['role'],
+      relations: { role: true, userGroupMembers: { userGroup: true } },
     });
 
     // user login
@@ -206,7 +206,10 @@ export class VoucherUtils {
             );
           }
 
-          // check number of voucher used by user
+          // validate user group
+          this.validateVoucherUserGroup(voucher, user);
+
+          // validate number of usage per user
           const orders = await this.orderUtils.getBulkOrders({
             where: {
               owner: {
@@ -590,5 +593,43 @@ export class VoucherUtils {
     }
 
     return true;
+  }
+
+  validateVoucherUserGroup(voucher: Voucher, user: User): void {
+    const context = `${VoucherUtils.name}.${this.validateVoucherUserGroup.name}`;
+    if (voucher.isUserGroup) {
+      const hasCommonGroup = user.userGroupMembers.some((ug) =>
+        voucher.voucherUserGroups.some(
+          (vg) => vg.userGroup.slug === ug.userGroup.slug,
+        ),
+      );
+      if (!hasCommonGroup) {
+        this.logger.warn(
+          `User ${user.slug} is not in any user group that can use voucher ${voucher.slug}`,
+          context,
+        );
+        throw new VoucherException(
+          VoucherValidation.USER_NOT_IN_USER_GROUP_THAT_CAN_USE_VOUCHER,
+        );
+      }
+    }
+  }
+
+  validateInitiateVoucherUserGroup(
+    isVerificationIdentity: boolean,
+    isUserGroup: boolean,
+  ): void {
+    const context = `${VoucherUtils.name}.${this.validateInitiateVoucherUserGroup.name}`;
+    if (isUserGroup) {
+      if (!isVerificationIdentity) {
+        this.logger.warn(
+          `Is user group is true, is verification identity must be true`,
+          context,
+        );
+        throw new VoucherException(
+          VoucherValidation.IS_VERIFICATION_IDENTITY_MUST_BE_TRUE_IF_IS_USER_GROUP_IS_TRUE,
+        );
+      }
+    }
   }
 }
