@@ -13,6 +13,7 @@ import {
   IResendOTPForgotPasswordRequest,
   IConfirmForgotPasswordRequest,
   IVerifyOTPForgotPasswordResponse,
+  IInitiateForgotPasswordResponse,
 } from '@/types'
 import { http } from '@/utils'
 
@@ -36,11 +37,10 @@ export async function register(
 
 export async function initiateForgotPassword(
   params: IInitiateForgotPasswordRequest,
-): Promise<IApiResponse<null>> {
-  const response = await http.post<IApiResponse<null>>(
-    '/auth/forgot-password/initiate',
-    params,
-  )
+): Promise<IApiResponse<IInitiateForgotPasswordResponse>> {
+  const response = await http.post<
+    IApiResponse<IInitiateForgotPasswordResponse>
+  >('/auth/forgot-password/initiate', params)
   return response.data
 }
 
@@ -55,11 +55,10 @@ export async function verifyOTPForgotPassword(
 
 export async function resendOTPForgotPassword(
   params: IResendOTPForgotPasswordRequest,
-): Promise<IApiResponse<null>> {
-  const response = await http.post<IApiResponse<null>>(
-    '/auth/forgot-password/resend',
-    params,
-  )
+): Promise<IApiResponse<IInitiateForgotPasswordResponse>> {
+  const response = await http.post<
+    IApiResponse<IInitiateForgotPasswordResponse>
+  >('/auth/forgot-password/resend', params)
   return response.data
 }
 

@@ -131,7 +131,7 @@
         "firstNameRequired": "Họ tên là bắt buộc",
         "forbidden": "Không có quyền truy cập",
         "forgotPasswordSuccess": "Gửi email đặt lại mật khẩu thành công",
-        "forgotTokenExpired": "Token quên mật khẩu đã hết hạn",
+        "forgotTokenExpired": "Thời gian xác thực quên mật khẩu đã hết hạn!",
         "getAcbTokenFail": "Lấy token ACB thất bại",
         "getLocationFromRobotApiFailed": "Lấy vị trí từ API robot thất bại",
         "getRobotDataFailed": "Lấy dữ liệu robot thất bại",
@@ -259,6 +259,7 @@
         "runWorkflowFromRobotApiFailed": "Chạy workflow từ API robot thất bại",
         "sendVerifyEmailSuccess": "Gửi email xác minh thành công! Vui lòng kiểm tra email của bạn",
         "sendVerifyPhoneNumberSuccess": "Gửi mã xác minh thành công! Vui lòng kiểm tra ứng dụng Zalo của bạn",
+        "otpStillValid": "Mã OTP vẫn còn hiệu lực, vui lòng nhập mã để tiếp tục",
         "sessionExpired": "Phiên làm việc đã hết hạn",
         "sizeNameDoesExist": "Tên kích thước đã tồn tại",
         "sizeNotFound": "Không tìm thấy kích thước",
@@ -370,6 +371,9 @@
         "userPhoneNumberNotVerified": "Số điện thoại không được xác thực",
         "userEmailNotVerified": "Email không được xác thực",
         "verifyOTPSuccess": "Xác thực thành công",
-        "confirmForgotPasswordSuccess": "Đặt lại mật khẩu thành công"
+        "confirmForgotPasswordSuccess": "Đặt lại mật khẩu thành công",
+        "forgotPasswordTokenExists": "Mã xác thực đã tồn tại",
+        "forgotPasswordTokenNotExists": "Mã xác thực không đúng!",
+        "passwordNotMatch": "Mật khẩu mới và xác nhận mật khẩu mới không khớp"
       }
     }
