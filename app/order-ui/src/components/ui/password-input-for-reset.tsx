@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input, InputProps } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
-const PasswordInput = forwardRef<HTMLInputElement, InputProps>(({ className, ...props }, ref) => {
+const PasswordForResetInput = forwardRef<HTMLInputElement, InputProps>(({ className, ...props }, ref) => {
   const [showPassword, setShowPassword] = useState(false)
   const disabled = props.disabled
 
@@ -12,7 +12,7 @@ const PasswordInput = forwardRef<HTMLInputElement, InputProps>(({ className, ...
     <div className="relative">
       <Input
         type={showPassword ? 'text' : 'password'}
-        className={cn('pr-10 hide-password-toggle', className)}
+        className={cn('pr-10 text-white hide-password-toggle', className)}
         ref={ref}
         {...props}
       />
@@ -25,9 +25,9 @@ const PasswordInput = forwardRef<HTMLInputElement, InputProps>(({ className, ...
         disabled={disabled}
       >
         {showPassword && !disabled ? (
-          <EyeIcon className="w-4 h-4" aria-hidden="true" />
+          <EyeIcon className="w-4 h-4 text-white" aria-hidden="true" />
         ) : (
-          <EyeOffIcon className="w-4 h-4" aria-hidden="true" />
+          <EyeOffIcon className="w-4 h-4 text-white" aria-hidden="true" />
         )}
         <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
       </Button>
@@ -44,6 +44,6 @@ const PasswordInput = forwardRef<HTMLInputElement, InputProps>(({ className, ...
     </div>
   )
 })
-PasswordInput.displayName = 'PasswordInput'
+PasswordForResetInput.displayName = 'PasswordForResetInput'
 
-export { PasswordInput }
+export { PasswordForResetInput }
