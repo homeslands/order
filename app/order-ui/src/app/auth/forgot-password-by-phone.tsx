@@ -5,21 +5,18 @@ import { useNavigate } from 'react-router-dom'
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, OTPInput } from '@/components/ui'
 import { LoginBackground } from '@/assets/images'
 import { cn } from '@/lib/utils'
-import { ForgotPasswordByPhoneForm } from '@/components/app/form'
+import { ForgotPasswordByPhoneForm, ResetPasswordForm } from '@/components/app/form'
 import { useForgotPasswordStore } from '@/stores'
-import { TForgotPasswordByPhoneNumberSchema } from '@/schemas'
+import { TForgotPasswordByPhoneNumberSchema, TResetPasswordSchema } from '@/schemas'
 import { useConfirmForgotPassword, useInitiateForgotPassword, useVerifyOTPForgotPassword, useResendOTPForgotPassword } from '@/hooks'
 import { ROUTE, VerificationMethod } from '@/constants'
 import { showToast, showErrorToastMessage } from '@/utils'
-import { ForgotPasswordInput } from '@/components/app/input'
 
 export default function ForgotPasswordByPhone() {
     const { t } = useTranslation(['auth'])
     const { t: tToast } = useTranslation(['toast'])
     const navigate = useNavigate()
     const [otpValue, setOtpValue] = useState('')
-    const [newPassword, setNewPassword] = useState('')
-    const [confirmPassword, setConfirmPassword] = useState('')
     const [countdown, setCountdown] = useState(0)
     const [tokenCountdown, setTokenCountdown] = useState(0)
     const { setPhoneNumber, setStep, step, phoneNumber, clearForgotPassword, setToken, token, setExpireTime, expireTime, setTokenExpireTime, tokenExpireTime } = useForgotPasswordStore()
@@ -142,18 +139,13 @@ export default function ForgotPasswordByPhone() {
         })
     }
 
-    const handleConfirmForgotPassword = () => {
+    const handleConfirmForgotPassword = (data: TResetPasswordSchema) => {
         if (tokenCountdown === 0) {
             showErrorToastMessage(tToast('toast.forgotPasswordTokenNotExists'))
             return
         }
 
-        if (newPassword !== confirmPassword) {
-            showErrorToastMessage(tToast('toast.passwordNotMatch'))
-            return
-        }
-
-        confirmForgotPassword({ newPassword: newPassword, token: token }, {
+        confirmForgotPassword({ newPassword: data.newPassword, token: data.token }, {
             onSuccess: () => {
                 showToast(tToast('toast.confirmForgotPasswordSuccess'))
                 clearForgotPassword()
@@ -181,9 +173,6 @@ export default function ForgotPasswordByPhone() {
             setStep(2)
             // Clear OTP input để user nhập lại
             setOtpValue('')
-            // Reset password inputs khi quay lại
-            setNewPassword('')
-            setConfirmPassword('')
         }
     }
 
@@ -257,21 +246,16 @@ export default function ForgotPasswordByPhone() {
                                     </div>
                                 )}
                                 {tokenCountdown === 0 && tokenExpireTime && (
-                                    <div className="text-center text-red-400 text-sm">
+                                    <div className="text-center text-destructive text-sm">
                                         {t('forgotPassword.tokenExpired')}
                                     </div>
                                 )}
 
-                                <ForgotPasswordInput
-                                    newPassword={newPassword}
-                                    confirmPassword={confirmPassword}
-                                    onChangeNewPassword={setNewPassword}
-                                    onChangeConfirmPassword={setConfirmPassword}
+                                <ResetPasswordForm
+                                    token={token}
+                                    onSubmit={handleConfirmForgotPassword}
+                                    isLoading={tokenCountdown === 0}
                                 />
-
-                                <Button onClick={handleConfirmForgotPassword} className="w-full" disabled={tokenCountdown === 0}>
-                                    {t('forgotPassword.reset')}
-                                </Button>
                             </div>
                         )}
                     </CardContent>
