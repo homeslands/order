@@ -167,6 +167,18 @@ export class CreateVoucherDto {
   })
   @Type(() => String)
   paymentMethods: string[];
+
+  @AutoMap()
+  @ApiProperty({
+    required: false,
+    type: Boolean,
+  })
+  @IsNotEmpty({ message: 'INVALID_IS_USER_GROUP' })
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return undefined; // Default true
+    return value === 'true' || value === true; // Transform 'true' to `true` and others to `false`
+  })
+  isUserGroup: boolean;
 }
 
 export class BulkCreateVoucherDto {
@@ -312,6 +324,18 @@ export class BulkCreateVoucherDto {
   })
   @Type(() => String)
   paymentMethods: string[];
+
+  @AutoMap()
+  @ApiProperty({
+    required: false,
+    type: Boolean,
+  })
+  @IsNotEmpty({ message: 'INVALID_IS_USER_GROUP' })
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return undefined; // Default true
+    return value === 'true' || value === true; // Transform 'true' to `true` and others to `false`
+  })
+  isUserGroup: boolean;
 }
 
 export class UpdateVoucherDto extends CreateVoucherDto {
