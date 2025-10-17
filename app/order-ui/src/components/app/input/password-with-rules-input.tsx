@@ -66,7 +66,7 @@ export default function PasswordWithRulesInput({
             <div className="relative">
                 <Input
                     type={showPassword ? 'text' : 'password'}
-                    className={cn('hide-password-toggle pr-10')}
+                    className={cn('hide-password-toggle pr-10 text-white')}
                     value={value}
                     onChange={(e) => {
                         onChange(e.target.value)
@@ -80,7 +80,7 @@ export default function PasswordWithRulesInput({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
+                    className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent text-white"
                     onClick={() => setShowPassword((prev) => !prev)}
                     disabled={disabled}
                 >

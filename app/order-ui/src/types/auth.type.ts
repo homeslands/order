@@ -41,6 +41,10 @@ export interface IInitiateForgotPasswordRequest {
   verificationMethod: VerificationMethod
 }
 
+export interface IInitiateForgotPasswordResponse {
+  expiresAt: string
+}
+
 export interface IResendOTPForgotPasswordRequest {
   email?: string
   phonenumber?: string
