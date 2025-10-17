@@ -102,6 +102,9 @@ export class Voucher extends Base {
 
   // if true, only user in user group can use voucher
   // if false, all user can use voucher
+  // if isUserGroup is true, isVerificationIdentity must be true
+  // if isVerificationIdentity is false, isUserGroup must be false
+  // if isVerificationIdentity is true, isUserGroup can be true or false
   @AutoMap()
   @Column({ name: 'is_user_group_column', default: false })
   isUserGroup: boolean;
