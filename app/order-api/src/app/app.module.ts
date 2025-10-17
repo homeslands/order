@@ -79,6 +79,7 @@ import { FeatureGuard } from 'src/feature-flag-system/guard/fureture.guard';
 import { GoogleMapModule } from 'src/google-map/google-map.module';
 import { RoleBasedSerializationInterceptor } from 'src/role/role.interceptor';
 import { JwtOptionalAuthGuard } from 'src/auth/passport/jwt/jwt-optional-auth.guard';
+import { VoucherUserGroupModule } from 'src/voucher-user-group/voucher-user-group.module';
 
 @Module({
   imports: [
@@ -177,6 +178,7 @@ import { JwtOptionalAuthGuard } from 'src/auth/passport/jwt/jwt-optional-auth.gu
     BranchConfigModule,
     FeatureFlagSystemModule,
     GoogleMapModule,
+    VoucherUserGroupModule,
   ],
   controllers: [AppController],
   providers: [

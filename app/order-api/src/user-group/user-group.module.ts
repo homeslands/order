@@ -6,9 +6,10 @@ import { UserGroup } from './user-group.entity';
 import { UserGroupProfile } from './user-group.mapper';
 import { User } from 'src/user/user.entity';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserGroup, User])],
+  imports: [TypeOrmModule.forFeature([UserGroup, User, Voucher])],
   controllers: [UserGroupController],
   providers: [UserGroupService, UserGroupProfile, TransactionManagerService],
   exports: [UserGroupService],

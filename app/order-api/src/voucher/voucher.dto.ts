@@ -479,6 +479,28 @@ export class GetAllVoucherDto extends BaseQueryDto {
 
   @AutoMap()
   @ApiProperty({
+    description: 'Get vouchers base on user group',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  userGroup?: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'Get vouchers that are either applied to a user group or not',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  isAppliedUserGroup?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
     description: 'The option has paging or not',
     example: true,
     required: false,

@@ -2,6 +2,7 @@ import { Entity, Column, OneToMany } from 'typeorm';
 import { Base } from 'src/app/base.entity';
 import { AutoMap } from '@automapper/classes';
 import { UserGroupMember } from 'src/user-group-member/user-group-member.entity';
+import { VoucherUserGroup } from 'src/voucher-user-group/voucher-user-group.entity';
 
 @Entity('user_group_tbl')
 export class UserGroup extends Base {
@@ -23,4 +24,10 @@ export class UserGroup extends Base {
     (userGroupMember) => userGroupMember.userGroup,
   )
   userGroupMembers: UserGroupMember[];
+
+  @OneToMany(
+    () => VoucherUserGroup,
+    (voucherUserGroup) => voucherUserGroup.userGroup,
+  )
+  voucherUserGroups: VoucherUserGroup[];
 }
