@@ -41,6 +41,7 @@ import { UserGroupValidation } from 'src/user-group/user-group.validation';
 import { UserValidation } from 'src/user/user.validation';
 import { VariantValidation } from 'src/variant/variant.validation';
 import { VoucherProductValidation } from 'src/voucher-product/voucher-product.validation';
+import { VoucherUserGroupValidation } from 'src/voucher-user-group/voucher-user-group.validation';
 import { VoucherValidation } from 'src/voucher/voucher.validation';
 import { WorkflowValidation } from 'src/workflow/workflow.validation';
 import { ZaloOaConnectorValidation } from 'src/zalo-oa-connector/zalo-oa-connector.validation';
@@ -106,6 +107,7 @@ export const AppValidation: TErrorCode = {
   ...BranchConfigValidation,
   ...UserGroupMemberValidation,
   ...UserGroupValidation,
+  ...VoucherUserGroupValidation,
 };
 
 const errorCodeKeys = Object.keys(AppValidation);

@@ -79,6 +79,7 @@ import { GoogleMapModule } from 'src/google-map/google-map.module';
 import { FeatureFlagSystemModule } from 'src/feature-flag-system/feature-flag-system.module';
 import { FeatureGuard } from 'src/feature-flag-system/guard/fureture.guard';
 import { BranchConfigModule } from 'src/branch-config/branch-config.module';
+import { VoucherUserGroupModule } from 'src/voucher-user-group/voucher-user-group.module';
 
 @Module({
   imports: [
@@ -177,6 +178,7 @@ import { BranchConfigModule } from 'src/branch-config/branch-config.module';
     GoogleMapModule,
     FeatureFlagSystemModule,
     BranchConfigModule,
+    VoucherUserGroupModule,
   ],
   controllers: [AppController],
   providers: [
