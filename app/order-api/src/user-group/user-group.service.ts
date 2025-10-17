@@ -1,6 +1,13 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, FindOptionsWhere, FindManyOptions } from 'typeorm';
+import {
+  Repository,
+  Like,
+  FindOptionsWhere,
+  FindManyOptions,
+  In,
+  Not,
+} from 'typeorm';
 import { UserGroup } from './user-group.entity';
 import {
   CreateUserGroupDto,
@@ -19,12 +26,17 @@ import {
   attachCreatedByForArrayEntity,
   attachCreatedByForSingleEntity,
 } from 'src/user/user.helper';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
+import { VoucherException } from 'src/voucher/voucher.exception';
+import { VoucherValidation } from 'src/voucher/voucher.validation';
 
 @Injectable()
 export class UserGroupService {
   constructor(
     @InjectRepository(UserGroup)
     private readonly userGroupRepository: Repository<UserGroup>,
+    @InjectRepository(Voucher)
+    private readonly voucherRepository: Repository<Voucher>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectMapper() private readonly mapper: Mapper,
@@ -60,6 +72,7 @@ export class UserGroupService {
   async getAllUserGroups(
     query: GetAllUserGroupQueryRequestDto,
   ): Promise<AppPaginatedResponseDto<UserGroupResponseDto>> {
+    const context = `${UserGroupService.name}.${this.getAllUserGroups.name}`;
     // Construct where options
     const whereOptions: FindOptionsWhere<UserGroup> = {};
 
@@ -84,6 +97,28 @@ export class UserGroupService {
         userGroupMembers: {
           user: { phonenumber: query.phoneNumber },
         },
+      };
+    }
+
+    if (query.voucher) {
+      const voucher = await this.voucherRepository.findOne({
+        where: { slug: query.voucher },
+        relations: {
+          voucherUserGroups: true,
+        },
+      });
+      if (!voucher) {
+        this.logger.warn(`Voucher not found`, context);
+        throw new VoucherException(VoucherValidation.VOUCHER_NOT_FOUND);
+      }
+      const voucherUserGroupIds = voucher.voucherUserGroups.map(
+        (item) => item.id,
+      );
+      findManyOptions.where = {
+        ...whereOptions,
+        voucherUserGroups: query.isAppliedVoucher
+          ? In(voucherUserGroupIds)
+          : Not(In(voucherUserGroupIds)),
       };
     }
 

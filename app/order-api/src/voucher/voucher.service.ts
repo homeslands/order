@@ -25,6 +25,7 @@ import {
   IsNull,
   LessThanOrEqual,
   MoreThanOrEqual,
+  Not,
   Repository,
 } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
@@ -48,12 +49,17 @@ import { ProductUtils } from 'src/product/product.utils';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { VoucherPaymentMethod } from './entity/voucher-payment-method.entity';
 import { PaymentMethod } from 'src/payment/payment.constants';
+import { UserGroup } from 'src/user-group/user-group.entity';
+import { UserGroupException } from 'src/user-group/user-group.exception';
+import { UserGroupValidation } from 'src/user-group/user-group.validation';
 
 @Injectable()
 export class VoucherService {
   constructor(
     @InjectRepository(Voucher)
     private readonly voucherRepository: Repository<Voucher>,
+    @InjectRepository(UserGroup)
+    private readonly userGroupRepository: Repository<UserGroup>,
     @InjectMapper()
     private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
@@ -532,6 +538,22 @@ export class VoucherService {
 
     if (!_.isNil(options.isPrivate))
       findOptionsWhere.isPrivate = options.isPrivate;
+
+    if (!_.isNil(options.userGroup)) {
+      const userGroup = await this.userGroupRepository.findOne({
+        where: { slug: options.userGroup },
+      });
+      if (!userGroup) {
+        this.logger.warn(`User group not found`, context);
+        throw new UserGroupException(UserGroupValidation.USER_GROUP_NOT_FOUND);
+      }
+      const voucherUserGroupIds = userGroup.voucherUserGroups.map(
+        (item) => item.id,
+      );
+      findOptionsWhere.voucherUserGroups = options.isAppliedUserGroup
+        ? In(voucherUserGroupIds)
+        : Not(In(voucherUserGroupIds));
+    }
 
     try {
       const findManyOptions: FindManyOptions<Voucher> = {
