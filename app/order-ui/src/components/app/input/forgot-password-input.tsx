@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next"
-import { Label, PasswordInput } from "@/components/ui"
+import { useEffect, useState } from "react"
+import { Label } from "@/components/ui"
 import PasswordWithRulesInput from "./password-with-rules-input"
 
 interface ForgotPasswordInputProps {
@@ -16,6 +17,14 @@ export default function ForgotPasswordInput({
     onChangeConfirmPassword,
 }: ForgotPasswordInputProps) {
     const { t } = useTranslation("auth")
+    const [confirmTouched, setConfirmTouched] = useState(false)
+    const [passwordsMatch, setPasswordsMatch] = useState(true)
+
+    useEffect(() => {
+        if (confirmTouched && confirmPassword.length > 0) {
+            setPasswordsMatch(newPassword === confirmPassword)
+        }
+    }, [newPassword, confirmPassword, confirmTouched])
 
     return (
         <div className="flex flex-col gap-4">
@@ -29,11 +38,23 @@ export default function ForgotPasswordInput({
             </div>
             <div className="space-y-2">
                 <Label className="text-white">{t("forgotPassword.confirmNewPassword")}</Label>
-                <PasswordInput
-                    placeholder={t("forgotPassword.enterConfirmNewPassword")}
-                    value={confirmPassword}
-                    onChange={(e) => onChangeConfirmPassword(e.target.value)}
-                />
+                <div className="space-y-1">
+                    <PasswordWithRulesInput
+                        placeholder={t("forgotPassword.enterConfirmNewPassword")}
+                        value={confirmPassword}
+                        onChange={(value) => {
+                            onChangeConfirmPassword(value)
+                            if (!confirmTouched && value.length > 0) {
+                                setConfirmTouched(true)
+                            }
+                        }}
+                    />
+                    {confirmTouched && confirmPassword.length > 0 && !passwordsMatch && (
+                        <p className="text-sm text-red-600">
+                            {t("forgotPassword.passwordNotMatch")}
+                        </p>
+                    )}
+                </div>
             </div>
         </div>
     )
