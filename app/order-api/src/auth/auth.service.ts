@@ -562,7 +562,7 @@ export class AuthService {
     const existToken = await this.forgotPasswordRepository.findOne({
       where: {
         token: requestData.code,
-        expiresAt: MoreThan(new Date()),
+        // expiresAt: MoreThan(new Date()),
       },
       relations: {
         user: true,
@@ -570,10 +570,14 @@ export class AuthService {
     });
     if (!existToken) {
       this.logger.warn(`Forgot token is not existed`, context);
-      throw new AuthException(
-        AuthValidation.FORGOT_TOKEN_EXPIRED,
-        FORGOT_TOKEN_EXPIRED,
+      throw new AuthException(AuthValidation.FORGOT_TOKEN_NOT_EXISTED);
+    }
+    if (existToken.expiresAt < new Date()) {
+      this.logger.warn(
+        `Forgot token is expired: ${existToken.expiresAt}`,
+        context,
       );
+      throw new AuthException(AuthValidation.FORGOT_TOKEN_EXPIRED);
     }
     if (!existToken.user) {
       this.logger.warn(`User is not existed`, context);
