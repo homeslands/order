@@ -296,6 +296,7 @@ const errorCodes: { [key: number]: string } = {
   159008: 'toast.featureOnlyForRegisteredCustomer',
   159016: 'toast.loyaltyPointAlreadyReserved',
   159017: 'toast.userGroupMemberNotFound',
+  159203: 'toast.accountDisabled',
   // User error code
   119006: 'toast.userNotFound',
 }
