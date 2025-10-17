@@ -54,6 +54,7 @@ import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point
 import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
 import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
 import { Address } from 'src/google-map/entities/address.entity';
+import { UserGroup } from 'src/user-group/user-group.entity';
 
 describe('VoucherService', () => {
   let service: VoucherService;
@@ -165,6 +166,10 @@ describe('VoucherService', () => {
           useValue: {
             emit: jest.fn(), // Mock the emit method
           },
+        },
+        {
+          provide: getRepositoryToken(UserGroup),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();
