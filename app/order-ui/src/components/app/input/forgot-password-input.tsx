@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next"
 import { Label, PasswordInput } from "@/components/ui"
+import PasswordWithRulesInput from "./password-with-rules-input"
 
 interface ForgotPasswordInputProps {
     newPassword: string
@@ -20,10 +21,10 @@ export default function ForgotPasswordInput({
         <div className="flex flex-col gap-4">
             <div className="space-y-2">
                 <Label className="text-white">{t("forgotPassword.newPassword")}</Label>
-                <PasswordInput
+                <PasswordWithRulesInput
                     placeholder={t("forgotPassword.enterNewPassword")}
                     value={newPassword}
-                    onChange={(e) => onChangeNewPassword(e.target.value)}
+                    onChange={onChangeNewPassword}
                 />
             </div>
             <div className="space-y-2">
