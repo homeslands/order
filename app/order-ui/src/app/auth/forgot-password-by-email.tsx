@@ -6,12 +6,11 @@ import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, OTPI
 import { LoginBackground } from '@/assets/images'
 import { cn } from '@/lib/utils'
 import { useForgotPasswordStore } from '@/stores'
-import { ForgotPasswordByEmailForm } from '@/components/app/form'
-import { TForgotPasswordByEmailSchema } from '@/schemas'
+import { ForgotPasswordByEmailForm, ResetPasswordForm } from '@/components/app/form'
+import { TForgotPasswordByEmailSchema, TResetPasswordSchema } from '@/schemas'
 import { useConfirmForgotPassword, useInitiateForgotPassword, useVerifyOTPForgotPassword, useResendOTPForgotPassword } from '@/hooks'
 import { showToast, showErrorToastMessage } from '@/utils'
 import { ROUTE, VerificationMethod } from '@/constants'
-import { ForgotPasswordInput } from '@/components/app/input'
 
 export default function ForgotPasswordByEmail() {
     const { t } = useTranslation(['auth'])
@@ -19,8 +18,6 @@ export default function ForgotPasswordByEmail() {
     const navigate = useNavigate()
     const { setEmail, setStep, step, email, clearForgotPassword, setToken, token, setExpireTime, expireTime, setTokenExpireTime, tokenExpireTime } = useForgotPasswordStore()
     const [otpValue, setOtpValue] = useState('')
-    const [newPassword, setNewPassword] = useState('')
-    const [confirmPassword, setConfirmPassword] = useState('')
     const [countdown, setCountdown] = useState(0)
     const [tokenCountdown, setTokenCountdown] = useState(0)
     const { mutate: initiateForgotPassword } = useInitiateForgotPassword()
@@ -142,18 +139,13 @@ export default function ForgotPasswordByEmail() {
         })
     }
 
-    const handleConfirmForgotPassword = () => {
+    const handleConfirmForgotPassword = (data: TResetPasswordSchema) => {
         if (tokenCountdown === 0) {
             showErrorToastMessage(tToast('toast.forgotPasswordTokenNotExists'))
             return
         }
 
-        if (newPassword !== confirmPassword) {
-            showErrorToastMessage(tToast('toast.passwordNotMatch'))
-            return
-        }
-
-        confirmForgotPassword({ newPassword: newPassword, token: token }, {
+        confirmForgotPassword({ newPassword: data.newPassword, token: data.token }, {
             onSuccess: () => {
                 showToast(tToast('toast.confirmForgotPasswordSuccess'))
                 clearForgotPassword()
@@ -181,9 +173,6 @@ export default function ForgotPasswordByEmail() {
             setStep(2)
             // Clear OTP input để user nhập lại
             setOtpValue('')
-            // Reset password inputs khi quay lại
-            setNewPassword('')
-            setConfirmPassword('')
         }
     }
 
@@ -262,16 +251,11 @@ export default function ForgotPasswordByEmail() {
                                     </div>
                                 )}
 
-                                <ForgotPasswordInput
-                                    newPassword={newPassword}
-                                    confirmPassword={confirmPassword}
-                                    onChangeNewPassword={setNewPassword}
-                                    onChangeConfirmPassword={setConfirmPassword}
+                                <ResetPasswordForm
+                                    token={token}
+                                    onSubmit={handleConfirmForgotPassword}
+                                    isLoading={tokenCountdown === 0}
                                 />
-
-                                <Button onClick={handleConfirmForgotPassword} className="w-full" disabled={tokenCountdown === 0}>
-                                    {t('forgotPassword.reset')}
-                                </Button>
                             </div>
                         )}
                     </CardContent>
