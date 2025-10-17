@@ -105,20 +105,12 @@ export function useResetPasswordSchema() {
         .regex(PASSWORD_REGEX, t('forgotPassword.passwordInvalid')),
       confirmPassword: z
         .string()
-        .min(AuthRules.MIN_LENGTH, {
-          message: t('forgotPassword.passwordMin', {
-            length: AuthRules.MIN_LENGTH,
-          }),
-        })
-        .max(AuthRules.MAX_LENGTH, {
-          message: t('forgotPassword.passwordMax', {
-            length: AuthRules.MAX_LENGTH,
-          }),
-        }),
+        .min(1, t('forgotPassword.confirmPasswordRequired')),
       token: z.string(),
     })
     .refine((data) => data.newPassword === data.confirmPassword, {
       message: t('forgotPassword.passwordNotMatch'),
+      path: ['confirmPassword'],
     })
 }
 

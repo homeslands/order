@@ -131,7 +131,7 @@
     "firstNameRequired": "First name is required",
     "forbidden": "Access denied",
     "forgotPasswordSuccess": "Password reset email sent successfully",
-    "forgotTokenExpired": "Forgot password token expired",
+    "forgotTokenExpired": "Forgot password verification time has expired",
     "getAcbTokenFail": "Failed to get ACB token",
     "getLocationFromRobotApiFailed": "Failed to get location from robot API",
     "getRobotDataFailed": "Failed to retrieve robot data",
@@ -259,6 +259,7 @@
     "runWorkflowFromRobotApiFailed": "Failed to run workflow from robot API",
     "sendVerifyEmailSuccess": "Verification email sent successfully. Please check your email",
     "sendVerifyPhoneNumberSuccess": "Verification code sent successfully. Please check your Zalo app",
+    "otpStillValid": "OTP is still valid, please enter the code to continue",
     "sessionExpired": "Session has expired",
     "sizeNameDoesExist": "Size name already exists",
     "sizeNotFound": "Size not found",
@@ -370,6 +371,9 @@
     "userPhoneNumberNotVerified": "Phone number not verified",
     "userEmailNotVerified": "Email not verified",
     "verifyOTPSuccess": "Verification successful",
-    "confirmForgotPasswordSuccess": "Password reset successfully"
+    "confirmForgotPasswordSuccess": "Password reset successfully",
+    "forgotPasswordTokenExists": "Forgot password token already exists",
+    "forgotPasswordTokenNotExists": "Forgot password token not exists",
+    "passwordNotMatch": "New password and confirm new password do not match"
   }
 }
