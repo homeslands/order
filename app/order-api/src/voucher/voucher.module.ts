@@ -19,6 +19,7 @@ import { Product } from 'src/product/product.entity';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { VoucherPaymentMethod } from './entity/voucher-payment-method.entity';
 import { User } from 'src/user/user.entity';
+import { UserGroup } from 'src/user-group/user-group.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -28,6 +29,7 @@ import { User } from 'src/user/user.entity';
       VoucherProduct,
       VoucherPaymentMethod,
       User,
+      UserGroup,
     ]),
     DbModule,
     UserModule,
