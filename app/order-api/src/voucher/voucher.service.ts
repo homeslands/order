@@ -123,6 +123,12 @@ export class VoucherService {
     const voucherGroup = await this.voucherGroupUtils.getVoucherGroup({
       where: { slug: createVoucherDto.voucherGroup },
     });
+
+    this.voucherUtils.validateInitiateVoucherUserGroup(
+      createVoucherDto.isVerificationIdentity,
+      createVoucherDto.isUserGroup,
+    );
+
     const productSlugs = createVoucherDto.products;
     const paymentMethods = createVoucherDto.paymentMethods;
     const voucher = this.mapper.map(
@@ -243,6 +249,12 @@ export class VoucherService {
     const voucherGroup = await this.voucherGroupUtils.getVoucherGroup({
       where: { slug: bulkCreateVoucherDto.voucherGroup },
     });
+
+    this.voucherUtils.validateInitiateVoucherUserGroup(
+      bulkCreateVoucherDto.isVerificationIdentity,
+      bulkCreateVoucherDto.isUserGroup,
+    );
+
     const numberOfVoucher = bulkCreateVoucherDto.numberOfVoucher;
 
     const productSlugs = bulkCreateVoucherDto.products;
@@ -623,6 +635,27 @@ export class VoucherService {
     const voucherGroup = await this.voucherGroupUtils.getVoucherGroup({
       where: { slug: updateVoucherDto.voucherGroup },
     });
+
+    this.voucherUtils.validateInitiateVoucherUserGroup(
+      updateVoucherDto.isVerificationIdentity,
+      updateVoucherDto.isUserGroup,
+    );
+
+    if (voucher.isUserGroup !== updateVoucherDto.isUserGroup) {
+      const orders = await this.orderUtils.getBulkOrders({
+        where: { voucher: { slug } },
+      });
+      if (!_.isEmpty(orders)) {
+        this.logger.error(
+          'Voucher has used can not update is user group',
+          null,
+          context,
+        );
+        throw new VoucherException(
+          VoucherValidation.VOUCHER_HAS_USED_CAN_NOT_UPDATE_IS_USER_GROUP,
+        );
+      }
+    }
 
     if (voucher.type === VoucherType.PERCENT_ORDER) {
       if (voucher.value > 100) {
