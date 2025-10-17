@@ -1,13 +1,16 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpCode,
+  Param,
   Post,
   ValidationPipe,
 } from '@nestjs/common';
 import { VoucherUserGroupService } from './voucher-user-group.service';
 import {
   BulkCreateVoucherUserGroupRequestDto,
+  DeleteVoucherUserGroupRequestDto,
   VoucherUserGroupResponseDto,
 } from './voucher-user-group.dto';
 import { AppResponseDto } from 'src/app/app.dto';
@@ -46,5 +49,24 @@ export class VoucherUserGroupController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<VoucherUserGroupResponseDto[]>;
+  }
+
+  @Delete('voucher/:voucherSlug/user-group/userGroupSlug')
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete voucher user group' })
+  async delete(
+    @Param('voucherSlug') voucherSlug: string,
+    @Param('userGroupSlug') userGroupSlug: string,
+  ) {
+    await this.voucherUserGroupService.delete({
+      voucher: voucherSlug,
+      userGroup: userGroupSlug,
+    } as DeleteVoucherUserGroupRequestDto);
+    return {
+      message: 'Voucher user group has been deleted successfully',
+      statusCode: HttpStatus.NO_CONTENT,
+      timestamp: new Date().toISOString(),
+    } as AppResponseDto<void>;
   }
 }
