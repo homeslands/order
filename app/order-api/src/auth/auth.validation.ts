@@ -49,6 +49,7 @@ export const USER_NOT_VERIFIED_PHONENUMBER = 'USER_NOT_VERIFIED_PHONENUMBER';
 export const ERROR_CREATE_TOKEN_TO_CHANGE_PASSWORD =
   'ERROR_CREATE_TOKEN_TO_CHANGE_PASSWORD';
 export const ERROR_CHANGE_FORGOT_PASSWORD = 'ERROR_CHANGE_FORGOT_PASSWORD';
+export const FORGOT_TOKEN_NOT_EXISTED = 'FORGOT_TOKEN_NOT_EXISTED';
 
 export type TAuthErrorCodeKey =
   | typeof INVALID_PHONENUMBER
@@ -88,7 +89,8 @@ export type TAuthErrorCodeKey =
   | typeof USER_NOT_VERIFIED_EMAIL
   | typeof USER_NOT_VERIFIED_PHONENUMBER
   | typeof ERROR_CREATE_TOKEN_TO_CHANGE_PASSWORD
-  | typeof ERROR_CHANGE_FORGOT_PASSWORD;
+  | typeof ERROR_CHANGE_FORGOT_PASSWORD
+  | typeof FORGOT_TOKEN_NOT_EXISTED;
 
 export type TAuthErrorCode = Record<TAuthErrorCodeKey, TErrorCodeValue>;
 
@@ -186,4 +188,5 @@ export const AuthValidation: TAuthErrorCode = {
     119037,
     'Error when change forgot password',
   ),
+  FORGOT_TOKEN_NOT_EXISTED: createErrorCode(119038, 'Forgot token not existed'),
 };
