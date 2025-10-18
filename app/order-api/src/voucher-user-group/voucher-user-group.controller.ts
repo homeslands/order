@@ -14,13 +14,15 @@ import {
   VoucherUserGroupResponseDto,
 } from './voucher-user-group.dto';
 import { AppResponseDto } from 'src/app/app.dto';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { HttpStatus } from '@nestjs/common';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
 
 @Controller('voucher-user-group')
+@ApiTags('Voucher User Group')
+@ApiBearerAuth()
 export class VoucherUserGroupController {
   constructor(
     private readonly voucherUserGroupService: VoucherUserGroupService,
