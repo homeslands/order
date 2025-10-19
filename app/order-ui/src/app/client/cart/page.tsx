@@ -669,7 +669,7 @@ export default function ClientCartPage() {
             </div>
 
           ) : (
-            <div className='fixed right-0 left-0 bottom-16 z-50 bg-white dark:bg-background'>
+            <div className='fixed right-0 left-0 bottom-20 z-50 bg-white dark:bg-background'>
               <div className='grid grid-cols-2 justify-between items-center px-2 py-4'>
                 <div className="flex col-span-1 gap-1 justify-center items-center font-semibold">
                   {/* <span>{t('order.totalPayment')}</span> */}

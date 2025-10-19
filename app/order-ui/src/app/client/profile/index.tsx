@@ -1,1 +1,7 @@
-export { default as ProfilePage } from './page'
+export { default as ProfilePage } from './layout'
+export { default as ProfileOverview } from './components/profile-overview'
+export { default as ClientInfoPage } from './components/client-info-page'
+export { default as OrderHistoryPage } from './components/order-history-page'
+export { default as LoyaltyPointPage } from './components/loyalty-point-page'
+export { default as CoinPage } from './components/coin-page'
+export { default as GiftCardPage } from './components/gift-card-page'
