@@ -9,20 +9,20 @@ export default function CustomerOrderTabs() {
   return (
     <Tabs
       defaultValue="customer-order-history"
-      className="flex w-full flex-col gap-4"
+      className="flex flex-col gap-4 w-full"
     >
       <TabsList
-        className={`sticky top-5 z-10 flex items-center gap-2 bg-white dark:bg-transparent`}
+        className={`grid sticky top-5 z-10 grid-cols-2 gap-2 items-center bg-transparent sm:grid-cols-5 dark:bg-transparent`}
       >
         <TabsTrigger
           value="customer-order-history"
-          className="flex w-1/3 justify-center"
+          className="flex justify-center"
         >
           {t('profile.productOrders')}
         </TabsTrigger>
         <TabsTrigger
           value="customer-card-order-history"
-          className="flex w-1/3 justify-center"
+          className="flex justify-center"
         >
           {t('profile.giftCards')}
         </TabsTrigger>
