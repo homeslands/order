@@ -669,9 +669,9 @@ export default function ClientCartPage() {
             </div>
 
           ) : (
-            <div className='fixed left-0 right-0 z-50 bg-white bottom-16 dark:bg-background'>
-              <div className='grid items-center justify-between grid-cols-2 px-2 py-4'>
-                <div className="flex items-center justify-center col-span-1 gap-1 font-semibold">
+            <div className='fixed right-0 left-0 bottom-20 z-50 bg-white dark:bg-background'>
+              <div className='grid grid-cols-2 justify-between items-center px-2 py-4'>
+                <div className="flex col-span-1 gap-1 justify-center items-center font-semibold">
                   {/* <span>{t('order.totalPayment')}</span> */}
                   <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee.deliveryFee)}</span>
                 </div>

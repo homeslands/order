@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
-import { ShoppingCart } from 'lucide-react'
+import { ChevronRightIcon, ShoppingBag } from 'lucide-react'
 
 import { Badge, Button } from '@/components/ui'
 import { useSpecificMenuItem } from '@/hooks'
@@ -219,7 +219,7 @@ export default function ProductDetailPage() {
     }
   }
   return (
-    <div className="container flex flex-col gap-10 items-start py-10">
+    <div className="container flex flex-col gap-10 items-start pb-10 pt-4 px-0">
       <Helmet>
         <meta charSet='utf-8' />
         <title>
@@ -234,7 +234,7 @@ export default function ProductDetailPage() {
             <img
               src={`${publicFileURL}/${selectedImage}`}
               alt={productDetail.product.name}
-              className="h-[15rem] sm:h-[20rem] w-full rounded-xl object-cover transition-opacity duration-300 ease-in-out"
+              className="h-[15rem] sm:h-[20rem] w-full object-cover transition-opacity duration-300 ease-in-out"
             />
           )}
           <ProductImageCarousel
@@ -246,7 +246,7 @@ export default function ProductDetailPage() {
             onImageClick={setSelectedImage}
           />
         </div>
-        <div className="flex flex-col col-span-1 gap-4 justify-between w-full lg:w-1/2">
+        <div className="flex flex-col col-span-1 gap-4 justify-between w-full lg:w-1/2 px-2">
           {productDetail && (
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">
@@ -343,37 +343,45 @@ export default function ProductDetailPage() {
             </div>
           )}
 
-          <div className='grid fixed right-0 left-0 bottom-16 z-10 grid-cols-2 gap-2 bg-white border-t md:relative md:mt-14 md:bg-transparent md:border-0'>
-            <Button
-              onClick={handleBuyNow}
-              disabled={productDetail?.isLocked || !size || quantity <= 0 || productDetail?.currentStock === 0}
-            >
-              <ShoppingCart /> {productDetail?.isLocked || productDetail?.currentStock === 0 ? tMenu('menu.outOfStock') : tMenu('menu.buyNow')}
-            </Button>
-            <Button
-              onClick={handleAddToCart}
-              variant="outline"
-              disabled={productDetail?.isLocked || !size || quantity <= 0 || productDetail?.currentStock === 0}
-            >
-              <ShoppingCart /> {productDetail?.isLocked || productDetail?.currentStock === 0 ? tMenu('menu.outOfStock') : tMenu('menu.addToCart')}
-            </Button>
+          <div className="fixed left-0 right-0 bottom-0 z-10 bg-white border-t shadow-lg md:relative md:mt-14 md:bg-transparent md:border-0 md:shadow-none">
+            <div className="grid grid-cols-2 gap-2 p-4">
+              <Button
+                onClick={handleBuyNow}
+                disabled={productDetail?.isLocked || !size || quantity <= 0 || productDetail?.currentStock === 0}
+              >
+                {productDetail?.isLocked || productDetail?.currentStock === 0
+                  ? tMenu('menu.outOfStock')
+                  : tMenu('menu.buyNow')}
+              </Button>
+
+              <Button
+                onClick={handleAddToCart}
+                variant="outline"
+                disabled={productDetail?.isLocked || !size || quantity <= 0 || productDetail?.currentStock === 0}
+              >
+                <ShoppingBag className="icon" />
+                {productDetail?.isLocked || productDetail?.currentStock === 0
+                  ? tMenu('menu.outOfStock')
+                  : tMenu('menu.addToCart')}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Related products */}
-      <div className="w-full">
+      <div className="w-full px-2">
         <p className="flex justify-between pl-2 border-l-4 border-primary text-primary">
           <span>
             {t('product.relatedProducts')}
           </span>
           <NavLink to={ROUTE.CLIENT_MENU}>
-            <span className="text-sm text-muted-foreground">
-              {t('product.goToMenu')}
+            <span className="text-sm text-muted-foreground flex flex-row gap-1 items-center">
+              {t('product.goToMenu')} <ChevronRightIcon className="icon w-4 h-4" />
             </span>
           </NavLink>
         </p>
-        <SliderRelatedProducts currentProduct={slug || ''} catalog={productDetail?.product.catalog.slug || ''} />
+        {productDetail && productDetail.product.catalog?.slug && <SliderRelatedProducts currentProduct={slug || ''} catalog={productDetail?.product.catalog.slug || ''} />}
       </div>
     </div>
   )

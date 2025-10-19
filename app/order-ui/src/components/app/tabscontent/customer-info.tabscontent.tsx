@@ -10,7 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui'
-import { useProfile } from '@/hooks'
+import { useIsMobile, useProfile } from '@/hooks'
 import { showToast } from '@/utils'
 import {
   SendVerifyEmailDialog,
@@ -21,6 +21,7 @@ import {
 import { useUserStore } from '@/stores'
 
 export function CustomerInfoTabsContent() {
+  const isMobile = useIsMobile()
   const { t } = useTranslation(['profile', 'toast'])
   const [isVerifyingEmail, setIsVerifyingEmail] = useState(false)
   const [isVerifyingPhoneNumber, setIsVerifyingPhoneNumber] = useState(false)
@@ -179,15 +180,57 @@ export function CustomerInfoTabsContent() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-4 justify-center md:justify-end">
+      {/* Nút chỉnh sửa và đổi mật khẩu */}
+      <div className="flex gap-4 justify-end">
         <UpdateCustomerProfileDialog userProfile={userProfile} />
         <UpdatePasswordDialog />
       </div>
-      <div className="grid grid-cols-1 gap-6">
-        {Object.keys(formFields).map((key) => (
-          <div key={key}>{formFields[key as keyof typeof formFields]}</div>
-        ))}
-      </div>
+
+      {/* --- DESKTOP --- */}
+      {!isMobile ? (
+        <div className="grid grid-cols-1 gap-6">
+          {Object.keys(formFields).map((key) => (
+            <div key={key}>{formFields[key as keyof typeof formFields]}</div>
+          ))}
+        </div>
+      ) : (
+        /* --- MOBILE (App-like / Telegram style) --- */
+        <div className="flex flex-col gap-6">
+          {/* Section 1: Basic Info */}
+          <div className="flex flex-col gap-2">
+            <span className="text-[13px] font-semibold text-muted-foreground px-1">
+              {t('profile.basicInfo')}
+            </span>
+            <div className="flex flex-col gap-3 p-4 bg-white rounded-2xl border shadow-sm dark:bg-muted-foreground/10 border-border/10">
+              {formFields.firstName}
+              {formFields.lastName}
+              {formFields.dob}
+            </div>
+          </div>
+
+          {/* Section 2: Contact Info */}
+          <div className="flex flex-col gap-2">
+            <span className="text-[13px] font-semibold text-muted-foreground px-1">
+              {t('profile.contactInfo')}
+            </span>
+            <div className="flex flex-col gap-3 p-4 bg-white rounded-2xl border shadow-sm dark:bg-muted-foreground/10 border-border/10">
+              {formFields.email}
+              {formFields.phonenumber}
+            </div>
+          </div>
+
+          {/* Section 3: Address */}
+          <div className="flex flex-col gap-2">
+            <span className="text-[13px] font-semibold text-muted-foreground px-1">
+              {t('profile.addressInfo')}
+            </span>
+            <div className="flex flex-col gap-3 p-4 bg-white rounded-2xl border shadow-sm dark:bg-muted-foreground/10 border-border/10">
+              {formFields.address}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
+
 }
