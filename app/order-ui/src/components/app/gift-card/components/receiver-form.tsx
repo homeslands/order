@@ -60,8 +60,8 @@ export default function ReceiverForm({
   }
 
   return (
-    <div className="rounded-lg border bg-card p-4 text-card-foreground">
-      <div className="flex items-center justify-between">
+    <div className="p-4 rounded-lg border bg-card text-card-foreground">
+      <div className="flex justify-between items-center">
         <h3 className="text-sm font-semibold">
           {t('giftCard.receiver')} {role === Role.CUSTOMER ? index + 1 : ''}
         </h3>
@@ -72,7 +72,7 @@ export default function ReceiverForm({
             onClick={onRemove}
             className="text-destructive hover:text-destructive/80 dark:text-red-400 dark:hover:text-red-300"
           >
-            <X className="h-4 w-4" />
+            <X className="w-4 h-4" />
           </Button>
         )}
       </div>
@@ -87,7 +87,7 @@ export default function ReceiverForm({
             </FormLabel>
             <FormControl>
               <RecipientSearchInput
-                value={field.value}
+                value={field.value || ''} // Provide a default empty string if value is undefined
                 onChange={field.onChange}
                 onUserSelect={handleUserSelect}
                 placeholder={t('giftCard.enterReceiverPhone')}
