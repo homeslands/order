@@ -8,6 +8,8 @@ import {
   HttpStatus,
   Query,
   HttpCode,
+  Inject,
+  Logger,
 } from '@nestjs/common';
 import { CardOrderService } from './card-order.service';
 import { CreateCardOrderDto } from './dto/create-card-order.dto';
@@ -17,12 +19,17 @@ import { CardOrderResponseDto } from './dto/card-order-response.dto';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { FindAllCardOrderDto } from './dto/find-all-card-order.dto';
 import { InitiateCardOrderPaymentAdminDto, InitiateCardOrderPaymentDto } from './dto/initiate-card-order-payment.dto';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @Controller('card-order')
 @ApiTags('Card Order Resource')
 @ApiBearerAuth()
 export class CardOrderController {
-  constructor(private readonly cardOrderService: CardOrderService) { }
+  constructor(
+    private readonly cardOrderService: CardOrderService,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: Logger,
+  ) { }
 
   @Post('/payment/initiate')
   @ApiOperation({ summary: 'Initiate a card order payment' })
@@ -62,6 +69,9 @@ export class CardOrderController {
     )
     payload: InitiateCardOrderPaymentAdminDto,
   ) {
+    const context = `${CardOrderController.name}.${this.initiatePaymentAdmin.name}`;
+    this.logger.log(`REST request to init payment admin: ${JSON.stringify(payload)}`, context);
+
     const result = await this.cardOrderService.initiatePaymentAdmin(payload);
     return {
       statusCode: HttpStatus.OK,
@@ -80,6 +90,9 @@ export class CardOrderController {
     @Body(new ValidationPipe({ transform: true, whitelist: true }))
     createCardOrderDto: CreateCardOrderDto,
   ) {
+    const context = `${CardOrderController.name}.${this.create.name}`;
+    this.logger.log(`REST request to create Card Order: ${JSON.stringify(createCardOrderDto)}`, context);
+
     const result = await this.cardOrderService.create(createCardOrderDto);
 
     return {

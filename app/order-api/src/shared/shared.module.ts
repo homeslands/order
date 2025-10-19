@@ -19,6 +19,8 @@ import { SharedPointTransactionService } from './services/shared-point-transacti
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GiftCard } from 'src/gift-card-modules/gift-card/entities/gift-card.entity';
 import { SharedExportFileService } from './services/shared-export-file.service';
+import { SharedCoinPolicyService } from './services/shared-coin-policy.service';
+import { CoinPolicy } from 'src/gift-card-modules/coin-policy/entities/coin-policy.entity';
 
 @Module({
   imports: [
@@ -40,17 +42,20 @@ import { SharedExportFileService } from './services/shared-export-file.service';
       ACBConnectorConfig,
       Balance,
       GiftCard,
+      CoinPolicy
     ]),
   ],
   providers: [
     SharedBalanceService,
     SharedPointTransactionService,
     SharedExportFileService,
+    SharedCoinPolicyService
   ],
   exports: [
     SharedBalanceService,
     SharedPointTransactionService,
     SharedExportFileService,
+    SharedCoinPolicyService
   ],
 })
-export class SharedModule {}
+export class SharedModule { }
