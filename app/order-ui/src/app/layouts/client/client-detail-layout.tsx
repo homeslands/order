@@ -8,7 +8,7 @@ import { ChooseBranchDialog } from '@/components/app/dialog'
 import { Role, ROUTE } from '@/constants'
 import { useTables } from '@/hooks'
 
-export default function ClientLayout() {
+export default function ClientDetailLayout() {
   const { progress, fileName, isDownloading } = useDownloadStore()
   const { addTable } = useCartItemStore()
   const { clearStore } = usePaymentMethodStore()

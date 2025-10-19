@@ -35,7 +35,7 @@ export default function Invoice({
     const isLoyaltyPoint = order && order?.accumulatedPointsToUse > 0;
 
     return (
-        <div className="px-3 py-5 bg-white rounded-md dark:bg-transparent">
+        <div className="px-3 py-5 bg-white rounded-md border dark:bg-muted-foreground/10 border-muted-foreground/10">
             {/* Logo */}
             <div className="mb-1">
                 <div className="flex justify-center items-center">

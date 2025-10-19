@@ -19,7 +19,6 @@ import { useExportPublicOrderInvoice, useIsMobile, useOrderBySlug } from '@/hook
 import { PaymentMethod, publicFileURL, ROUTE, VOUCHER_TYPE } from '@/constants'
 import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, showToast } from '@/utils'
-import { ProgressBar } from '@/components/app/progress'
 import { OrderStatus, OrderTypeEnum } from '@/types'
 import { InvoiceTemplate } from '../public-order-detail/components'
 
@@ -75,12 +74,12 @@ export default function OrderHistoryPage() {
             {t('order.orderDetail')}{' '}
           </span>
         </div>
-        <ProgressBar step={orderInfo?.status} />
+        {/* <ProgressBar step={orderInfo?.status} /> */}
         <div className="flex flex-col gap-4 lg:flex-row">
           {/* Left, info */}
           <div className="flex flex-col gap-4 w-full lg:w-3/5">
             {/* Order info */}
-            <div className="flex justify-between items-center p-3 bg-white rounded-sm border dark:bg-transparent">
+            <div className="flex justify-between items-center p-3 bg-white rounded-sm border dark:bg-muted-foreground/10">
               <div className="">
                 <p className="flex gap-2 items-center pb-2">
                   <span className="font-bold">
@@ -128,7 +127,7 @@ export default function OrderHistoryPage() {
             </div>
             {/* Order owner info */}
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <div className="bg-white rounded-sm border sm:grid-cols-2 dark:bg-transparent">
+              <div className="bg-white rounded-sm border border-muted-foreground/10 sm:grid-cols-2 dark:bg-muted-foreground/10">
                 <div className="px-3 py-2 font-bold rounded-t-sm bg-muted-foreground/20">
                   {t('order.customer')}{' '}
                 </div>
@@ -138,7 +137,7 @@ export default function OrderHistoryPage() {
                   </p>
                 </div>
               </div>
-              <div className="bg-white rounded-sm border sm:grid-cols-2 dark:bg-transparent">
+              <div className="bg-white rounded-sm border border-muted-foreground/10 sm:grid-cols-2 dark:bg-muted-foreground/10">
                 <div className="px-3 py-2 font-bold rounded-t-sm bg-muted-foreground/20">
                   {t('order.orderType')}
                 </div>
@@ -164,7 +163,7 @@ export default function OrderHistoryPage() {
               </div>
             </div>
             {/* Order table */}
-            <div className="overflow-x-auto pb-4 bg-white rounded-sm border dark:bg-transparent">
+            <div className="overflow-x-auto pb-4 bg-white rounded-sm border border-muted-foreground/10 dark:bg-muted-foreground/10">
               <Table className="min-w-full table-auto">
                 <TableCaption>{t('order.aListOfOrders')}</TableCaption>
                 {/* Body */}
@@ -264,7 +263,7 @@ export default function OrderHistoryPage() {
           {/* Right, payment*/}
           <div className="flex flex-col gap-2 w-full lg:w-2/5">
             {/* Payment method, status */}
-            <div className={`border ${orderInfo?.payment?.statusMessage === OrderStatus.COMPLETED ? 'border-green-500 bg-green-50' : 'border-destructive bg-red-50'} rounded-sm h-fit dark:bg-transparent`}>
+            <div className={`border border-muted-foreground/10 ${orderInfo?.payment?.statusMessage === OrderStatus.COMPLETED ? 'border-green-500 bg-green-50' : 'border-destructive bg-red-50'} rounded-sm h-fit dark:bg-muted-foreground/10`}>
               <div className={`px-3 py-4 font-bold rounded-t-sm ${orderInfo?.payment?.statusMessage === OrderStatus.COMPLETED ? 'text-green-700 bg-green-200' : 'text-destructive bg-red-200'}`} >
                 {t('paymentMethod.title')}
               </div>
@@ -324,7 +323,7 @@ export default function OrderHistoryPage() {
               )}
             </div>
             {/* Total */}
-            <div className="bg-white rounded-sm border dark:bg-transparent">
+            <div className="bg-white rounded-sm border border-muted-foreground/10 dark:bg-muted-foreground/10">
               <div className="px-3 py-3 font-bold rounded-t-sm bg-muted-foreground/20">
                 {t('order.paymentInformation')}
               </div>

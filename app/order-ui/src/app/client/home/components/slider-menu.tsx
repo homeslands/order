@@ -84,36 +84,22 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
         filteredMenus = menus ? menus.slice(0, 5) : []
     }
 
-    // // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
-    // useEffect(() => {
-    //     if (isHydrated) {
-    //         // Chuyển về ORDERING phase nếu đang ở phase khác
-    //         if (currentStep !== OrderFlowStep.ORDERING) {
-    //             setCurrentStep(OrderFlowStep.ORDERING)
-    //         }
 
-    //         // Khởi tạo ordering data nếu chưa có
-    //         if (!orderingData) {
-    //             initializeOrdering()
-    //         }
-    //     }
-    // }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
-
-    // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
+    // Ensure the user is in the ORDERING phase when the component mounts
     useEffect(() => {
         if (isHydrated) {
-            // Chuyển về ORDERING phase nếu đang ở phase khác
+            // Switch to ORDERING phase if not already in it
             if (currentStep !== OrderFlowStep.ORDERING) {
                 setCurrentStep(OrderFlowStep.ORDERING)
             }
 
-            // Khởi tạo ordering data nếu chưa có
+            // Initialize ordering data if not already initialized
             if (!orderingData) {
                 initializeOrdering()
                 return
             }
 
-            // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+            // Only re-initialize if the user is logged in but orderingData doesn't have an owner
             if (userInfo?.slug && !orderingData.owner?.trim()) {
                 initializeOrdering()
             }
@@ -123,23 +109,23 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
     const handleAddToCart = (product: IMenuItem) => {
         if (!product?.product?.variants || product?.product?.variants.length === 0 || !isHydrated) return;
 
-        // ✅ Step 2: Ensure ORDERING phase
+        // Ensure the user is in the ORDERING phase
         if (currentStep !== OrderFlowStep.ORDERING) {
             setCurrentStep(OrderFlowStep.ORDERING)
         }
 
-        // Khởi tạo ordering data nếu chưa có
+        // Initialize ordering data if not already initialized
         if (!orderingData) {
             initializeOrdering()
             return
         }
 
-        // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+        // Only re-initialize if the user is logged in but orderingData doesn't have an owner
         if (userInfo?.slug && !orderingData.owner?.trim()) {
             initializeOrdering()
         }
 
-        // ✅ Step 3: Create order item with proper structure
+        // Create order item with proper structure
         const orderItem: IOrderItem = {
             id: `item_${moment().valueOf()}_${Math.random().toString(36).substr(2, 9)}`,
             slug: product?.product?.slug,
@@ -158,14 +144,14 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
         }
 
         try {
-            // ✅ Step 4: Add to ordering data
+            // Add to ordering data
             addOrderingItem(orderItem)
 
-            // ✅ Step 5: Success feedback
+            // Success feedback
             showToast(tToast('toast.addSuccess'))
 
         } catch (error) {
-            // ✅ Step 7: Error handling
+            // Error handling
             // eslint-disable-next-line no-console
             console.error('❌ Error adding item to cart:', error)
         }
@@ -184,7 +170,7 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                 return (
                     <SwiperSlide key={index} className="py-2 w-full h-[13.5rem] sm:h-[19rem]">
                         {!isMobile ? (
-                            <div className="flex h-full w-full flex-col justify-between rounded-xl border border-foreground/20 shadow-xl bg-white dark:bg-card backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
+                            <div className="flex h-full w-full flex-col justify-between rounded-xl border border-foreground/10 bg-white dark:bg-card backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
                                 <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`} className="relative flex-shrink-0 justify-center items-center px-2 py-4 w-24 h-full sm:p-0 sm:w-full sm:h-40">
                                     <>
                                         <img src={imageProduct} alt="product" className="object-cover p-1.5 w-full h-36 rounded-xl" />
@@ -279,7 +265,7 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                 )}
                             </div>
                         ) : (
-                            <div className="flex h-full w-full flex-col justify-between rounded-lg border border-foreground/20 shadow-xl bg-white dark:bg-card backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
+                            <div className="flex h-full w-full flex-col justify-between rounded-lg border border-foreground/10 bg-white dark:bg-card backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
 
                                 <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}>
                                     <>
@@ -327,7 +313,7 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                                                                     </Button>
                                                                                 ) : (
                                                                                     <Button
-                                                                                        className="py-1 w-28 text-xs font-semibold text-white bg-red-500 rounded-full"
+                                                                                        className="py-1 w-28 text-xs font-semibold text-white bg-destructive rounded-full"
                                                                                         disabled
                                                                                     >
                                                                                         {t('menu.outOfStock')}
@@ -368,7 +354,7 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                                                                     </Button>
                                                                                 ) : (
                                                                                     <Button
-                                                                                        className="py-1 w-28 text-xs font-semibold text-white bg-red-500 rounded-full"
+                                                                                        className="py-1 w-28 text-xs font-semibold text-white bg-destructive rounded-full"
                                                                                         disabled
                                                                                     >
                                                                                         {t('menu.outOfStock')}
