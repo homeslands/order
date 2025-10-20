@@ -16,11 +16,13 @@ import { ProfileAvatar } from '@/components/app/avatar'
 import { LogoutDialog, UseGiftCardDialog } from '@/components/app/dialog'
 import { ROUTE } from '@/constants'
 import { useAuthStore } from '@/stores'
+import { useIsMobile } from '@/hooks'
 
 export default function ClientHeaderDropdown() {
   const { t } = useTranslation(['sidebar'])
   const { isAuthenticated } = useAuthStore()
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
   if (!isAuthenticated())
     return (
       <Button
@@ -47,7 +49,7 @@ export default function ClientHeaderDropdown() {
         <DropdownMenuGroup>
           <DropdownMenuItem className="px-0 h-9">
             <NavLink
-              to={ROUTE.CLIENT_PROFILE_INFO}
+              to={isMobile ? ROUTE.CLIENT_PROFILE : ROUTE.CLIENT_PROFILE_INFO}
               className="flex justify-start w-full h-9"
             >
               <Button

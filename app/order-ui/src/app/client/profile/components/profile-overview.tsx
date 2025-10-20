@@ -1,29 +1,26 @@
 import { useTranslation } from 'react-i18next'
-import { Link, Navigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { ChevronRightIcon, Coins, GiftIcon, Inbox, User } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { ROUTE } from '@/constants'
 import { useIsMobile } from '@/hooks'
-import { useEffect, useState } from 'react'
+import { CustomerInfoTabsContent } from '@/components/app/tabscontent'
 
 export default function ProfileOverview() {
     const { t } = useTranslation(['profile'])
     const isMobile = useIsMobile()
-    const [mounted, setMounted] = useState(false)
 
-    useEffect(() => {
-        setMounted(true)
-    }, [])
-
-    // Wait for hook to initialize
-    if (!mounted) {
+    // Wait for isMobile to be initialized
+    if (isMobile === undefined) {
         return null
     }
 
-    // Desktop: Redirect to first tab
-    if (!isMobile) {
-        return <Navigate to={ROUTE.CLIENT_PROFILE_INFO} replace />
+    // Desktop: Render info content directly (no redirect)
+    if (isMobile === false) {
+        return <CustomerInfoTabsContent />
     }
+
+    // Mobile: Show menu list
 
     return (
         <div className="flex flex-col gap-6 w-full">
