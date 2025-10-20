@@ -151,7 +151,7 @@ export default function LoyaltyPointHistoryAction() {
               }
             }}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full bg-white dark:bg-black">
               <SelectValue placeholder={t('dataTable.quickRange')} />
             </SelectTrigger>
             <SelectContent>

@@ -44,7 +44,7 @@ export default function ProfileLayout() {
     }
 
     return (
-        <div className="container py-10 mx-auto bg-muted-foreground/10">
+        <div className="container py-10 mx-auto">
             <Helmet>
                 <meta charSet="utf-8" />
                 <title>{tHelmet('helmet.profile.title')}</title>
