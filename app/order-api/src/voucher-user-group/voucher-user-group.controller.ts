@@ -28,17 +28,17 @@ export class VoucherUserGroupController {
     private readonly voucherUserGroupService: VoucherUserGroupService,
   ) {}
 
-  @Post()
+  @Post('bulk')
   @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create voucher user group' })
+  @ApiOperation({ summary: 'Bulk create voucher user group' })
   @ApiResponseWithType({
     status: HttpStatus.CREATED,
-    description: 'Voucher user group has been created successfully',
+    description: 'Voucher user groups have been created successfully',
     type: VoucherUserGroupResponseDto,
     isArray: true,
   })
-  async create(
+  async bulkCreate(
     @Body(new ValidationPipe({ transform: true }))
     bulkCreateVoucherUserGroupDto: BulkCreateVoucherUserGroupRequestDto,
   ) {
@@ -46,7 +46,7 @@ export class VoucherUserGroupController {
       bulkCreateVoucherUserGroupDto,
     );
     return {
-      message: 'Voucher user group has been created successfully',
+      message: 'Voucher user groups have been created successfully',
       statusCode: HttpStatus.CREATED,
       timestamp: new Date().toISOString(),
       result,

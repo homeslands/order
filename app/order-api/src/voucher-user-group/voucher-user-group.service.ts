@@ -52,6 +52,18 @@ export class VoucherUserGroupService {
         this.logger.warn(`Voucher not found`, context);
         throw new VoucherException(VoucherValidation.VOUCHER_NOT_FOUND);
       }
+      if (!voucher.isVerificationIdentity) {
+        this.logger.warn(`Can not add public voucher to user group`, context);
+        throw new VoucherUserGroupException(
+          VoucherUserGroupValidation.CAN_NOT_ADD_PUBLIC_VOUCHER_TO_USER_GROUP,
+        );
+      }
+      if (!voucher.isUserGroup) {
+        this.logger.warn(`Voucher is not for user group`, context);
+        throw new VoucherUserGroupException(
+          VoucherUserGroupValidation.VOUCHER_IS_NOT_FOR_USER_GROUP,
+        );
+      }
       vouchers.push(voucher);
     }
     for (const userGroupSlug of bulkCreateVoucherUserGroupDto.userGroups) {
@@ -73,12 +85,16 @@ export class VoucherUserGroupService {
               userGroup: { id: userGroup.id },
             },
           });
-        if (!existingVoucherUserGroup) {
-          const voucherUserGroup = new VoucherUserGroup();
-          voucherUserGroup.voucher = voucher;
-          voucherUserGroup.userGroup = userGroup;
-          voucherUserGroups.push(voucherUserGroup);
+        if (existingVoucherUserGroup) {
+          this.logger.warn(`Voucher user group already exists`, context);
+          throw new VoucherUserGroupException(
+            VoucherUserGroupValidation.VOUCHER_USER_GROUP_ALREADY_EXISTS,
+          );
         }
+        const voucherUserGroup = new VoucherUserGroup();
+        voucherUserGroup.voucher = voucher;
+        voucherUserGroup.userGroup = userGroup;
+        voucherUserGroups.push(voucherUserGroup);
       }
     }
     const createdVoucherUserGroups =
