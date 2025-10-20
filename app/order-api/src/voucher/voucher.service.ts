@@ -25,7 +25,6 @@ import {
   IsNull,
   LessThanOrEqual,
   MoreThanOrEqual,
-  Not,
   Repository,
 } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
@@ -50,9 +49,6 @@ import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { VoucherPaymentMethod } from './entity/voucher-payment-method.entity';
 import { PaymentMethod } from 'src/payment/payment.constants';
 import { UserGroup } from 'src/user-group/user-group.entity';
-import { UserGroupException } from 'src/user-group/user-group.exception';
-import { UserGroupValidation } from 'src/user-group/user-group.validation';
-
 @Injectable()
 export class VoucherService {
   constructor(
@@ -78,7 +74,10 @@ export class VoucherService {
   async validateVoucher(validateVoucherDto: ValidateVoucherDto) {
     const voucher = await this.voucherUtils.getVoucher({
       where: { slug: validateVoucherDto.voucher ?? IsNull() },
-      relations: ['voucherProducts.product'],
+      relations: {
+        voucherUserGroups: { userGroup: true },
+        voucherProducts: { product: true },
+      },
     });
 
     // await this.voucherUtils.validateVoucher(voucher);
@@ -99,7 +98,10 @@ export class VoucherService {
   ) {
     const voucher = await this.voucherUtils.getVoucher({
       where: { slug: validateVoucherPublicDto.voucher ?? IsNull() },
-      relations: ['voucherProducts.product'],
+      relations: {
+        voucherProducts: { product: true },
+        voucherUserGroups: { userGroup: true },
+      },
     });
 
     // await this.voucherUtils.validateVoucher(voucher);
@@ -551,22 +553,6 @@ export class VoucherService {
     if (!_.isNil(options.isPrivate))
       findOptionsWhere.isPrivate = options.isPrivate;
 
-    if (!_.isNil(options.userGroup)) {
-      const userGroup = await this.userGroupRepository.findOne({
-        where: { slug: options.userGroup },
-      });
-      if (!userGroup) {
-        this.logger.warn(`User group not found`, context);
-        throw new UserGroupException(UserGroupValidation.USER_GROUP_NOT_FOUND);
-      }
-      const voucherUserGroupIds = userGroup.voucherUserGroups.map(
-        (item) => item.id,
-      );
-      findOptionsWhere.voucherUserGroups = options.isAppliedUserGroup
-        ? In(voucherUserGroupIds)
-        : Not(In(voucherUserGroupIds));
-    }
-
     try {
       const findManyOptions: FindManyOptions<Voucher> = {
         where: findOptionsWhere,
@@ -631,6 +617,7 @@ export class VoucherService {
 
     const voucher = await this.voucherUtils.getVoucher({
       where: { slug },
+      relations: { voucherUserGroups: true },
     });
     const voucherGroup = await this.voucherGroupUtils.getVoucherGroup({
       where: { slug: updateVoucherDto.voucherGroup },
@@ -640,6 +627,28 @@ export class VoucherService {
       updateVoucherDto.isVerificationIdentity,
       updateVoucherDto.isUserGroup,
     );
+
+    if (!_.isEmpty(voucher.voucherUserGroups)) {
+      if (!updateVoucherDto.isUserGroup) {
+        this.logger.warn(
+          `Voucher has user group can not update is user group`,
+          context,
+        );
+        throw new VoucherException(
+          VoucherValidation.VOUCHER_HAS_USER_GROUP_CAN_NOT_UPDATE_IS_USER_GROUP,
+        );
+      }
+      // this condition is included in validateInitiateVoucherUserGroup() function above
+      if (!updateVoucherDto.isVerificationIdentity) {
+        this.logger.warn(
+          `Voucher has user group can not update is verification identity`,
+          context,
+        );
+        throw new VoucherException(
+          VoucherValidation.VOUCHER_HAS_USER_GROUP_CAN_NOT_UPDATE_IS_VERIFICATION_IDENTITY,
+        );
+      }
+    }
 
     if (voucher.isUserGroup !== updateVoucherDto.isUserGroup) {
       const orders = await this.orderUtils.getBulkOrders({

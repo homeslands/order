@@ -520,7 +520,7 @@ export class OrderService {
           voucherProducts: {
             product: true,
           },
-          voucherUserGroups: true,
+          voucherUserGroups: { userGroup: true },
         },
       });
 
@@ -725,6 +725,7 @@ export class OrderService {
           voucherProducts: {
             product: true,
           },
+          voucherUserGroups: { userGroup: true },
         },
       });
 
@@ -895,7 +896,7 @@ export class OrderService {
           voucherProducts: {
             product: true,
           },
-          voucherUserGroups: true,
+          voucherUserGroups: { userGroup: true },
         },
       });
     } catch (error) {
@@ -1032,6 +1033,7 @@ export class OrderService {
           voucherProducts: {
             product: true,
           },
+          voucherUserGroups: { userGroup: true },
         },
       });
     } catch (error) {
