@@ -101,7 +101,7 @@ export class GetAllUserGroupQueryRequestDto extends BaseQueryDto {
 
   @AutoMap()
   @ApiProperty({
-    description: 'Get products base on voucher',
+    description: 'Get user groups base on voucher',
     example: '',
     required: false,
   })
@@ -110,7 +110,7 @@ export class GetAllUserGroupQueryRequestDto extends BaseQueryDto {
 
   @AutoMap()
   @ApiProperty({
-    description: 'Get products that are either applied to a voucher or not',
+    description: 'Get user groups that are either applied to a voucher or not',
     example: '',
     required: false,
   })

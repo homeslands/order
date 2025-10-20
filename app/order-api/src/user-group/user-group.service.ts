@@ -104,21 +104,19 @@ export class UserGroupService {
       const voucher = await this.voucherRepository.findOne({
         where: { slug: query.voucher },
         relations: {
-          voucherUserGroups: true,
+          voucherUserGroups: { userGroup: true },
         },
       });
       if (!voucher) {
         this.logger.warn(`Voucher not found`, context);
         throw new VoucherException(VoucherValidation.VOUCHER_NOT_FOUND);
       }
-      const voucherUserGroupIds = voucher.voucherUserGroups.map(
-        (item) => item.id,
+      const userGroupIds = voucher.voucherUserGroups.map(
+        (item) => item.userGroup.id,
       );
       findManyOptions.where = {
         ...whereOptions,
-        voucherUserGroups: query.isAppliedVoucher
-          ? { id: In(voucherUserGroupIds) }
-          : { id: Not(In(voucherUserGroupIds)) },
+        id: query.isAppliedVoucher ? In(userGroupIds) : Not(In(userGroupIds)),
       };
     }
 

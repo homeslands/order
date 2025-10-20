@@ -465,9 +465,9 @@ export class GetAllVoucherForUserPublicDto extends BaseQueryDto {
   hasPaging?: boolean;
 }
 export class GetAllVoucherDto extends BaseQueryDto {
-  @ApiProperty({ required: true })
+  @ApiProperty({ required: false })
   @AutoMap()
-  @IsNotEmpty({ message: 'INVALID_VOUCHER_GROUP' })
+  @IsOptional()
   voucherGroup: string;
 
   @ApiProperty({ required: false })
@@ -505,6 +505,28 @@ export class GetAllVoucherDto extends BaseQueryDto {
     return value === 'true' || value === true; // Transform 'true' to `true` and others to `false`
   })
   isPrivate?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'Get vouchers base on user group',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  userGroup?: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'Get vouchers that are either applied to a user group or not',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  isAppliedUserGroup?: boolean;
 
   @AutoMap()
   @ApiProperty({
@@ -655,6 +677,9 @@ export class VoucherResponseDto extends BaseResponseDto {
   @ApiProperty()
   @AutoMap()
   voucherPaymentMethods: VoucherPaymentMethodResponseDto[];
+
+  @AutoMap()
+  isUserGroup: boolean;
 }
 
 export class ExportPdfVoucherDto {
