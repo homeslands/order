@@ -33,7 +33,7 @@ export default function LoyaltyPointTypeSelect({
 
   return (
     <Select onValueChange={onChange} defaultValue={defaultValue || 'all'} value={value || 'all'}>
-      <SelectTrigger className="w-full">
+      <SelectTrigger className="w-full bg-white dark:bg-black">
         <SelectValue placeholder={t("loyaltyPoint.selectLoyaltyPointType")} />
       </SelectTrigger>
       <SelectContent>

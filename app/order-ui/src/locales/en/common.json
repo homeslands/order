@@ -62,7 +62,12 @@
     "rowsPerPage": "Rows per page",
     "search": "Search",
     "selected": "Selected",
-    "warn": "Warn"
+    "warn": "Warn",
+    "quickRange": "Quick range",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This week",
+    "thisMonth": "This month"
   },
   "dayOfWeek": {
     "0": "Monday",
