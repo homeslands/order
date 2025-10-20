@@ -25,6 +25,7 @@ import {
   IsNull,
   LessThanOrEqual,
   MoreThanOrEqual,
+  Not,
   Repository,
 } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
@@ -49,6 +50,8 @@ import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { VoucherPaymentMethod } from './entity/voucher-payment-method.entity';
 import { PaymentMethod } from 'src/payment/payment.constants';
 import { UserGroup } from 'src/user-group/user-group.entity';
+import { UserGroupException } from 'src/user-group/user-group.exception';
+import { UserGroupValidation } from 'src/user-group/user-group.validation';
 @Injectable()
 export class VoucherService {
   constructor(
@@ -529,13 +532,36 @@ export class VoucherService {
   ): Promise<AppPaginatedResponseDto<VoucherResponseDto>> {
     const context = `${VoucherService.name}.${this.findAll.name}`;
 
-    const voucherGroup = await this.voucherGroupUtils.getVoucherGroup({
-      where: { slug: options.voucherGroup },
-    });
+    const findOptionsWhere: FindOptionsWhere<Voucher> = {};
 
-    const findOptionsWhere: FindOptionsWhere<Voucher> = {
-      voucherGroup: { slug: voucherGroup.slug },
-    };
+    if (!_.isNil(options.voucherGroup)) {
+      const voucherGroup = await this.voucherGroupUtils.getVoucherGroup({
+        where: { slug: options.voucherGroup },
+      });
+
+      findOptionsWhere.voucherGroup = { slug: voucherGroup.slug };
+    }
+
+    if (!_.isNil(options.userGroup)) {
+      const userGroup = await this.userGroupRepository.findOne({
+        where: { slug: options.userGroup },
+        relations: {
+          voucherUserGroups: { voucher: true },
+        },
+      });
+      if (!userGroup) {
+        this.logger.warn('User group not found', context);
+        throw new UserGroupException(UserGroupValidation.USER_GROUP_NOT_FOUND);
+      }
+
+      const voucherIds = userGroup.voucherUserGroups.map(
+        (item) => item.voucher.id,
+      );
+
+      findOptionsWhere.id = options.isAppliedUserGroup
+        ? In(voucherIds)
+        : Not(In(voucherIds));
+    }
 
     if (!_.isNil(options.minOrderValue))
       findOptionsWhere.minOrderValue = MoreThanOrEqual(options.minOrderValue);
