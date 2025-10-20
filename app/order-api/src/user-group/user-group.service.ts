@@ -117,8 +117,8 @@ export class UserGroupService {
       findManyOptions.where = {
         ...whereOptions,
         voucherUserGroups: query.isAppliedVoucher
-          ? In(voucherUserGroupIds)
-          : Not(In(voucherUserGroupIds)),
+          ? { id: In(voucherUserGroupIds) }
+          : { id: Not(In(voucherUserGroupIds)) },
       };
     }
 
@@ -166,7 +166,14 @@ export class UserGroupService {
     const context = `${UserGroupService.name}.${this.findOne.name}`;
     const userGroup = await this.userGroupRepository.findOne({
       where: { slug },
-      relations: ['userGroupMembers', 'userGroupMembers.user'],
+      relations: {
+        voucherUserGroups: {
+          voucher: true,
+        },
+        userGroupMembers: {
+          user: true,
+        },
+      },
     });
 
     if (!userGroup) {
