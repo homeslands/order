@@ -46,6 +46,10 @@ import { FeatureGroup } from './feature-flag/entities/feature-group.entity';
 import { SharedModule } from 'src/shared/shared.module';
 import { CashStrategy } from 'src/payment/strategy/cash.strategy';
 import { PaymentUtils } from 'src/payment/payment.utils';
+import { CoinPolicy } from './coin-policy/entities/coin-policy.entity';
+import { CoinPolicyController } from './coin-policy/coin-policy.controller';
+import { CoinPolicyService } from './coin-policy/coin-policy.service';
+import { CoinPolicyProfile } from './coin-policy/coin-policy.mapper';
 
 const controllers = [
   CardController,
@@ -55,9 +59,11 @@ const controllers = [
   ReceipientController,
   PointTransactionController,
   FeatureFlagController,
+  CoinPolicyController
 ];
 
 const providers = [
+  CoinPolicyService,
   CardService,
   BalanceService,
   CardOrderService,
@@ -79,6 +85,7 @@ const mappers = [
   GiftCardProfile,
   PointTransactionProfile,
   FeatureFlagProfile,
+  CoinPolicyProfile
 ];
 
 const modules = [
@@ -95,6 +102,7 @@ const modules = [
     Order,
     FeatureFlag,
     FeatureGroup,
+    CoinPolicy
   ]),
   FileModule,
   DbModule,
@@ -112,6 +120,7 @@ const exportServices = [
   RecipientService,
   PointTransactionService,
   FeatureFlagService,
+  CoinPolicyService
 ];
 
 const listeners = [CardOrderListener];
