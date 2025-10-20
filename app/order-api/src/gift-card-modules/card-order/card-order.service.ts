@@ -55,6 +55,10 @@ import { CurrentUserDto } from 'src/user/user.dto';
 import { UserException } from 'src/user/user.exception';
 import { UserValidation } from 'src/user/user.validation';
 import { checkActiveUser } from 'src/auth/auth.utils';
+import { CoinPolicyException } from '../coin-policy/coin-policy.exception';
+import { CoinPolicyValidation } from '../coin-policy/coin-policy.validation';
+import { SharedCoinPolicyService } from 'src/shared/services/shared-coin-policy.service';
+import { IsMaxBalancePayload } from 'src/shared/interfaces/commons/shared-coin-policy.interface';
 
 @Injectable()
 export class CardOrderService {
@@ -67,6 +71,8 @@ export class CardOrderService {
     private userRepository: Repository<User>,
     @InjectRepository(FeatureFlag)
     private featureRepository: Repository<FeatureFlag>,
+    // @InjectRepository(CoinPolicy)
+    // private coinPolicyRepository: Repository<CoinPolicy>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     @InjectMapper()
@@ -78,7 +84,8 @@ export class CardOrderService {
     private readonly ptService: SharedPointTransactionService,
     private readonly cashStrategy: CashStrategy,
     private readonly paymentUtils: PaymentUtils,
-  ) {}
+    private readonly sharedCoinPolicyService: SharedCoinPolicyService,
+  ) { }
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
     const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
@@ -86,7 +93,11 @@ export class CardOrderService {
 
     const cardOrder = await this.cardOrderRepository.findOne({
       where: { slug: payload.cardorderSlug ?? IsNull() },
-      relations: ['payment', 'customer'],
+      relations: {
+        payment: true,
+        customer: true,
+        receipients: true,
+      },
     });
     if (!cardOrder)
       throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
@@ -95,6 +106,39 @@ export class CardOrderService {
       throw new OrderException(CardOrderValidation.CARD_ORDER_NOT_PENDING);
 
     checkActiveUser(cardOrder.customer);
+
+    switch (cardOrder.type) {
+      case CardOrderType.GIFT:
+        for (const receipient of cardOrder.receipients) {
+          const isMaxBalancePayload: IsMaxBalancePayload = {
+            totalPoints: receipient.quantity * cardOrder.cardPoint,
+            userSlug: receipient.recipientSlug,
+          };
+          if (
+            await this.sharedCoinPolicyService.isExceedBalance(
+              isMaxBalancePayload,
+            )
+          )
+            throw new CoinPolicyException(
+              CoinPolicyValidation.EXCEED_MAXIMUM_BALANCE,
+            );
+        }
+        break;
+      case CardOrderType.SELF:
+        const isMaxBalancePayload: IsMaxBalancePayload = {
+          totalPoints: cardOrder.cardPoint * cardOrder.quantity,
+          userSlug: cardOrder?.customer?.slug,
+        };
+        if (
+          await this.sharedCoinPolicyService.isExceedBalance(
+            isMaxBalancePayload,
+          )
+        )
+          throw new CoinPolicyException(
+            CoinPolicyValidation.EXCEED_MAXIMUM_BALANCE,
+          );
+        break;
+    }
 
     if (cardOrder.payment)
       return this.mapper.map(cardOrder, CardOrder, CardOrderResponseDto);
@@ -132,7 +176,6 @@ export class CardOrderService {
 
   async initiatePaymentAdmin(payload: InitiateCardOrderPaymentAdminDto) {
     const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
-    this.logger.log(`Initiate a payment: ${JSON.stringify(payload)}`, context);
 
     const cashier = await this.userRepository.findOne({
       where: { slug: payload.cashierSlug },
@@ -142,7 +185,11 @@ export class CardOrderService {
 
     const cardOrder = await this.cardOrderRepository.findOne({
       where: { slug: payload.cardorderSlug ?? IsNull() },
-      relations: ['payment', 'customer'],
+      relations: {
+        payment: true,
+        customer: true,
+        receipients: true,
+      },
     });
     if (!cardOrder)
       throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
@@ -151,6 +198,39 @@ export class CardOrderService {
       throw new OrderException(CardOrderValidation.CARD_ORDER_NOT_PENDING);
 
     checkActiveUser(cardOrder.customer);
+
+    switch (cardOrder.type) {
+      case CardOrderType.GIFT:
+        for (const receipient of cardOrder.receipients) {
+          const isMaxBalancePayload: IsMaxBalancePayload = {
+            totalPoints: receipient.quantity * cardOrder.cardPoint,
+            userSlug: receipient.recipientSlug,
+          };
+          if (
+            await this.sharedCoinPolicyService.isExceedBalance(
+              isMaxBalancePayload,
+            )
+          )
+            throw new CoinPolicyException(
+              CoinPolicyValidation.EXCEED_MAXIMUM_BALANCE,
+            );
+        }
+        break;
+      case CardOrderType.SELF:
+        const isMaxBalancePayload: IsMaxBalancePayload = {
+          totalPoints: cardOrder.cardPoint * cardOrder.quantity,
+          userSlug: cardOrder?.customer?.slug,
+        };
+        if (
+          await this.sharedCoinPolicyService.isExceedBalance(
+            isMaxBalancePayload,
+          )
+        )
+          throw new CoinPolicyException(
+            CoinPolicyValidation.EXCEED_MAXIMUM_BALANCE,
+          );
+        break;
+    }
 
     if (_.isEmpty(payload.paymentMethod)) {
       this.logger.error('Invalid payment method', null, context);
@@ -292,10 +372,6 @@ export class CardOrderService {
 
   async create(createCardOrderDto: CreateCardOrderDto) {
     const context = `${CardOrderService.name}.${this.create.name}`;
-    this.logger.log(
-      `Creating card order: ${JSON.stringify(createCardOrderDto)}`,
-      context,
-    );
 
     const featureFlag = await this.featureRepository.findOne({
       where: {
@@ -372,44 +448,74 @@ export class CardOrderService {
     }
 
     let receipients: Recipient[] = [];
-    if (createCardOrderDto.cardOrderType === CardOrderType.GIFT) {
-      receipients = await Promise.all(
-        createCardOrderDto.receipients.map(async (createReceipientDto) => {
-          const receipient = await this.userRepository.findOne({
-            where: {
-              slug: createReceipientDto.recipientSlug,
-            },
-          });
 
-          if (!receipient) {
-            throw new CardOrderException(
-              CardOrderValidation.CARD_ORDER_RECIPIENT_NOT_FOUND,
+    switch (createCardOrderDto.cardOrderType) {
+      case CardOrderType.GIFT:
+        receipients = await Promise.all(
+          createCardOrderDto.receipients.map(async (createReceipientDto) => {
+            const receipient = await this.userRepository.findOne({
+              where: {
+                slug: createReceipientDto.recipientSlug,
+              },
+            });
+
+            if (!receipient) {
+              throw new CardOrderException(
+                CardOrderValidation.CARD_ORDER_RECIPIENT_NOT_FOUND,
+              );
+            }
+
+            const isMaxBalancePayload: IsMaxBalancePayload = {
+              totalPoints: createReceipientDto.quantity * card.points,
+              userSlug: createReceipientDto.recipientSlug,
+            };
+            if (
+              await this.sharedCoinPolicyService.isExceedBalance(
+                isMaxBalancePayload,
+              )
+            )
+              throw new CoinPolicyException(
+                CoinPolicyValidation.EXCEED_MAXIMUM_BALANCE,
+              );
+
+            const receipientItem = this.mapper.map(
+              createReceipientDto,
+              CreateRecipientDto,
+              Recipient,
             );
-          }
 
-          const receipientItem = this.mapper.map(
-            createReceipientDto,
-            CreateRecipientDto,
-            Recipient,
+            Object.assign(receipientItem, {
+              name: `${receipient.firstName} ${receipient.lastName}`,
+              phone: receipient.phonenumber,
+              recipientId: receipient.id,
+              recipientSlug: receipient.slug,
+              recipient: receipient,
+
+              senderId: customer.id,
+              senderSlug: customer.slug,
+              senderName: `${customer.firstName} ${customer.lastName}`,
+              senderPhone: customer.phonenumber,
+              sender: customer,
+            } as Partial<Recipient>);
+
+            return receipientItem;
+          }),
+        );
+        break;
+      case CardOrderType.SELF:
+        const isMaxBalancePayload: IsMaxBalancePayload = {
+          totalPoints: createCardOrderDto.quantity * card.points,
+          userSlug: customer.slug,
+        };
+        if (
+          await this.sharedCoinPolicyService.isExceedBalance(
+            isMaxBalancePayload,
+          )
+        )
+          throw new CoinPolicyException(
+            CoinPolicyValidation.EXCEED_MAXIMUM_BALANCE,
           );
-
-          Object.assign(receipientItem, {
-            name: `${receipient.firstName} ${receipient.lastName}`,
-            phone: receipient.phonenumber,
-            recipientId: receipient.id,
-            recipientSlug: receipient.slug,
-            recipient: receipient,
-
-            senderId: customer.id,
-            senderSlug: customer.slug,
-            senderName: `${customer.firstName} ${customer.lastName}`,
-            senderPhone: customer.phonenumber,
-            sender: customer,
-          } as Partial<Recipient>);
-
-          return receipientItem;
-        }),
-      );
+        break;
     }
 
     const cardOrder = this.mapper.map(

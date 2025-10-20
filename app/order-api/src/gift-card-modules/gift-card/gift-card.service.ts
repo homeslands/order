@@ -34,6 +34,10 @@ import { createSortOptions } from 'src/shared/utils/obj.util';
 import { AppPaginatedResponseDto } from 'src/app/app.dto';
 import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
 import { SharedPointTransactionService } from 'src/shared/services/shared-point-transaction.service';
+import { CoinPolicy } from '../coin-policy/entities/coin-policy.entity';
+import { CoinPolicyKeyEnum } from '../coin-policy/coin-policy.enum';
+import { CoinPolicyException } from '../coin-policy/coin-policy.exception';
+import { CoinPolicyValidation } from '../coin-policy/coin-policy.validation';
 
 @Injectable()
 export class GiftCardService {
@@ -51,6 +55,8 @@ export class GiftCardService {
     private readonly coRepository: Repository<CardOrder>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(CoinPolicy)
+    private coinPolicyRepository: Repository<CoinPolicy>,
     @InjectMapper()
     private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
@@ -63,9 +69,6 @@ export class GiftCardService {
   ) { }
 
   async use(req: UseGiftCardDto) {
-    const context = `${GiftCardService.name}.${this.use.name}`;
-    this.logger.log(`Use gift card req: ${JSON.stringify(req)}`, context);
-
     // 2. Auto-redeem
     const gc = await this.redeem(req);
 
@@ -174,6 +177,12 @@ export class GiftCardService {
     const context = `${GiftCardService.name}.${this.redeem.name}`;
     this.logger.log(`Use gift card ${JSON.stringify(payload)}`, context);
 
+    const policy = await this.coinPolicyRepository.findOne({
+      where: {
+        key: CoinPolicyKeyEnum.MAX_BALANCE
+      }
+    })
+
     const user = await this.userRepository.findOne({
       where: {
         slug: payload.userSlug,
@@ -189,6 +198,14 @@ export class GiftCardService {
     });
     if (!gc)
       throw new GiftCardException(GiftCardValidation.GIFT_CARD_NOT_FOUND);
+
+    if (policy?.isActive) {
+      const balance = await this.balanceService.findOneByField({ userSlug: payload.userSlug, slug: null });
+      const newBalance = balance.points + gc.cardPoints;
+      const maxBalance = +policy.value;
+      if (newBalance > maxBalance)
+        throw new CoinPolicyException(CoinPolicyValidation.EXCEED_MAXIMUM_BALANCE);
+    }
 
     if (gc.status === GiftCardStatus.USED)
       throw new GiftCardException(GiftCardValidation.GC_USED);

@@ -6,7 +6,7 @@ export enum CardOrderStatus {
 }
 
 export enum CardOrderType {
-  SELF = 'SELF',
-  GIFT = 'GIFT',
-  BUY = 'BUY',
+  SELF = 'SELF', // Nạp cho bản thân
+  GIFT = 'GIFT', // Nạp cho người khác
+  BUY = 'BUY', // Mua thẻ quà tặng
 }
