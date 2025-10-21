@@ -75,6 +75,7 @@ export const UpdateCoinPolicyForm: React.FC<IUpdateCoinPolicyFormProps> = ({
             customInput={Input}
             placeholder={t('giftCard.coinPolicy.enterValue')}
             className='text-sm'
+            value={field.value}
             onValueChange={(values: NumberFormatValues) => {
               const val = values.floatValue ?? 0;
               field.onChange(val.toString())
