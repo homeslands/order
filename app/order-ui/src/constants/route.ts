@@ -53,6 +53,7 @@ export const ROUTE = {
   STAFF_SYSTEM_LOCK_MANAGEMENT: '/system/system-lock-management',
   STAFF_GIFT_CARD_CHECKOUT: '/system/card/catalog/checkout',
   STAFF_GIFT_CARD_CHECKOUT_WITH_SLUG: '/system/card/catalog/checkout/:slug',
+  STAFF_COIN_POLICY: '/system/coin-policy',
 
   //Client Routes
   CLIENT_HOME: '/',

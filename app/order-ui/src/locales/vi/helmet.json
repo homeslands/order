@@ -185,6 +185,9 @@
       "keywords": "nhóm khách hàng, quản lý nhóm khách hàng, nhóm khách hàng quán ăn",
       "manageUserGroup": "Quản lý nhóm khách hàng",
       "title": "Quản lý nhóm khách hàng"
+    },
+    "coinPolicy": {
+      "title": "Quản lý cấu hình thẻ quà tặng"
     }
   }
 }

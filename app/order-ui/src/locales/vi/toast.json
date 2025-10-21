@@ -313,6 +313,7 @@
         "updateSystemConfigSuccess": "Cập nhật cấu hình hệ thống thành công",
         "updateTableStatusSuccess": "Cập nhật trạng thái bàn thành công",
         "updateTableSuccess": "Cập nhật bàn thành công",
+        "updateCoinPolicySuccess": "Cập nhật cấu hình thẻ quà tặng thành công",
         "updateUserRoleSuccess": "Cập nhật chức danh người dùng thành công",
         "updateUserSuccess": "Cập nhật người dùng thành công",
         "updateUserStatusSuccess": "Cập nhật trạng thái người dùng thành công",
@@ -374,6 +375,7 @@
         "confirmForgotPasswordSuccess": "Đặt lại mật khẩu thành công",
         "forgotPasswordTokenExists": "Mã xác thực đã tồn tại",
         "forgotPasswordTokenNotExists": "Mã xác thực không đúng!",
-        "passwordNotMatch": "Mật khẩu mới và xác nhận mật khẩu mới không khớp"
+        "passwordNotMatch": "Mật khẩu mới và xác nhận mật khẩu mới không khớp",
+        "exceedMaxBalance": "Số dư tối da phải lớn hơn hoặc bằng 5,000,000"
       }
     }
