@@ -5,7 +5,12 @@ import { ICoinPolicy } from "@/types/coin-policy.type";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
-export default function CoinPolicyItemActions({ data }: { data: ICoinPolicy }) {
+interface ICoinPolicyItemActionProps {
+    data: ICoinPolicy;
+    className?: string;
+}
+
+export default function CoinPolicyItemActions({ data, className }: ICoinPolicyItemActionProps) {
     const { t } = useTranslation(['coinPolicy'])
     const { mutate: toggleCoinPolicyMutation } = useToggleCoinPolicyActivation();
     const queryClient = useQueryClient()
@@ -20,12 +25,12 @@ export default function CoinPolicyItemActions({ data }: { data: ICoinPolicy }) {
         )
     }
 
-    return <>
+    return <div className={`flex items-center gap-1 ${className || ''}`}>
         {/* Switch */}
         <div className="flex item-center gap-1">
             <Label
                 htmlFor="lock-all-switch"
-                className={`cursor-pointer font-semibold transition-colors ${data?.isActive
+                className={`hidden lg:block cursor-pointer font-semibold transition-colors ${data?.isActive
                     ? 'text-green-500 hover:text-green-500'
                     : 'text-red-600 hover:text-red-700'
                     }`}
@@ -49,7 +54,6 @@ export default function CoinPolicyItemActions({ data }: { data: ICoinPolicy }) {
                 className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-destructive"
             />
         </div>
-
         <UpdateCoinPolicyDialog data={data} />
-    </>
+    </div>
 }
