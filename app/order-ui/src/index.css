@@ -4,6 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 
+
+.safe-area {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -15,6 +21,7 @@ input[type='number']::-webkit-outer-spin-button {
   width: 8px;
   height: 8px;
 }
+
 
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
