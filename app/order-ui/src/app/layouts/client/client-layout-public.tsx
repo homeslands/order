@@ -46,7 +46,7 @@ export default function PublicClientLayout() {
   }, [location.pathname, clearStore, userInfo, navigate])
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen safe-area">
       {/* Header */}
       <ClientHeader />
 
