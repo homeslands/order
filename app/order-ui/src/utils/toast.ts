@@ -3,6 +3,7 @@ import i18next from 'i18next'
 
 // Map error codes from JSON to corresponding toast messages
 const errorCodes: { [key: number]: string } = {
+  409: 'toast.conflict',
   1: 'toast.invalidQuery',
   429: 'toast.tooManyRequests',
   401: 'toast.unauthorized',
@@ -302,7 +303,9 @@ const errorCodes: { [key: number]: string } = {
   159203: 'toast.accountDisabled',
   // User error code
   119006: 'toast.userNotFound',
-  159706: 'toast.exceedMaxBalance'
+  159706: 'toast.exceedMaxBalance',
+  159707: 'toast.userBalanceExceedMaximum',
+  159704: 'toast.policyValueMustBeInteger'
 }
 
 export function showToast(message: string) {

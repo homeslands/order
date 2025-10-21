@@ -197,9 +197,9 @@ export const useCreateCardOrder = () => {
     mutationFn: async (data: ICardOrderRequest) => {
       return createCardOrder(data)
     },
-    meta: {
-      ignoreGlobalError: true,
-    },
+    // meta: {
+    //   ignoreGlobalError: true,
+    // },
   })
 }
 
@@ -283,10 +283,10 @@ export const useInitiateCardOrderPayment = () => {
     }) => {
       return role !== Role.CUSTOMER
         ? initiateCardOrderPaymentAdmin(
-            payload.slug,
-            payload.paymentMethod,
-            payload.cashierSlug,
-          )
+          payload.slug,
+          payload.paymentMethod,
+          payload.cashierSlug,
+        )
         : initiateCardOrderPayment(payload.slug, payload.paymentMethod)
     },
   })
