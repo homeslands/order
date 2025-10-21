@@ -18,7 +18,7 @@ import {
 } from '@/types'
 import CancelCardOrderDialog from '@/components/app/dialog/cancel-gift-card-order-dialog'
 import { useGiftCardStore, useUserStore } from '@/stores'
-import { showToast, showErrorToast } from '@/utils'
+import { showToast } from '@/utils'
 import {
   CustomerInfo,
   OrderInfo,
@@ -166,9 +166,6 @@ export default function GiftCardCheckoutWithSlugPage() {
         // Navigate back to gift card page
         navigate(routes.giftCard)
       },
-      onError: (_error) => {
-        showErrorToast(1001)
-      },
     })
   }, [
     currentOrderData,
@@ -198,9 +195,6 @@ export default function GiftCardCheckoutWithSlugPage() {
           if (paymentMethod == PaymentMethod.CASH) {
             navigate(`${routes.success}/${currentOrderData.slug}`)
           }
-        },
-        onError: (_error) => {
-          showErrorToast(1001)
         },
       },
     )

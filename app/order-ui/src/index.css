@@ -48,11 +48,14 @@ input[type='number']::-webkit-outer-spin-button {
 /* Sidebar width is now dynamically controlled by JavaScript */
 
 @keyframes blinkBorder {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     border-color: #f79e22;
     box-shadow: 0 0 0px #f79e22;
   }
+
   50% {
     /* transform: scale(1.05); */
     border-color: #f79e22;
@@ -61,10 +64,13 @@ input[type='number']::-webkit-outer-spin-button {
 }
 
 @keyframes twinkle {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0;
     transform: scale(0.5) rotate(0deg);
   }
+
   50% {
     opacity: 1;
     transform: scale(1) rotate(180deg);
@@ -242,22 +248,28 @@ input[type='number']::-webkit-outer-spin-button {
     scrollbar-color: hsl(var(--muted-foreground)) transparent;
   }
 
-/* ========== WebKit/Blink (Chrome, Edge, Safari) ========== */
-/* Apply thickness for both vertical (width) and horizontal (height) */
-.custom-scroll::-webkit-scrollbar {
-  width: 4px !important;   /* vertical scrollbar thickness */
-  height: 4px !important;  /* horizontal scrollbar thickness */
-  background: transparent !important;
-}
+  /* ========== WebKit/Blink (Chrome, Edge, Safari) ========== */
+  /* Apply thickness for both vertical (width) and horizontal (height) */
+  .custom-scroll::-webkit-scrollbar {
+    width: 4px !important;
+    /* vertical scrollbar thickness */
+    height: 4px !important;
+    /* horizontal scrollbar thickness */
+    background: transparent !important;
+  }
 
-/* Hide scrollbar but keep functionality */
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
-  scrollbar-width: none;  /* Firefox */
-}
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Safari and Chrome */
-}
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    /* Internet Explorer 10+ */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+    /* Safari and Chrome */
+  }
 
   /* Track (background of scrollbar) */
   .custom-scroll::-webkit-scrollbar-track {
@@ -268,9 +280,11 @@ input[type='number']::-webkit-outer-spin-button {
   .custom-scroll::-webkit-scrollbar-thumb {
     background-color: hsl(var(--muted-foreground)) !important;
     border-radius: 9999px !important;
-    min-height: 4px !important;  /* ensure it's visible */
+    min-height: 4px !important;
+    /* ensure it's visible */
     min-width: 4px !important;
-    border: 1px solid transparent !important; /* reduce aliasing */
+    border: 1px solid transparent !important;
+    /* reduce aliasing */
   }
 
   /* Hide the two arrow buttons at the ends */
@@ -394,7 +408,7 @@ input[type='number']::-webkit-outer-spin-button {
   border: 1px solid hsl(var(--border));
   border-radius: 6px;
   box-shadow: 0 6px 12px -2px rgb(0 0 0 / 0.08),
-  0 4px 8px -4px rgb(0 0 0 / 0.08);
+    0 4px 8px -4px rgb(0 0 0 / 0.08);
   font-family: inherit;
   margin-top: 10px;
   overflow: hidden;
@@ -1298,12 +1312,12 @@ input[type='number']::-webkit-outer-spin-button {
   max-width: 100%;
 }
 
-.ql-snow .ql-editor > .ql-align-center {
+.ql-snow .ql-editor>.ql-align-center {
   display: flex;
   justify-content: center;
 }
 
-.ql-snow .ql-editor > .ql-align-right {
+.ql-snow .ql-editor>.ql-align-right {
   display: flex;
   justify-content: end;
 }
@@ -1694,4 +1708,9 @@ input[type='number']::-webkit-outer-spin-button {
 
 .bright-orange {
   color: #ffeb3b;
+}
+
+.required-input:after {
+  content: " *";
+  color: red;
 }

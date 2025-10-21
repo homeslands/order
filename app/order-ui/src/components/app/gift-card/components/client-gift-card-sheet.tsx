@@ -85,9 +85,9 @@ export default function ClientGiftCardSheet() {
     defaultValues: {
       giftType:
         giftCardItem?.type &&
-        featureFlags.some(
-          (flag) => flag.name === giftCardItem.type && !flag.isLocked,
-        )
+          featureFlags.some(
+            (flag) => flag.name === giftCardItem.type && !flag.isLocked,
+          )
           ? giftCardItem.type
           : defaultGiftCardType,
       receivers:
@@ -179,7 +179,7 @@ export default function ClientGiftCardSheet() {
         )
           ? giftCardItem?.type
           : featureFlags.find((flag) => !flag.isLocked)?.name ||
-            GiftCardType.NONE
+          GiftCardType.NONE
         form.setValue('giftType', unlockedType ?? GiftCardType.SELF)
       }
     }, // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -216,8 +216,8 @@ export default function ClientGiftCardSheet() {
     const recipients =
       data.giftType === GiftCardType.GIFT && data.receivers
         ? data.receivers.map(
-            ({ userInfo: _userInfo, name: _name, ...rest }) => rest,
-          )
+          ({ userInfo: _userInfo, name: _name, ...rest }) => rest,
+        )
         : []
 
     // Create card order request
@@ -243,7 +243,6 @@ export default function ClientGiftCardSheet() {
           navigate(`/gift-card/checkout/${orderSlug}`)
         },
         onError: () => {
-          showErrorToast(1006)
           // Directly trigger a refetch of the gift card data
           if (giftCardItem?.slug) {
             refetchGiftCard()

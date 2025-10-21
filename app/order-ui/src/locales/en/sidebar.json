@@ -91,6 +91,7 @@
     "cardOrderManagement": "Card Order Management",
     "loyaltyPoint": "Accumulated Point",
     "systemLockManagement": "System Lock Management",
-    "customerGroupManagement": "Customer Group Management"
+    "customerGroupManagement": "Customer Group Management",
+    "coinPolicy": "Coin Policy"
   }
 }

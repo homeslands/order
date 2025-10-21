@@ -1,0 +1,8 @@
+{
+  "coinPolicy": {
+    "title": "Cấu hình thẻ quà tặng",
+    "noData": "Không có dữ liệu",
+    "active": "Đang hoạt động",
+    "inactive": "Không hoạt động"
+  }
+}

@@ -91,6 +91,7 @@
     "cardOrderManagement": "Quản lý đơn hàng quà tặng",
     "loyaltyPoint": "Điểm tích lũy",
     "systemLockManagement": "Quản lý khóa chức năng hệ thống",
-    "customerGroupManagement": "Quản lý nhóm khách hàng"
+    "customerGroupManagement": "Quản lý nhóm khách hàng",
+    "coinPolicy": "Cấu hình thẻ quà tặng"
   }
 }
