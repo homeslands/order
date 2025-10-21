@@ -18,22 +18,24 @@ export default function CoinPolicyItem({ data }: CoinPolicyItemProps) {
   }
   return (
     <>
-      <div className="mt-2 flex flex-col gap-2 p-2 rounded-md dark:bg-transparent lg:flex-row items-center">
+      <div className="mt-2 flex flex-col gap-2 p-2 rounded-md dark:bg-transparent lg:flex-row lg:items-center">
         {/* Left */}
         <div className="w-2/5 text-sm font-bold">
           {data.name}:
         </div>
 
         {/* Center */}
-        <div className="border w-full p-2 text-sm rounded-sm bg-gray-100"
-        >
-          {renderValue({ key: data.key, value: data.value })}
+        <div className="w-full flex items-center gap-4">
+          <div className="border p-2 text-sm rounded-sm bg-gray-100 w-full"
+          >
+            {renderValue({ key: data.key, value: data.value })}
+          </div>
+          <CoinPolicyItemActions data={data} className="lg:hidden w-1/6" />
         </div>
 
+
         {/* Action */}
-        <div className="items-end justify-end hidden col-span-1 gap-2 ml-auto lg:flex w-1/3">
-          <CoinPolicyItemActions data={data} />
-        </div>
+        <CoinPolicyItemActions data={data} className="hidden lg:flex w-1/3 justify-end" />
       </div>
     </>
   )
