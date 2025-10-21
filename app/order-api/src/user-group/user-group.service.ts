@@ -19,6 +19,7 @@ import {
   attachCreatedByForArrayEntity,
   attachCreatedByForSingleEntity,
 } from 'src/user/user.helper';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
 
 @Injectable()
 export class UserGroupService {
@@ -30,6 +31,7 @@ export class UserGroupService {
     @InjectMapper() private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
+    private readonly transactionManagerService: TransactionManagerService,
   ) {}
 
   async create(
@@ -185,6 +187,9 @@ export class UserGroupService {
     const context = `${UserGroupService.name}.${this.remove.name}`;
     const userGroup = await this.userGroupRepository.findOne({
       where: { slug },
+      relations: {
+        userGroupMembers: true,
+      },
     });
 
     if (!userGroup) {
@@ -192,8 +197,21 @@ export class UserGroupService {
       throw new UserGroupException(UserGroupValidation.USER_GROUP_NOT_FOUND);
     }
 
-    await this.userGroupRepository.softRemove(userGroup);
-    this.logger.log(`User group removed successfully`, context);
+    await this.transactionManagerService.execute<void>(
+      async (manager) => {
+        await manager.softRemove(userGroup.userGroupMembers);
+        await manager.softRemove(userGroup);
+      },
+      () => {
+        this.logger.log(`User group removed successfully`, context);
+      },
+      (error) => {
+        this.logger.error(`Error removing user group`, error);
+        throw new UserGroupException(
+          UserGroupValidation.USER_GROUP_REMOVE_FAILED,
+        );
+      },
+    );
   }
 
   // async getStatistics(): Promise<{

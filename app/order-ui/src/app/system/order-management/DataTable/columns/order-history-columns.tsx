@@ -164,6 +164,29 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       },
     },
     {
+      accessorKey: 'transactionId',
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={t('order.transactionId')}
+        />
+      ),
+      cell: ({ row }) => {
+        const order = row.original
+        let transactionIdValue = '';
+        if (order?.payment?.paymentMethod === PaymentMethod.CREDIT_CARD) {
+          transactionIdValue = order?.payment?.transactionId || ''
+        }
+        return (
+          <div className="flex flex-col">
+            <span className="text-[0.8rem]">
+              {transactionIdValue}
+            </span>
+          </div>
+        )
+      },
+    },
+    {
       accessorKey: 'owner',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('order.owner')} />

@@ -75,6 +75,7 @@ import {
   FeatureFlagSystems,
   FeatureSystemGroups,
 } from 'src/feature-flag-system/feature-flag-system.constant';
+import { checkActiveUser } from 'src/auth/auth.utils';
 @Injectable()
 export class OrderService {
   constructor(
@@ -1211,6 +1212,8 @@ export class OrderService {
     });
     if (!owner) owner = defaultCustomer;
 
+    checkActiveUser(owner);
+
     // Get cashier
     // let approvalBy = await this.userUtils.getUser({
     //   where: {
@@ -1357,9 +1360,13 @@ export class OrderService {
     );
     const originalSubtotal = orderItem.quantity * orderItem.variant.price;
 
+    const subtotalCost = this.orderItemUtils.calculateSubTotalCost(orderItem);
+
     Object.assign(orderItem, {
       subtotal,
       originalSubtotal,
+      subtotalCost,
+      isGift: variant.product.isGift,
     });
     // default discount type is none
     orderItem.voucherValue = 0;

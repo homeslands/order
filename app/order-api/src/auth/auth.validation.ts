@@ -43,6 +43,13 @@ export const VERIFY_PHONE_NUMBER_TOKEN_IS_EXPIRED =
   'VERIFY_PHONE_NUMBER_TOKEN_IS_EXPIRED';
 export const CONFIRM_PHONE_NUMBER_VERIFICATION_ERROR =
   'CONFIRM_PHONE_NUMBER_VERIFICATION_ERROR';
+export const USER_NOT_ACTIVE = 'USER_NOT_ACTIVE';
+export const USER_NOT_VERIFIED_EMAIL = 'USER_NOT_VERIFIED_EMAIL';
+export const USER_NOT_VERIFIED_PHONENUMBER = 'USER_NOT_VERIFIED_PHONENUMBER';
+export const ERROR_CREATE_TOKEN_TO_CHANGE_PASSWORD =
+  'ERROR_CREATE_TOKEN_TO_CHANGE_PASSWORD';
+export const ERROR_CHANGE_FORGOT_PASSWORD = 'ERROR_CHANGE_FORGOT_PASSWORD';
+export const FORGOT_TOKEN_NOT_EXISTED = 'FORGOT_TOKEN_NOT_EXISTED';
 
 export type TAuthErrorCodeKey =
   | typeof INVALID_PHONENUMBER
@@ -77,7 +84,13 @@ export type TAuthErrorCodeKey =
   | typeof ERROR_CREATE_VERIFY_EMAIL_TOKEN
   | typeof VERIFY_PHONE_NUMBER_TOKEN_NOT_FOUND
   | typeof VERIFY_PHONE_NUMBER_TOKEN_IS_EXPIRED
-  | typeof CONFIRM_PHONE_NUMBER_VERIFICATION_ERROR;
+  | typeof CONFIRM_PHONE_NUMBER_VERIFICATION_ERROR
+  | typeof USER_NOT_ACTIVE
+  | typeof USER_NOT_VERIFIED_EMAIL
+  | typeof USER_NOT_VERIFIED_PHONENUMBER
+  | typeof ERROR_CREATE_TOKEN_TO_CHANGE_PASSWORD
+  | typeof ERROR_CHANGE_FORGOT_PASSWORD
+  | typeof FORGOT_TOKEN_NOT_EXISTED;
 
 export type TAuthErrorCode = Record<TAuthErrorCodeKey, TErrorCodeValue>;
 
@@ -161,4 +174,19 @@ export const AuthValidation: TAuthErrorCode = {
     119032,
     'Error when confirm phone number verification',
   ),
+  USER_NOT_ACTIVE: createErrorCode(119033, 'User not active'),
+  USER_NOT_VERIFIED_EMAIL: createErrorCode(119034, 'User not verified email'),
+  USER_NOT_VERIFIED_PHONENUMBER: createErrorCode(
+    119035,
+    'User not verified phone number',
+  ),
+  ERROR_CREATE_TOKEN_TO_CHANGE_PASSWORD: createErrorCode(
+    119036,
+    'Error when create token to change password',
+  ),
+  ERROR_CHANGE_FORGOT_PASSWORD: createErrorCode(
+    119037,
+    'Error when change forgot password',
+  ),
+  FORGOT_TOKEN_NOT_EXISTED: createErrorCode(119038, 'Forgot token not existed'),
 };

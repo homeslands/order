@@ -12,7 +12,7 @@ const PasswordInput = forwardRef<HTMLInputElement, InputProps>(({ className, ...
     <div className="relative">
       <Input
         type={showPassword ? 'text' : 'password'}
-        className={cn('hide-password-toggle pr-10', className)}
+        className={cn('pr-10 hide-password-toggle', className)}
         ref={ref}
         {...props}
       />
@@ -20,14 +20,14 @@ const PasswordInput = forwardRef<HTMLInputElement, InputProps>(({ className, ...
         type="button"
         variant="ghost"
         size="sm"
-        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+        className="absolute top-0 right-0 px-3 py-2 h-full hover:bg-transparent"
         onClick={() => setShowPassword((prev) => !prev)}
         disabled={disabled}
       >
         {showPassword && !disabled ? (
-          <EyeIcon className="h-4 w-4" aria-hidden="true" />
+          <EyeIcon className="w-4 h-4" aria-hidden="true" />
         ) : (
-          <EyeOffIcon className="h-4 w-4" aria-hidden="true" />
+          <EyeOffIcon className="w-4 h-4" aria-hidden="true" />
         )}
         <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
       </Button>

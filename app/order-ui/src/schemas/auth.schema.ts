@@ -62,7 +62,27 @@ export function useRegisterSchema() {
 export function useForgotPasswordSchema() {
   const { t } = useTranslation('auth')
   return z.object({
+    email: z.string().email(t('register.invalidEmail')).optional(),
+    phonenumber: z
+      .string()
+      .regex(PHONE_NUMBER_REGEX, t('register.phoneNumberInvalid'))
+      .optional(),
+  })
+}
+
+export function useForgotPasswordByEmailSchema() {
+  const { t } = useTranslation('auth')
+  return z.object({
     email: z.string().email(t('register.invalidEmail')),
+  })
+}
+
+export function useForgotPasswordByPhoneNumberSchema() {
+  const { t } = useTranslation('auth')
+  return z.object({
+    phonenumber: z
+      .string()
+      .regex(PHONE_NUMBER_REGEX, t('register.phoneNumberInvalid')),
   })
 }
 
@@ -85,20 +105,12 @@ export function useResetPasswordSchema() {
         .regex(PASSWORD_REGEX, t('forgotPassword.passwordInvalid')),
       confirmPassword: z
         .string()
-        .min(AuthRules.MIN_LENGTH, {
-          message: t('forgotPassword.passwordMin', {
-            length: AuthRules.MIN_LENGTH,
-          }),
-        })
-        .max(AuthRules.MAX_LENGTH, {
-          message: t('forgotPassword.passwordMax', {
-            length: AuthRules.MAX_LENGTH,
-          }),
-        }),
+        .min(1, t('forgotPassword.confirmPasswordRequired')),
       token: z.string(),
     })
     .refine((data) => data.newPassword === data.confirmPassword, {
       message: t('forgotPassword.passwordNotMatch'),
+      path: ['confirmPassword'],
     })
 }
 
@@ -117,3 +129,10 @@ export type TForgotPasswordSchema = z.infer<
   ReturnType<typeof useForgotPasswordSchema>
 >
 export type TVerifyEmailSchema = z.infer<typeof verifyEmailSchema>
+
+export type TForgotPasswordByEmailSchema = z.infer<
+  ReturnType<typeof useForgotPasswordByEmailSchema>
+>
+export type TForgotPasswordByPhoneNumberSchema = z.infer<
+  ReturnType<typeof useForgotPasswordByPhoneNumberSchema>
+>

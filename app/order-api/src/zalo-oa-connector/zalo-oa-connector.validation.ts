@@ -11,6 +11,8 @@ export const ERROR_INITIATE_SMS_VERIFY_ACCOUNT =
 export const ZALO_OA_API_URL_NOT_FOUND = 'ZALO_OA_API_URL_NOT_FOUND';
 export const ZALO_OA_CONNECTOR_HISTORY_NOT_FOUND =
   'ZALO_OA_CONNECTOR_HISTORY_NOT_FOUND';
+export const ERROR_INITIATE_SMS_FORGOT_PASSWORD =
+  'ERROR_INITIATE_SMS_FORGOT_PASSWORD';
 
 export type TZaloOaConnectorErrorCodeKey =
   | typeof ZALO_OA_CONNECTOR_CONFIG_NOT_FOUND
@@ -18,7 +20,8 @@ export type TZaloOaConnectorErrorCodeKey =
   | typeof ERROR_INITIATE_SMS_VERIFY_ACCOUNT
   | typeof ZALO_OA_CONNECTOR_CONFIG_ALREADY_EXISTS
   | typeof ZALO_OA_API_URL_NOT_FOUND
-  | typeof ZALO_OA_CONNECTOR_HISTORY_NOT_FOUND;
+  | typeof ZALO_OA_CONNECTOR_HISTORY_NOT_FOUND
+  | typeof ERROR_INITIATE_SMS_FORGOT_PASSWORD;
 
 export type TZaloOaConnectorErrorCode = Record<
   TZaloOaConnectorErrorCodeKey,
@@ -50,5 +53,9 @@ export const ZaloOaConnectorValidation: TZaloOaConnectorErrorCode = {
   ZALO_OA_CONNECTOR_HISTORY_NOT_FOUND: createErrorCode(
     158706,
     'Zalo OA connector history not found',
+  ),
+  ERROR_INITIATE_SMS_FORGOT_PASSWORD: createErrorCode(
+    158707,
+    'Error when initiate sms forgot password',
   ),
 };

@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 
 import {
   AuthProfileResponseDto,
+  ForgotPasswordResponseDto,
   RegisterAuthRequestDto,
   RegisterAuthResponseDto,
   VerifyEmailResponseDto,
@@ -11,6 +12,7 @@ import {
 import { User } from 'src/user/user.entity';
 import { VerifyEmailToken } from './entity/verify-email-token.entity';
 import { baseMapper } from 'src/app/base.mapper';
+import { ForgotPasswordToken } from './entity/forgot-password-token.entity';
 
 @Injectable()
 export class AuthProfile extends AutomapperProfile {
@@ -27,6 +29,12 @@ export class AuthProfile extends AutomapperProfile {
         mapper,
         VerifyEmailToken,
         VerifyEmailResponseDto,
+        extend(baseMapper(mapper)),
+      );
+      createMap(
+        mapper,
+        ForgotPasswordToken,
+        ForgotPasswordResponseDto,
         extend(baseMapper(mapper)),
       );
     };

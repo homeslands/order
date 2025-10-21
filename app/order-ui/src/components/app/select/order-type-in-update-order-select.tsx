@@ -93,7 +93,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Role } from '@/constants'
+import { Role, SystemLockFeatureGroup, SystemLockFeatureType, SystemLockFeatureChild } from '@/constants'
+import { useGetSystemFeatureFlagsByGroup } from '@/hooks'
 
 interface OrderTypeSelectProps {
   typeOrder?: string
@@ -104,10 +105,59 @@ export default function OrderTypeSelect({ typeOrder }: OrderTypeSelectProps) {
   const { userInfo } = useUserStore()
   const { getTheme } = useThemeStore()
   const { updatingData, setDraftType } = useOrderFlowStore()
+  const { data: featuresSystemFlagsResponse } = useGetSystemFeatureFlagsByGroup(
+    SystemLockFeatureGroup.ORDER,
+  )
+
+  // Check if user is logged in (either real user or update draft owner is logged in customer)
+  const isUserLoggedIn = useMemo(() => {
+    // User có slug và role là CUSTOMER
+    const isUserAuthenticated = userInfo?.slug && userInfo?.role.name === Role.CUSTOMER
+    // Hoặc update draft owner là customer đã đăng nhập
+    const isOwnerLoggedInAndRoleCustomer = updatingData?.updateDraft?.ownerRole === Role.CUSTOMER && updatingData?.updateDraft?.ownerPhoneNumber !== 'default-customer'
+    return isUserAuthenticated || isOwnerLoggedInAndRoleCustomer
+  }, [userInfo?.slug, userInfo?.role.name, updatingData?.updateDraft?.ownerRole, updatingData?.updateDraft?.ownerPhoneNumber])
+
+  // Wrap featureFlags in useMemo to avoid changing dependencies
+  const featureFlags = useMemo(
+    () => featuresSystemFlagsResponse?.result || [],
+    [featuresSystemFlagsResponse?.result]
+  )
+
+  // Lấy parent feature phù hợp với trạng thái logged in
+  const relevantParentFeature = useMemo(() => {
+    if (isUserLoggedIn) {
+      // User đã đăng nhập → lấy CREATE_PRIVATE
+      return featureFlags.find((parent) => parent.name === SystemLockFeatureType.CREATE_PRIVATE)
+
+    } else {
+      // User chưa đăng nhập → lấy CREATE_PUBLIC
+      return featureFlags.find((parent) => parent.name === SystemLockFeatureType.CREATE_PUBLIC)
+    }
+  }, [featureFlags, isUserLoggedIn])
+
+  // Map children với order types để check trạng thái locked (chỉ từ parent phù hợp)
+  const orderTypeLockStatus = useMemo(() => {
+    const status: Record<string, boolean> = {}
+    const children = relevantParentFeature?.children || []
+
+    children.forEach((child) => {
+      status[child.name] = child.isLocked
+    })
+
+    return status
+  }, [relevantParentFeature])
 
   const orderTypes = useMemo(
     () => {
-      const baseTypes = [
+      // Map OrderTypeEnum values to SystemLockFeatureChild keys
+      const orderTypeToFeatureMap: Record<string, string> = {
+        [OrderTypeEnum.AT_TABLE]: SystemLockFeatureChild.AT_TABLE,
+        [OrderTypeEnum.TAKE_OUT]: SystemLockFeatureChild.TAKE_OUT,
+        [OrderTypeEnum.DELIVERY]: SystemLockFeatureChild.DELIVERY,
+      }
+
+      const allTypes = [
         {
           value: OrderTypeEnum.AT_TABLE,
           label: t('menu.dineIn'),
@@ -117,16 +167,33 @@ export default function OrderTypeSelect({ typeOrder }: OrderTypeSelectProps) {
           label: t('menu.takeAway'),
         },
       ]
-      // Only add delivery option if user has a slug
-      if ((userInfo?.slug && userInfo?.role.name === Role.CUSTOMER) || (updatingData?.updateDraft?.ownerRole === Role.CUSTOMER && updatingData?.updateDraft?.ownerPhoneNumber !== 'default-customer')) {
-        baseTypes.push({
+
+      // Check if DELIVERY exists in relevant parent's children
+      const hasDeliveryInFeature = relevantParentFeature?.children?.some(
+        (child) => child.name === SystemLockFeatureChild.DELIVERY
+      )
+
+      // Only add delivery option if:
+      // 1. User is logged in (isUserLoggedIn)
+      // 2. DELIVERY exists in the relevant parent feature (CREATE_PRIVATE has DELIVERY, CREATE_PUBLIC doesn't)
+      if (isUserLoggedIn && hasDeliveryInFeature) {
+        allTypes.push({
           value: OrderTypeEnum.DELIVERY,
           label: t('menu.delivery'),
         })
       }
-      return baseTypes
+
+      // Lọc bỏ các order type bị locked (isLocked = true)
+      // Map từ OrderTypeEnum value ('at-table') sang SystemLockFeatureChild key ('AT_TABLE')
+      const availableTypes = allTypes.filter((type) => {
+        const featureKey = orderTypeToFeatureMap[type.value]
+        const isLocked = orderTypeLockStatus[featureKey] === true
+        return !isLocked
+      })
+
+      return availableTypes
     },
-    [t, userInfo?.slug, updatingData?.updateDraft?.ownerRole, userInfo?.role.name, updatingData?.updateDraft?.ownerPhoneNumber]
+    [t, isUserLoggedIn, orderTypeLockStatus, relevantParentFeature]
   )
 
   const selectedValue = updatingData?.updateDraft?.type || typeOrder || ''

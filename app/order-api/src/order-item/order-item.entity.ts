@@ -23,6 +23,14 @@ export class OrderItem extends Base {
   subtotal: number;
 
   @AutoMap()
+  @Column({ name: 'subtotal_cost_column', default: 0 })
+  subtotalCost: number;
+
+  @AutoMap()
+  @Column({ name: 'is_gift_column', default: false })
+  isGift: boolean;
+
+  @AutoMap()
   @Column({ name: 'note_column', nullable: true })
   note?: string;
 

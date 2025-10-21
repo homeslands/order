@@ -29,6 +29,7 @@ export interface IUserInfo {
   }
   isVerifiedEmail: boolean
   isVerifiedPhonenumber: boolean
+  isActive: boolean
 }
 
 export interface ICreateUserRequest {
@@ -37,7 +38,8 @@ export interface ICreateUserRequest {
   confirmPassword: string
   firstName?: string
   lastName?: string
-  // branch?: string
+  dob?: string
+  branch?: string
   role: string
 }
 

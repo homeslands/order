@@ -1,6 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import {
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import {
+  INVALID_DOB,
+  INVALID_FIRSTNAME,
+  INVALID_LASTNAME,
   // INVALID_EMAIL,
   // INVALID_FIRSTNAME,
   // INVALID_LASTNAME,
@@ -10,6 +19,7 @@ import {
 import { AutoMap } from '@automapper/classes';
 import { BranchResponseDto } from 'src/branch/branch.dto';
 import { RoleResponseDto } from 'src/role/role.dto';
+import { VerificationMethod } from './auth.constants';
 
 export class LoginAuthRequestDto {
   @ApiProperty({ example: '0376295216' })
@@ -26,16 +36,16 @@ export class LoginAuthRequestDto {
 }
 export class RegisterAuthRequestDto extends LoginAuthRequestDto {
   @ApiProperty({ example: 'John' })
-  // @IsNotEmpty({ message: INVALID_FIRSTNAME })
-  @IsOptional()
+  @IsNotEmpty({ message: INVALID_FIRSTNAME })
+  // @IsOptional()
   @AutoMap()
-  firstName?: string;
+  firstName: string;
 
   @ApiProperty({ example: 'Doe' })
-  // @IsNotEmpty({ message: INVALID_LASTNAME })
-  @IsOptional()
+  @IsNotEmpty({ message: INVALID_LASTNAME })
+  // @IsOptional()
   @AutoMap()
-  lastName?: string;
+  lastName: string;
 
   @ApiProperty()
   // @IsNotEmpty({ message: INVALID_EMAIL })
@@ -44,9 +54,10 @@ export class RegisterAuthRequestDto extends LoginAuthRequestDto {
   email?: string;
 
   @ApiProperty()
-  @IsOptional()
+  @IsNotEmpty({ message: INVALID_DOB })
+  // @IsOptional()
   @AutoMap()
-  dob?: string;
+  dob: string;
 }
 
 export class LoginAuthResponseDto {
@@ -74,14 +85,6 @@ export class AuthRefreshRequestDto {
   @IsString()
   refreshToken: string;
 }
-
-export class ForgotPasswordTokenRequestDto {
-  @ApiProperty()
-  @AutoMap()
-  @IsNotEmpty()
-  email: string;
-}
-
 export class AuthChangePasswordRequestDto {
   @ApiProperty()
   @AutoMap()
@@ -94,6 +97,49 @@ export class AuthChangePasswordRequestDto {
   newPassword: string;
 }
 
+export class ForgotPasswordTokenRequestDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsOptional()
+  email?: string;
+
+  @ApiProperty()
+  @AutoMap()
+  @IsOptional()
+  phonenumber?: string;
+
+  @ApiProperty()
+  @AutoMap()
+  @IsNotEmpty()
+  @IsString()
+  @IsEnum(VerificationMethod)
+  verificationMethod: string;
+}
+
+export class ConfirmForgotPasswordRequestDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsString()
+  code: string;
+}
+export class ChangeForgotPasswordRequestDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsString()
+  newPassword: string;
+
+  @ApiProperty()
+  @AutoMap()
+  @IsString()
+  token: string;
+}
+export class ConfirmForgotPasswordResponseDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsString()
+  token: string;
+}
+
 export class ForgotPasswordRequestDto {
   @ApiProperty()
   @AutoMap()
@@ -104,6 +150,13 @@ export class ForgotPasswordRequestDto {
   @AutoMap()
   @IsString()
   newPassword: string;
+}
+
+export class ForgotPasswordResponseDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsDate()
+  expiresAt: Date;
 }
 
 export class InitiateVerifyEmailRequestDto {

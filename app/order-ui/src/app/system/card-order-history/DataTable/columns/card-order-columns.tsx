@@ -15,14 +15,14 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
   return [
     {
       id: 'actions',
-      header: () => <div className="font-semibold text-black text-center text-nowrap">{tCommon('common.action')}</div>,
+      header: () => <div className="font-semibold text-black text-center dark:text-white text-nowrap">{tCommon('common.action')}</div>,
       cell: ({ row }) => {
         return <CardOrderActionCell rowData={row.original} />
       },
     },
     {
       accessorKey: 'slug',
-      header: () => <div className="font-semibold text-black text-center">{t('giftCard.cardOrder.slug')}</div>,
+      header: () => <div className="font-semibold text-black text-center dark:text-white">{t('giftCard.cardOrder.slug')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
@@ -36,7 +36,7 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     {
       accessorKey: 'paymentMethod',
-      header: () => <div className="font-semibold text-black text-center">{t('giftCard.cardOrder.paymentMethod')}</div>,
+      header: () => <div className="font-semibold text-black text-center dark:text-white">{t('giftCard.cardOrder.paymentMethod')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
@@ -50,7 +50,7 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     {
       accessorKey: 'status',
-      header: () => <div className="font-semibold text-black text-center">{t('giftCard.cardOrder.status')}</div>,
+      header: () => <div className="font-semibold text-black text-center dark:text-white">{t('giftCard.cardOrder.status')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
@@ -64,7 +64,7 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     {
       accessorKey: 'totalAmount',
-      header: () => <div className="font-semibold text-black text-center">{t('giftCard.cardOrder.totalAmount')}</div>,
+      header: () => <div className="font-semibold text-black text-center dark:text-white">{t('giftCard.cardOrder.totalAmount')}</div>,
       cell: ({ row }) => {
         const rowData = row.original;
         const total = rowData?.totalAmount as number;
@@ -77,7 +77,7 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     {
       accessorKey: 'cashierName',
-      header: () => <div className="font-semibold text-black text-center">{t('giftCard.cardOrder.cashierName')}</div>,
+      header: () => <div className="font-semibold text-black text-center dark:text-white">{t('giftCard.cardOrder.cashierName')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
@@ -89,7 +89,7 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     {
       accessorKey: 'customerName',
-      header: () => <div className="font-semibold text-black text-center">{t('giftCard.cardOrder.customerName')}</div>,
+      header: () => <div className="font-semibold text-black text-center dark:text-white">{t('giftCard.cardOrder.customerName')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
@@ -101,7 +101,7 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     {
       accessorKey: 'createdAt',
-      header: () => <div className="font-semibold text-black text-center">{t('giftCard.cardOrder.createdAt')}</div>,
+      header: () => <div className="font-semibold text-black text-center dark:text-white">{t('giftCard.cardOrder.createdAt')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (

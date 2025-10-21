@@ -124,6 +124,15 @@ export function useCreateEmployeeSchema() {
         .refine((val) => !EMOJI_REGEX.test(val), {
           message: tProfile('profile.lastNameEmojiInvalid'),
         }),
+      dob: z.preprocess(
+        (val) => (typeof val === 'string' ? val.trim() : ''),
+        z
+          .string()
+          .min(1, tProfile('profile.dobRequired'))
+          .refine((val) => moment(val, 'DD/MM/YYYY', true).isValid(), {
+            message: tProfile('profile.dobInvalid'),
+          }),
+      ),
       role: z.string().min(1, t('register.roleRequired')),
       branch: z.string().min(1, t('register.branchRequired')),
     })

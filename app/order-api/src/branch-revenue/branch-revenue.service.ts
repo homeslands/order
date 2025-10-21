@@ -325,6 +325,7 @@ export class BranchRevenueService {
           totalAmountCreditCard: '0',
           totalOrderCreditCard: '0',
           totalDeliveryFee: '0',
+          totalCostGiftProductAmount: '0',
         };
         const returnData = this.mapper.map(
           item,
@@ -394,6 +395,7 @@ export class BranchRevenueService {
             totalAmountCreditCard: 0,
             totalOrderCreditCard: 0,
             totalDeliveryFee: 0,
+            totalCostGiftProductAmount: 0,
           };
         }
         acc[index].totalAmount += item.totalAmount;
@@ -415,6 +417,8 @@ export class BranchRevenueService {
         acc[index].totalAmountCreditCard += item.totalAmountCreditCard;
         acc[index].totalOrderCreditCard += item.totalOrderCreditCard;
         acc[index].totalDeliveryFee += item.totalDeliveryFee;
+        acc[index].totalCostGiftProductAmount +=
+          item.totalCostGiftProductAmount;
         return acc;
       },
       {} as Record<string, AggregateBranchRevenueResponseDto>,
@@ -456,6 +460,7 @@ export class BranchRevenueService {
             totalAmountCreditCard: 0,
             totalOrderCreditCard: 0,
             totalDeliveryFee: 0,
+            totalCostGiftProductAmount: 0,
           };
         }
         acc[index].totalAmount += item.totalAmount;
@@ -477,6 +482,8 @@ export class BranchRevenueService {
         acc[index].totalAmountCreditCard += item.totalAmountCreditCard;
         acc[index].totalOrderCreditCard += item.totalOrderCreditCard;
         acc[index].totalDeliveryFee += item.totalDeliveryFee;
+        acc[index].totalCostGiftProductAmount +=
+          item.totalCostGiftProductAmount;
         return acc;
       },
       {} as Record<string, AggregateBranchRevenueResponseDto>,
@@ -681,7 +688,9 @@ export class BranchRevenueService {
             existedInNewData.totalOrderCreditCard !==
               existedBranchRevenue.totalOrderCreditCard ||
             existedInNewData.totalDeliveryFee !==
-              existedBranchRevenue.totalDeliveryFee
+              existedBranchRevenue.totalDeliveryFee ||
+            existedInNewData.totalCostGiftProductAmount !==
+              existedBranchRevenue.totalCostGiftProductAmount
           ) {
             Object.assign(existedBranchRevenue, existedInNewData);
             newBranchRevenues.push(existedBranchRevenue);
@@ -737,6 +746,7 @@ export class BranchRevenueService {
             totalAmountCreditCard: 0,
             totalOrderCreditCard: 0,
             totalDeliveryFee: 0,
+            totalCostGiftProductAmount: 0,
           });
           newBranchRevenues.push(newRevenue);
         }
@@ -986,6 +996,7 @@ export class BranchRevenueService {
           totalAmountCreditCard: 0,
           totalOrderCreditCard: 0,
           totalDeliveryFee: 0,
+          totalCostGiftProductAmount: 0,
         });
         results.push(revenue);
       }
@@ -1061,7 +1072,9 @@ export class BranchRevenueService {
           existedBranchRevenue.totalOrderCreditCard !==
             newBranchRevenue.totalOrderCreditCard ||
           existedBranchRevenue.totalDeliveryFee !==
-            newBranchRevenue.totalDeliveryFee
+            newBranchRevenue.totalDeliveryFee ||
+          existedBranchRevenue.totalCostGiftProductAmount !==
+            newBranchRevenue.totalCostGiftProductAmount
         ) {
           Object.assign(existedBranchRevenue, newBranchRevenue);
           createAndUpdateBranchRevenues.push(existedBranchRevenue);
@@ -1192,6 +1205,7 @@ export class BranchRevenueService {
       let totalAccumulatedPointsToUse = 0;
       let totalAmountCreditCard = 0;
       let totalDeliveryFee = 0;
+      let totalCostGiftProductAmount = 0;
 
       // Start from row 9 (below header row)
       let currentRow = 9;
@@ -1234,66 +1248,72 @@ export class BranchRevenueService {
           },
           {
             cellPosition: `E${currentRow}`,
-            value: revenue.promotionAmount,
+            value: revenue.totalCostGiftProductAmount,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `F${currentRow}`,
-            value: revenue.voucherAmount,
+            value: revenue.promotionAmount,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `G${currentRow}`,
-            value: revenue.lossAmount,
+            value: revenue.voucherAmount,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `H${currentRow}`,
-            value: revenue.totalAccumulatedPointsToUse,
+            value: revenue.lossAmount,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `I${currentRow}`,
-            value: revenue.totalAmount,
+            value: revenue.totalAccumulatedPointsToUse,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `J${currentRow}`,
-            value: revenue.totalAmountPoint,
+            value: revenue.totalAmount,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `K${currentRow}`,
-            value: revenue.totalAmountCash,
+            value: revenue.totalAmountPoint,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `L${currentRow}`,
-            value: revenue.totalAmountBank,
+            value: revenue.totalAmountCash,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `M${currentRow}`,
-            value: revenue.totalAmountInternal,
+            value: revenue.totalAmountBank,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `N${currentRow}`,
-            value: revenue.totalAmountCreditCard,
+            value: revenue.totalAmountInternal,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `O${currentRow}`,
+            value: revenue.totalAmountCreditCard,
+            type: 'data',
+            style: cellStyle,
+          },
+          {
+            cellPosition: `P${currentRow}`,
             value: revenue.totalDeliveryFee,
             type: 'data',
             style: cellStyle,
@@ -1313,6 +1333,7 @@ export class BranchRevenueService {
         totalAccumulatedPointsToUse += revenue.totalAccumulatedPointsToUse;
         totalAmountCreditCard += revenue.totalAmountCreditCard;
         totalDeliveryFee += revenue.totalDeliveryFee;
+        totalCostGiftProductAmount += revenue.totalCostGiftProductAmount;
         currentRow++;
       });
 
@@ -1352,66 +1373,72 @@ export class BranchRevenueService {
         },
         {
           cellPosition: `E${currentRow}`,
-          value: totalPromotionAmount,
+          value: totalCostGiftProductAmount,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `F${currentRow}`,
-          value: totalVoucherAmount,
+          value: totalPromotionAmount,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `G${currentRow}`,
-          value: totalLossAmount,
+          value: totalVoucherAmount,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `H${currentRow}`,
-          value: totalAccumulatedPointsToUse,
+          value: totalLossAmount,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `I${currentRow}`,
-          value: totalAmount,
+          value: totalAccumulatedPointsToUse,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `J${currentRow}`,
-          value: totalAmountPoint,
+          value: totalAmount,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `K${currentRow}`,
-          value: totalAmountCash,
+          value: totalAmountPoint,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `L${currentRow}`,
-          value: totalAmountBank,
+          value: totalAmountCash,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `M${currentRow}`,
-          value: totalAmountInternal,
+          value: totalAmountBank,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `N${currentRow}`,
-          value: totalAmountCreditCard,
+          value: totalAmountInternal,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `O${currentRow}`,
+          value: totalAmountCreditCard,
+          type: 'data',
+          style: totalRowStyle,
+        },
+        {
+          cellPosition: `P${currentRow}`,
           value: totalDeliveryFee,
           type: 'data',
           style: totalRowStyle,
@@ -1496,6 +1523,7 @@ export class BranchRevenueService {
     let totalAmountCreditCard = 0;
     let totalOrderCreditCard = 0;
     let totalDeliveryFee = 0;
+    let totalCostGiftProductAmount = 0;
 
     branchRevenues.forEach((revenue) => {
       totalOriginalAmount += revenue.originalAmount;
@@ -1516,6 +1544,7 @@ export class BranchRevenueService {
       totalAmountCreditCard += revenue.totalAmountCreditCard;
       totalOrderCreditCard += revenue.totalOrderCreditCard;
       totalDeliveryFee += revenue.totalDeliveryFee;
+      totalCostGiftProductAmount += revenue.totalCostGiftProductAmount;
     });
 
     if (
@@ -1577,6 +1606,7 @@ export class BranchRevenueService {
       totalRevenueCreditCard: totalAmountCreditCard,
       totalOrderCreditCard: totalOrderCreditCard,
       totalDeliveryFee,
+      totalCostGiftProductAmount,
     };
 
     const data = await this.pdfService.generatePdf(

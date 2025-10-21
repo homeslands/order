@@ -41,6 +41,7 @@ export const CreateProductVariantForm: React.FC<
     resolver: zodResolver(useCreateProductVariantSchema()),
     defaultValues: {
       price: 0,
+      costPrice: 0,
       size: '',
       product: slug,
     },
@@ -98,6 +99,44 @@ export const CreateProductVariantForm: React.FC<
         )}
       />
 
+    ),
+    costPrice: (
+      <FormField
+        control={form.control}
+        name="costPrice"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('productVariant.costPrice')}</FormLabel>
+            <FormControl>
+              <div className="flex relative items-center">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder={t('productVariant.enterCostPrice')}
+                  value={
+                    field.value === 0
+                      ? '0'
+                      : field.value
+                        ? field.value.toLocaleString()
+                        : ''
+                  }
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/,/g, '')
+                    const num = raw === '' ? '' : Number(raw)
+                    if (num === '' || !isNaN(num)) {
+                      field.onChange(num === '' ? '' : num)
+                    }
+                  }}
+                  onWheel={(e) => e.currentTarget.blur()}
+                  className="pr-8 font-medium tracking-wide text-right"
+                />
+                <span className="absolute right-2 text-muted-foreground">₫</span>
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     ),
     size: (
       <FormField

@@ -241,6 +241,8 @@ export class InvoiceService {
         promotionId: item.promotion?.id ?? null,
         voucherValue: item.voucherValue,
         discountType: item.discountType,
+        totalCost: item.subtotalCost,
+        isGift: item.isGift,
       });
       return invoiceItem;
     });
@@ -436,6 +438,8 @@ export class InvoiceService {
         promotionId: item.promotion?.id ?? null,
         voucherValue: item.voucherValue,
         discountType: item.discountType,
+        totalCost: item.subtotalCost,
+        isGift: item.isGift,
       });
       return invoiceItem;
     });

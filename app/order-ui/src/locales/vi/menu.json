@@ -263,6 +263,7 @@
     "owner": "Người đặt",
     "ownerChanged": "Thay đổi khách hàng",
     "paid": "Đã thanh toán",
+    "transactionId": "Mã giao dịch",
     "partialAppliedNote": "Voucher giảm tối đa theo giá trị đơn hàng",
     "paymentInformation": "Thông tin thanh toán",
     "paymentMethod": "Phương thức",

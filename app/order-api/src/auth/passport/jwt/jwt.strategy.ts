@@ -33,6 +33,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
     if (!user) throw new UnauthorizedException();
 
+    //locked user
+    if (!user.isActive) throw new UnauthorizedException();
+
     const scope = this.authUtils.buildScope(user);
     return {
       userId: payload.sub,

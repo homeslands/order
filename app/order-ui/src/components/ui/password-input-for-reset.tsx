@@ -1,0 +1,49 @@
+import { forwardRef, useState } from 'react'
+import { EyeIcon, EyeOffIcon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input, InputProps } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
+
+const PasswordForResetInput = forwardRef<HTMLInputElement, InputProps>(({ className, ...props }, ref) => {
+  const [showPassword, setShowPassword] = useState(false)
+  const disabled = props.disabled
+
+  return (
+    <div className="relative">
+      <Input
+        type={showPassword ? 'text' : 'password'}
+        className={cn('pr-10 text-white hide-password-toggle', className)}
+        ref={ref}
+        {...props}
+      />
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        className="absolute top-0 right-0 px-3 py-2 h-full hover:bg-transparent"
+        onClick={() => setShowPassword((prev) => !prev)}
+        disabled={disabled}
+      >
+        {showPassword && !disabled ? (
+          <EyeIcon className="w-4 h-4 text-white" aria-hidden="true" />
+        ) : (
+          <EyeOffIcon className="w-4 h-4 text-white" aria-hidden="true" />
+        )}
+        <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
+      </Button>
+
+      {/* hides browsers password toggles */}
+      <style>{`
+					.hide-password-toggle::-ms-reveal,
+					.hide-password-toggle::-ms-clear {
+						visibility: hidden;
+						pointer-events: none;
+						display: none;
+					}
+				`}</style>
+    </div>
+  )
+})
+PasswordForResetInput.displayName = 'PasswordForResetInput'
+
+export { PasswordForResetInput }

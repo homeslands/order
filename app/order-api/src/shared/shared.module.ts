@@ -18,6 +18,7 @@ import { SharedBalanceService } from './services/shared-balance.service';
 import { SharedPointTransactionService } from './services/shared-point-transaction.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GiftCard } from 'src/gift-card-modules/gift-card/entities/gift-card.entity';
+import { SharedExportFileService } from './services/shared-export-file.service';
 
 @Module({
   imports: [
@@ -41,7 +42,15 @@ import { GiftCard } from 'src/gift-card-modules/gift-card/entities/gift-card.ent
       GiftCard,
     ]),
   ],
-  providers: [SharedBalanceService, SharedPointTransactionService],
-  exports: [SharedBalanceService, SharedPointTransactionService],
+  providers: [
+    SharedBalanceService,
+    SharedPointTransactionService,
+    SharedExportFileService,
+  ],
+  exports: [
+    SharedBalanceService,
+    SharedPointTransactionService,
+    SharedExportFileService,
+  ],
 })
 export class SharedModule {}

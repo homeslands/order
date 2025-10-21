@@ -7,6 +7,7 @@ const errorCodes: { [key: number]: string } = {
   429: 'toast.tooManyRequests',
   401: 'toast.unauthorized',
   403: 'toast.forbidden',
+  119009: 'toast.forgotPasswordTokenExists',
   119010: 'toast.invalidCredentials',
   11000: 'toast.branchRequired',
   131007: 'toast.orderItemNotFound',
@@ -67,6 +68,9 @@ const errorCodes: { [key: number]: string } = {
   119022: 'toast.invalidEmail',
   119027: 'toast.verifyPhoneNumberTokenExists',
   119030: 'toast.verifyPhoneNumberTokenNotFound',
+  119033: 'toast.accountDisabled',
+  119038: 'toast.forgotPasswordTokenNotExists',
+  119035: 'toast.userPhoneNumberNotVerified',
   121000: 'toast.fileNotFound',
   123000: 'toast.paymentQueryInvalid',
   123001: 'toast.paymentMethodInvalid',
@@ -292,8 +296,10 @@ const errorCodes: { [key: number]: string } = {
   158408: 'toast.giftCardExpired',
   158409: 'toast.giftCardAlreadyUsed',
   159008: 'toast.featureOnlyForRegisteredCustomer',
+
   159016: 'toast.loyaltyPointAlreadyReserved',
   159017: 'toast.userGroupMemberNotFound',
+  159203: 'toast.accountDisabled',
   // User error code
   119006: 'toast.userNotFound',
 }

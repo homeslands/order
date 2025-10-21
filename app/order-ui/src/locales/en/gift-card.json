@@ -192,7 +192,9 @@
             "receipientInfo": "Receipient information",
             "message": "Message",
             "name": "Receipient name",
-            "pageTitle": "Card order management"
+            "pageTitle": "Card order management",
+            "shortTitle": "Card order management",
+            "coinTitle": "Coins Management"
         },
         "customer": {
             "title": "Customer",
@@ -205,6 +207,13 @@
             "title": "Cashier Information",
             "cashierName": "Cashier name",
             "cashierPhone": "Phone number"
+        },
+        "pointTransaction": {
+            "customerName": "Customer name",
+            "phonenumber": "Phone number",
+            "type": "Type",
+            "points": "Points",
+            "createdAt": "Created at"
         }
     },
     "schema": {

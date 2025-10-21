@@ -1,72 +1,59 @@
-import { useState } from 'react'
-import { Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import _ from 'lodash'
+import { NavLink } from 'react-router-dom'
 
 import {
     Card,
     CardContent,
-    CardDescription,
     CardHeader,
     CardTitle,
 } from '@/components/ui'
 import { LoginBackground } from '@/assets/images'
-import { ForgotPasswordForm } from '@/components/app/form'
 import { cn } from '@/lib/utils'
-
+import { ROUTE, VerificationMethod } from '@/constants'
+import { ArrowRightIcon, MailIcon, PhoneIcon } from 'lucide-react'
+import { useForgotPasswordStore } from '@/stores'
 
 export default function ForgotPassword() {
     const { t } = useTranslation(['auth'])
-    const [isCheckMailOpen, setIsCheckMailOpen] = useState(false)
-    const handleSubmit = () => {
-        setIsCheckMailOpen(true)
+    const { setVerificationMethod, setStep } = useForgotPasswordStore()
+
+    const handleMethodSelect = (method: VerificationMethod) => {
+        setVerificationMethod(method)
+        setStep(1)
     }
 
     return (
-        <div className="relative flex items-center justify-center min-h-screen">
+        <div className="flex relative justify-center items-center min-h-screen">
             <img src={LoginBackground} className="absolute top-0 left-0 w-full h-full sm:object-fill" />
-            <div className="relative z-10 flex items-center justify-center w-full h-full">
-                {!isCheckMailOpen ? (
-                    <Card className="sm:min-w-[24rem] bg-white border border-muted-foreground bg-opacity-10 mx-auto shadow-xl backdrop-blur-xl">
-                        <CardHeader>
-                            <CardTitle className={cn('text-2xl text-center text-white')}>
-                                {t('forgotPassword.title')}{' '}
-                            </CardTitle>
-                            {/* <CardTitle className={cn('text-2xl text-white')}>{t('login.title')} </CardTitle> */}
-                            <CardDescription className="text-center text-white">
-                                {' '}
-                                {t('forgotPassword.description')}{' '}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ForgotPasswordForm onSuccess={handleSubmit} />
-                        </CardContent>
-                        {/* <CardFooter className="flex gap-1 text-white">
-                        <NavLink to={ROUTE.LOGIN} className="text-center text-primary">
-                            {t('forgotPassword.back')}
+            <div className="flex relative z-10 justify-center items-center w-full h-full">
+                <Card className="sm:min-w-[24rem] bg-white border border-muted-foreground bg-opacity-10 mx-auto shadow-xl backdrop-blur-xl">
+                    <CardHeader>
+                        <CardTitle className={cn('text-2xl text-center text-white')}>
+                            {t('forgotPassword.title')}{' '}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex flex-col gap-4">
+                            <NavLink
+                                to={ROUTE.FORGOT_PASSWORD_BY_EMAIL}
+                                onClick={() => handleMethodSelect(VerificationMethod.EMAIL)}
+                                className="flex gap-2 justify-start items-center text-primary hover:underline"
+                            >
+                                <MailIcon className="w-4 h-4" />{t('forgotPassword.useEmail')} <ArrowRightIcon className="w-4 h-4" />
+                            </NavLink>
+                            <NavLink
+                                to={ROUTE.FORGOT_PASSWORD_BY_PHONE}
+                                onClick={() => handleMethodSelect(VerificationMethod.PHONE_NUMBER)}
+                                className="flex gap-2 justify-start items-center text-primary hover:underline"
+                            >
+                                <PhoneIcon className="w-4 h-4" />{t('forgotPassword.usePhoneNumber')} <ArrowRightIcon className="w-4 h-4" />
+                            </NavLink>
+                        </div>
+                        <NavLink to={ROUTE.LOGIN} className="flex justify-start items-center mt-4 text-sm text-white hover:underline">
+                            {t('forgotPassword.backButton')}
                         </NavLink>
-                    </CardFooter> */}
-                    </Card>
-                ) : (
-                    <Card className="sm:w-[32rem] bg-white border border-muted-foreground bg-opacity-10 mx-auto shadow-xl backdrop-blur-xl">
-                        <CardHeader className='flex flex-col items-center'>
-                            <Mail size={44} className='text-white' />
-                            <CardTitle className={cn('text-xl text-center text-white')}>
-                                {t('forgotPassword.checkMail')}{' '}
-                            </CardTitle>
-                            {/* <CardTitle className={cn('text-2xl text-white')}>{t('login.title')} </CardTitle> */}
-                            <CardDescription className="text-center text-white">
-                                {' '}
-                                {/* {t('forgotPassword.checkMailDescription')}{' '} */}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent >
-                            <div className="flex items-center justify-center text-center text-white">
-                                {t('forgotPassword.checkMailDescription')}
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
+                    </CardContent>
+                </Card>
             </div>
         </div>
     )

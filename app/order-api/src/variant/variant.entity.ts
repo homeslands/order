@@ -11,6 +11,10 @@ export class Variant extends Base {
   @Column({ name: 'price_column' })
   price: number;
 
+  @AutoMap()
+  @Column({ name: 'cost_price_column', default: 0 })
+  costPrice: number;
+
   @ManyToOne(() => Size, (size) => size.variants)
   @JoinColumn({ name: 'size_column' })
   size: Size;

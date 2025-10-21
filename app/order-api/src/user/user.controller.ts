@@ -165,4 +165,25 @@ export class UserController {
       result,
     } as AppResponseDto<UserResponseDto>;
   }
+
+  @Patch(':slug/toggle-active')
+  @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Toggle user active status' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'User active status has been toggled successfully',
+    type: UserResponseDto,
+  })
+  async toggleActiveUser(
+    @Param('slug') slug: string,
+  ): Promise<AppResponseDto<UserResponseDto>> {
+    const result = await this.userService.toggleActiveUser(slug);
+    return {
+      message: 'User active status has been toggled successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<UserResponseDto>;
+  }
 }

@@ -59,6 +59,7 @@ export interface IBranchTopProduct {
 
 export interface IProductVariant {
   price: number
+  costPrice: number
   product: IProduct
   size: {
     name: string
