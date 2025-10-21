@@ -1,6 +1,6 @@
-import React, { } from 'react'
+import React from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
+import { ControllerRenderProps, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -19,6 +19,8 @@ import { ICoinPolicy, IUpdateCoinPolicy } from '@/types/coin-policy.type'
 import { TUpdateCoinPolicySchema, updateCoinPolicySchema } from '@/schemas/coin-policy.schema'
 import { useUpdateCoinPolicy } from '@/hooks/use-coin-policies'
 import { showToast } from '@/utils'
+import { NumberFormatValues, NumericFormat } from 'react-number-format'
+import { CoinPolicyConstants } from '@/constants/coin-policy'
 
 interface IUpdateCoinPolicyFormProps {
   data: ICoinPolicy | null
@@ -60,20 +62,48 @@ export const UpdateCoinPolicyForm: React.FC<IUpdateCoinPolicyFormProps> = ({
     })
   }
 
+  const renderInput = (field: ControllerRenderProps<{
+    slug: string;
+    value: string;
+  }, "value">) => {
+    switch (data?.key) {
+      case CoinPolicyConstants.MAX_BALANCE:
+        return (
+          <NumericFormat
+            thousandSeparator
+            allowNegative={false}
+            customInput={Input}
+            placeholder={t('giftCard.coinPolicy.enterValue')}
+            className='text-sm'
+            onValueChange={(values: NumberFormatValues) => {
+              const val = values.floatValue ?? 0;
+              field.onChange(val.toString())
+            }}
+          />
+        )
+      default:
+        return (
+          <Input {...field} placeholder={t('giftCard.coinPolicy.enterValue')} className='text-sm' />
+        )
+    }
+  }
+
   const formFields = {
     name: (
       <FormField
         control={form.control}
         name="value"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t('giftCard.coinPolicy.label')}</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder={t('giftCard.coinPolicy.enterValue')} className='text-sm' />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+        render={({ field }) => {
+          return (
+            <FormItem>
+              <FormLabel className='required-input'>{t('giftCard.coinPolicy.label')}</FormLabel>
+              <FormControl>
+                {renderInput(field)}
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )
+        }}
       />
     ),
   }

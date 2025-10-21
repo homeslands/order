@@ -1,13 +1,11 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { EditIcon, PenSquareIcon } from 'lucide-react'
+import { EditIcon } from 'lucide-react'
 
 import {
-  Button,
   Dialog,
   DialogTrigger,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui'

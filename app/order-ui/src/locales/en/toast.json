@@ -376,6 +376,9 @@
     "forgotPasswordTokenNotExists": "Forgot password token not exists",
     "passwordNotMatch": "New password and confirm new password do not match",
     "exceedMaxBalance": "Coin policy value must be greater than or equal to 5,000,000",
-    "updateCoinPolicySuccess": "Update coin policy successfully"
+    "updateCoinPolicySuccess": "Update coin policy successfully",
+    "userBalanceExceedMaximum": "User balance exceed the maximum allowed limit of coins",
+    "conflict": "Data has been changed, please, refresh the page to get latest data",
+    "policyValueMustBeInteger": "Value must be integer"
   }
 }
