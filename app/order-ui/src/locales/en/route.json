@@ -47,6 +47,7 @@
     "confirmation": "Confirmation",
     "feature-lock-management": "Gift Card Feature Lock Management",
     "system-lock-management": "System Lock Management",
-    "customer-group-management": "Customer Group Management"
+    "customer-group-management": "Customer Group Management",
+    "coin-policy": "Coin policy"
   }
 }

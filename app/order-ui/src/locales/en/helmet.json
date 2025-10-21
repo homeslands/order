@@ -173,6 +173,9 @@
     },
     "cardOrder": {
       "title": "Card order management"
+    },
+    "coinPolicy": {
+      "title": "Coin policy management"
     }
   }
 }
