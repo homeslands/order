@@ -1,7 +1,7 @@
 import { ICoinPolicy } from "@/types/coin-policy.type"
 import { formatCurrency } from "@/utils"
 import CoinPolicyItemActions from "./coin-policy-item-actions"
-import { useTranslation } from "react-i18next"
+import { CoinPolicyConstants } from "@/constants/coin-policy"
 
 export interface CoinPolicyItemProps {
   data: ICoinPolicy
@@ -10,7 +10,7 @@ export interface CoinPolicyItemProps {
 export default function CoinPolicyItem({ data }: CoinPolicyItemProps) {
   const renderValue = (payload: { key: string, value: string }) => {
     switch (payload.key) {
-      case 'MAX_BALANCE':
+      case CoinPolicyConstants.MAX_BALANCE:
         return formatCurrency(+payload.value, '')
       default:
         return payload.value

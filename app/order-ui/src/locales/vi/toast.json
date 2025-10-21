@@ -376,6 +376,9 @@
         "forgotPasswordTokenExists": "Mã xác thực đã tồn tại",
         "forgotPasswordTokenNotExists": "Mã xác thực không đúng!",
         "passwordNotMatch": "Mật khẩu mới và xác nhận mật khẩu mới không khớp",
-        "exceedMaxBalance": "Số dư tối da phải lớn hơn hoặc bằng 5,000,000"
+        "exceedMaxBalance": "Số dư tối da phải lớn hơn hoặc bằng 5,000,000",
+        "userBalanceExceedMaximum": "Số dư người dùng đang vượt quá giới hạn xu tối đa",
+        "conflict": "Dữ liệu đã bị thay đổi, vui lòng tải lại trang để lấy dữ liệu mới nhất",
+        "policyValueMustBeInteger": "Giá trị nhập phải là một số"
       }
     }
