@@ -6,14 +6,15 @@ export const ERROR_CREATE_USER_GROUP = 'ERROR_CREATE_USER_GROUP';
 export const USER_GROUP_HAS_MEMBERS = 'USER_GROUP_HAS_MEMBERS';
 export const USER_GROUP_INACTIVE = 'USER_GROUP_INACTIVE';
 export const USER_GROUP_NAME_ALREADY_EXISTS = 'USER_GROUP_NAME_ALREADY_EXISTS';
-
+export const USER_GROUP_REMOVE_FAILED = 'USER_GROUP_REMOVE_FAILED';
 export type TUserGroupErrorCodeKey =
   | typeof USER_GROUP_NOT_FOUND
   | typeof USER_GROUP_ALREADY_EXISTS
   | typeof ERROR_CREATE_USER_GROUP
   | typeof USER_GROUP_HAS_MEMBERS
   | typeof USER_GROUP_INACTIVE
-  | typeof USER_GROUP_NAME_ALREADY_EXISTS;
+  | typeof USER_GROUP_NAME_ALREADY_EXISTS
+  | typeof USER_GROUP_REMOVE_FAILED;
 
 export type TUserGroupErrorCode = Record<
   TUserGroupErrorCodeKey,
@@ -39,5 +40,9 @@ export const UserGroupValidation: TUserGroupErrorCode = {
   USER_GROUP_NAME_ALREADY_EXISTS: createErrorCode(
     159406,
     'User group name already exists',
+  ),
+  USER_GROUP_REMOVE_FAILED: createErrorCode(
+    159407,
+    'Error when removing user group',
   ),
 };
