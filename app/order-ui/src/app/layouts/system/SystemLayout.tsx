@@ -15,7 +15,7 @@ export default function SystemLayout() {
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="box-border flex flex-1 min-h-screen">
+      <div className="box-border flex flex-1 min-h-screen safe-area">
         <StoreHydrationProvider />
         <AppSidebar />
 
@@ -33,7 +33,7 @@ export default function SystemLayout() {
           <ScrollArea className="flex-1">
             <main
               className={cn(
-                'min-h-full bg-',
+                'min-h-full',
                 isMobile ? 'px-2 pb-[env(safe-area-inset-bottom)]' : 'px-4',
               )}
             >
