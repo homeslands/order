@@ -1167,35 +1167,40 @@ export const router = createBrowserRouter([
           },
           {
             path: ROUTE.CLIENT_PROFILE,
-            element: (
-              <ProtectedElement
-                element={<SuspenseElement component={ProfileLayout} />}
-              />
-            ),
+            element: <SuspenseElement component={ClientLayout} />,
             children: [
               {
-                index: true,
-                element: <SuspenseElement component={ProfileOverview} />,
-              },
-              {
-                path: 'info',
-                element: <SuspenseElement component={ClientInfoPage} />,
-              },
-              {
-                path: 'history',
-                element: <SuspenseElement component={OrderHistoryPage} />,
-              },
-              {
-                path: 'loyalty-point',
-                element: <SuspenseElement component={LoyaltyPointPage} />,
-              },
-              {
-                path: 'coin',
-                element: <SuspenseElement component={CoinPage} />,
-              },
-              {
-                path: 'gift-card',
-                element: <SuspenseElement component={GiftCardPageProfile} />,
+                element: (
+                  <ProtectedElement
+                    element={<SuspenseElement component={ProfileLayout} />}
+                  />
+                ),
+                children: [
+                  {
+                    index: true,
+                    element: <SuspenseElement component={ProfileOverview} />,
+                  },
+                  {
+                    path: 'info',
+                    element: <SuspenseElement component={ClientInfoPage} />,
+                  },
+                  {
+                    path: 'history',
+                    element: <SuspenseElement component={OrderHistoryPage} />,
+                  },
+                  {
+                    path: 'loyalty-point',
+                    element: <SuspenseElement component={LoyaltyPointPage} />,
+                  },
+                  {
+                    path: 'coin',
+                    element: <SuspenseElement component={CoinPage} />,
+                  },
+                  {
+                    path: 'gift-card',
+                    element: <SuspenseElement component={GiftCardPageProfile} />,
+                  },
+                ],
               },
             ],
           },
