@@ -213,6 +213,15 @@
             "type": "Loại giao dịch",
             "points": "Xu quy đổi",
             "createdAt": "Ngày tạo"
+        },
+        "coinPolicy": {
+            "title": "Cập nhật cấu hình thẻ quà tặng",
+            "label": "Giá trị",
+            "enterValue": "Nhập cấu hình",
+            "submit": "Cập nhật",
+            "tooltip": {
+                "update": "Chỉnh sửa"
+            }
         }
     },
     "schema": {

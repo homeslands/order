@@ -302,6 +302,7 @@ const errorCodes: { [key: number]: string } = {
   159203: 'toast.accountDisabled',
   // User error code
   119006: 'toast.userNotFound',
+  159706: 'toast.exceedMaxBalance'
 }
 
 export function showToast(message: string) {

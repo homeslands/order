@@ -54,7 +54,7 @@ export default function CardOrderDetailSheet({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-full p-2">
+      <SheetContent className="w-full p-2" aria-describedby=''>
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2 mb-3">
             {t('giftCard.cardOrder.detail')}
