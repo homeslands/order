@@ -41,7 +41,7 @@ export default function ClientLayout() {
   }, [location.pathname, clearStore, userInfo, navigate])
 
   return (
-    <main className={cn('flex-grow bg-muted-foreground/10')}>
+    <main className={cn('flex-grow bg-muted-foreground/10 safe-area')}>
       <ChooseBranchDialog />
       <Outlet />
       {isDownloading && <DownloadProgress progress={progress} fileName={fileName} />}
