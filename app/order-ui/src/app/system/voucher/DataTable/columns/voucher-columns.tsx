@@ -18,7 +18,7 @@ import {
 } from '@/components/ui'
 import { IVoucher } from '@/types'
 import { formatCurrency, showToast } from '@/utils'
-import { ApplyVoucherSheet, RemoveAppliedVoucherSheet, UpdateVoucherPaymentMethodSheet, UpdateVoucherSheet } from '@/components/app/sheet'
+import { ApplyVoucherSheet, ApplyVoucherForUserGroupSheet, RemoveAppliedVoucherSheet, UpdateVoucherPaymentMethodSheet, UpdateVoucherSheet, RemoveAppliedVoucherForUserGroupSheet } from '@/components/app/sheet'
 import { DeleteVoucherDialog } from '@/components/app/dialog'
 import { VOUCHER_TYPE } from '@/constants'
 
@@ -58,30 +58,22 @@ export const useVoucherColumns = (onSuccess: () => void, onSelectionChange: (sel
       cell: ({ row }) => {
         const voucher = row.original
         return (
-          <Checkbox
-            checked={selectedVouchers && selectedVouchers.some(v => v.slug === voucher.slug)}
-            onCheckedChange={(value) => {
-              row.toggleSelected(!!value)
-              updateSelectedVouchers(
-                value ? [...selectedVouchers, voucher] : selectedVouchers && selectedVouchers.filter((v) => v.slug !== voucher.slug)
-              )
-            }}
-            aria-label="Select row"
-          />
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={selectedVouchers && selectedVouchers.some(v => v.slug === voucher.slug)}
+              onCheckedChange={(value) => {
+                row.toggleSelected(!!value)
+                updateSelectedVouchers(
+                  value ? [...selectedVouchers, voucher] : selectedVouchers && selectedVouchers.filter((v) => v.slug !== voucher.slug)
+                )
+              }}
+              aria-label="Select row"
+            />
+          </div>
         )
       },
       enableSorting: false,
       enableHiding: false,
-    },
-    {
-      accessorKey: 'slug',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('voucher.slug')} />
-      ),
-      cell: ({ row }) => {
-        const user = row.original
-        return <div className="text-xs">{user?.slug}</div>
-      },
     },
     {
       accessorKey: 'title',
@@ -108,6 +100,16 @@ export const useVoucherColumns = (onSuccess: () => void, onSelectionChange: (sel
       cell: ({ row }) => {
         const voucher = row.original
         return <div className="text-xs sm:text-sm">{voucher?.type === VOUCHER_TYPE.FIXED_VALUE ? t('voucher.fixedValue') : voucher?.type === VOUCHER_TYPE.PERCENT_ORDER ? t('voucher.percentOrder') : t('voucher.samePrice')}</div>
+      },
+    },
+    {
+      accessorKey: 'isUserGroup',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('voucher.isUserGroup')} />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original
+        return <div className="text-xs sm:text-sm">{voucher?.isUserGroup ? t('voucher.yes') : t('voucher.no')}</div>
       },
     },
     {
@@ -243,7 +245,7 @@ export const useVoucherColumns = (onSuccess: () => void, onSelectionChange: (sel
       cell: ({ row }) => {
         const voucher = row.original
         return (
-          <div className='max-w-[1rem]'>
+          <div className='max-w-[1rem]' onClick={(e) => e.stopPropagation()}>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="p-0 w-8 h-8">
@@ -251,12 +253,14 @@ export const useVoucherColumns = (onSuccess: () => void, onSelectionChange: (sel
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="flex flex-col gap-1 w-fit">
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
                 <ApplyVoucherSheet voucher={voucher} />
+                <ApplyVoucherForUserGroupSheet voucher={voucher} />
                 <RemoveAppliedVoucherSheet voucher={voucher} />
+                <RemoveAppliedVoucherForUserGroupSheet voucher={voucher} />
                 <UpdateVoucherSheet voucher={voucher} onSuccess={handleUpdateVoucherSuccess} />
                 <UpdateVoucherPaymentMethodSheet voucher={voucher} />
                 <DeleteVoucherDialog voucher={voucher} />
