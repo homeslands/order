@@ -211,7 +211,7 @@ export default function MapAddressSelectorInUpdateOrder({
                 }
 
                 // Show toast immediately for new rejection
-                showErrorToastMessage(tToast('toast.distanceTooFar'))
+                showErrorToastMessage(tToast('toast.distanceTooFar', { distance: maxDistance }))
                 lastRejectedKeyRef.current = key
 
                 // Set timeout to allow new rejections after 2 seconds
