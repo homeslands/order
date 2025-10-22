@@ -140,7 +140,7 @@
     "invalidPhoneNumber": "Số điện thoại không hợp lệ (phải 10 chữ số)",
     "update": "Cập nhật",
     "noAddressSelected": "Chưa chọn địa chỉ",
-    "deliveryAddressNote": "Lưu ý: Hệ thống không hỗ trợ giao hàng với khoảng cách lớn hơn 3km."
+    "deliveryAddressNote": "Lưu ý: Hệ thống không hỗ trợ giao hàng với khoảng cách lớn hơn {{distance}}km."
   },
   "order": {
     "added": "Thêm",

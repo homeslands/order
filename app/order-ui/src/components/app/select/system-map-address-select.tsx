@@ -201,7 +201,7 @@ export default function SystemMapAddressSelect({
         })()
         if (!within) {
             if (lastRejectedKeyRef.current === key) return
-            showErrorToastMessage(tToast('toast.distanceTooFar'))
+            showErrorToastMessage(tToast('toast.distanceTooFar', { distance: maxDistance }))
             // reset map/UI and staged data
             setMarker(null)
             setSelectedPlaceId(null)
