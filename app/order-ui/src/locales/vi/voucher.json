@@ -7,6 +7,7 @@
     "apply": "Áp dụng",
     "applyForOrderValueFrom": "Áp dụng cho đơn hàng từ",
     "applyVoucher": "Áp dụng voucher",
+    "applyVoucherForUserGroup": "Áp dụng voucher cho nhóm khách hàng",
     "atLeastOneRequired": "Ít nhất một sản phẩm bắt buộc",
     "bestChoice": "Lựa chọn tốt nhất",
     "chooseTool": "Chọn công cụ",
@@ -145,6 +146,21 @@
     "appliedVoucherNote": "Voucher này đã được áp dụng cho đơn hàng và sẽ được giữ nguyên",
     "cannotRemoveApplied": "Không thể bỏ chọn voucher đang được áp dụng cho đơn hàng",
     "currentlyApplied": "Đang áp dụng",
-    "availableVouchers": "Voucher khả dụng"
+    "availableVouchers": "Voucher khả dụng",
+    "detailInfo": "Thông tin chi tiết",
+    "basicInfo": "Thông tin cơ bản",
+    "usageInfo": "Thông tin sử dụng",
+    "applicableProducts": "Sản phẩm áp dụng",
+    "used": "Đã dùng",
+    "remaining": "Còn lại",
+    "isUserGroup": "Áp dụng cho nhóm khách hàng",
+    "yes": "Có",
+    "no": "Không",
+    "userGroups": "Nhóm khách hàng",
+    "removeAppliedVoucherForUserGroup": "Hủy áp dụng voucher cho nhóm khách hàng",
+    "removeVoucherForUserGroup": "Xác nhận hủy",
+    "removeVoucherForUserGroupWarning1": "Bạn sắp sửa hủy áp dụng voucher ",
+    "removeVoucherForUserGroupWarning2": " cho nhóm khách hàng này.",
+    "confirmRemoveVoucherForUserGroup": "Bạn có chắc chắn muốn hủy áp dụng voucher này không?"
   }
 }

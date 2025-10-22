@@ -374,6 +374,9 @@
         "confirmForgotPasswordSuccess": "Đặt lại mật khẩu thành công",
         "forgotPasswordTokenExists": "Mã xác thực đã tồn tại",
         "forgotPasswordTokenNotExists": "Mã xác thực không đúng!",
-        "passwordNotMatch": "Mật khẩu mới và xác nhận mật khẩu mới không khớp"
+        "passwordNotMatch": "Mật khẩu mới và xác nhận mật khẩu mới không khớp",
+        "voucherForUserGroupAlreadyExists": "Voucher đã tồn tại trong nhóm khách hàng",
+        "applyVoucherForUserGroupSuccess": "Áp dụng voucher cho nhóm khách hàng thành công",
+        "removeAppliedVoucherForUserGroupSuccess": "Hủy áp dụng voucher cho nhóm khách hàng thành công"
       }
     }

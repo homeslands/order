@@ -90,12 +90,15 @@ export const useUpdateUserRole = () => {
   })
 }
 
-export const useUserGroups = (params: IGetAllUserGroupRequest) => {
+export const useUserGroups = (
+  params: IGetAllUserGroupRequest,
+  enabled?: boolean,
+) => {
   return useQuery({
     queryKey: [QUERYKEY.userGroups, JSON.stringify(params)],
     queryFn: () => getAllUserGroups(params),
     placeholderData: keepPreviousData,
-    enabled: !!params,
+    enabled: !!params && !!enabled,
   })
 }
 

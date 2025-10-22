@@ -35,6 +35,7 @@ export interface IVoucher extends IBase {
   startDate: string
   endDate: string
   isVerificationIdentity?: boolean
+  isUserGroup: boolean
   voucherProducts: IVoucherProduct[] //Product slug
   voucherPaymentMethods: {
     paymentMethod: (typeof VOUCHER_PAYMENT_METHOD)[keyof typeof VOUCHER_PAYMENT_METHOD]
@@ -160,6 +161,11 @@ export interface IRemoveAppliedVoucherRequest {
   vouchers: string[] //Voucher slug
 }
 
+export interface IRemoveAppliedVoucherForUserGroupRequest {
+  userGroups: string[] //User group slug
+  vouchers: string[] //Voucher slug
+}
+
 export interface IUpdateVoucherPaymentMethodRequest {
   voucher: string //Voucher slug
   paymentMethods: string[]
@@ -176,4 +182,19 @@ export interface IVoucherPaymentMethodDiff {
   newPaymentMethods: string[]
   toAdd: string[]
   toRemove: string[]
+}
+
+export interface ICreateVoucherForUserGroupRequest {
+  userGroups: string[] //User group slug
+  vouchers: string[] //Voucher slug
+}
+
+export interface ICreateVoucherForUserGroupResponse {
+  userGroup: string //User group slug
+  vouchers: string[] //Voucher slug
+}
+
+export interface IDeleteVoucherForUserGroupRequest {
+  userGroups: string[] //User group slug
+  vouchers: string[] //Voucher slug
 }

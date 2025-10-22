@@ -4,8 +4,10 @@ import {
   applyVoucher,
   createMultipleVoucher,
   createVoucher,
+  createVoucherForUserGroup,
   createVoucherGroup,
   deleteVoucher,
+  deleteVoucherForUserGroup,
   deleteVoucherPaymentMethod,
   getPublicVouchersForOrder,
   getSpecificPublicVoucher,
@@ -26,8 +28,10 @@ import { QUERYKEY } from '@/constants'
 import {
   IApplyVoucherRequest,
   ICreateMultipleVoucherRequest,
+  ICreateVoucherForUserGroupRequest,
   ICreateVoucherGroupRequest,
   ICreateVoucherRequest,
+  IDeleteVoucherForUserGroupRequest,
   IGetAllVoucherGroupRequest,
   IGetAllVoucherRequest,
   IGetSpecificVoucherRequest,
@@ -206,6 +210,22 @@ export const useDeleteVoucherPaymentMethod = () => {
   return useMutation({
     mutationFn: async (data: IUpdateVoucherPaymentMethodParamToRequest) => {
       return deleteVoucherPaymentMethod(data)
+    },
+  })
+}
+
+export const useCreateVoucherForUserGroup = () => {
+  return useMutation({
+    mutationFn: async (data: ICreateVoucherForUserGroupRequest) => {
+      return createVoucherForUserGroup(data)
+    },
+  })
+}
+
+export const useDeleteVoucherForUserGroup = () => {
+  return useMutation({
+    mutationFn: async (data: IDeleteVoucherForUserGroupRequest) => {
+      return deleteVoucherForUserGroup(data)
     },
   })
 }

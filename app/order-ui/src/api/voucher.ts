@@ -2,8 +2,11 @@ import {
   IApiResponse,
   IApplyVoucherRequest,
   ICreateMultipleVoucherRequest,
+  ICreateVoucherForUserGroupRequest,
+  ICreateVoucherForUserGroupResponse,
   ICreateVoucherGroupRequest,
   ICreateVoucherRequest,
+  IDeleteVoucherForUserGroupRequest,
   IGetAllVoucherGroupRequest,
   IGetAllVoucherRequest,
   IGetSpecificVoucherRequest,
@@ -218,6 +221,28 @@ export async function deleteVoucherPaymentMethod(
       data: {
         paymentMethod: data.paymentMethod,
       },
+    },
+  )
+  return response.data
+}
+
+// voucher for user group
+export async function createVoucherForUserGroup(
+  data: ICreateVoucherForUserGroupRequest,
+): Promise<IApiResponse<ICreateVoucherForUserGroupResponse>> {
+  const response = await http.post<
+    IApiResponse<ICreateVoucherForUserGroupResponse>
+  >('/voucher-user-group/bulk', data)
+  return response.data
+}
+
+export async function deleteVoucherForUserGroup(
+  data: IDeleteVoucherForUserGroupRequest,
+): Promise<IApiResponse<null>> {
+  const response = await http.delete<IApiResponse<null>>(
+    `/voucher-user-group/bulk`,
+    {
+      data,
     },
   )
   return response.data

@@ -79,7 +79,11 @@ export { default as ConfirmUpdateVoucherDialog } from './confirm-update-voucher-
 export { default as DeleteVoucherDialog } from './delete-voucher-dialog'
 export { default as ConfirmExportVoucherDialog } from './confirm-export-voucher-dialog'
 export { default as ConfirmApplyVoucherDialog } from './confirm-apply-voucher-dialog'
+export { default as ConfirmApplyVoucherForUserGroupDialog } from './confirm-apply-voucher-for-user-group-dialog'
 export { default as ConfirmRemoveAppliedVoucherDialog } from './confirm-remove-applied-voucher-dialog'
+export { default as ConfirmRemoveVoucherForUserGroupDialog } from './confirm-remove-voucher-for-user-group-dialog'
+export { default as VoucherDetailInfoDialog } from './voucher-detail-info-dialog'
+
 export { default as ConfirmUpdateVoucherPaymentMethodDialog } from './confirm-update-voucher-payment-method-dialog'
 export { default as StaffRemoveVoucherWhenPayingDialog } from './staff-remove-voucher-when-paying-dialog'
 export { default as ClientRemoveVoucherWhenPayingDialog } from './client-remove-voucher-when-paying-dialog'
