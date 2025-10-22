@@ -9,6 +9,7 @@ import { usePagination, useSpecificVoucher, useVouchers } from '@/hooks'
 import { VoucherAction } from '../DataTable/actions'
 import { useVoucherColumns } from '../DataTable/columns'
 import { IVoucher } from '@/types'
+import { VoucherDetailInfoDialog } from '@/components/app/dialog'
 
 export default function VoucherPage() {
     const { t } = useTranslation(['voucher'])
@@ -17,6 +18,8 @@ export default function VoucherPage() {
     const [isOpen, setIsOpen] = useState(false)
     const [selectedVouchers, setSelectedVouchers] = useState<IVoucher[]>([])
     const [voucherCode, setVoucherCode] = useState<string>('')
+    const [selectedVoucherSlug, setSelectedVoucherSlug] = useState<string>('')
+    const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
     const { handlePageChange, handlePageSizeChange, pagination } = usePagination()
     const { data: voucherListData, isLoading: isLoadingList, refetch: refetchList } = useVouchers({
         order: 'DESC',
@@ -57,6 +60,11 @@ export default function VoucherPage() {
         setVoucherCode(value)
     }
 
+    const handleRowClick = (voucher: IVoucher) => {
+        setSelectedVoucherSlug(voucher.slug)
+        setIsDetailDialogOpen(true)
+    }
+
     return (
         <div className="flex flex-col flex-1 w-full">
             <Helmet>
@@ -79,11 +87,18 @@ export default function VoucherPage() {
                     hiddenInput={false}
                     searchPlaceholder={t('voucher.searchByCode')}
                     onInputChange={handleSearchChange}
+                    onRowClick={handleRowClick}
                     actionOptions={() => <VoucherAction onSuccess={handleCreateVoucherSuccess} selectedVouchers={selectedVouchers} onOpenChange={setIsOpen} isConfirmExportVoucherDialogOpen={isOpen} />}
                     onPageChange={handlePageChange}
                     onPageSizeChange={handlePageSizeChange}
                 />
             </div>
+            <VoucherDetailInfoDialog
+                voucherSlug={selectedVoucherSlug}
+                isOpen={isDetailDialogOpen}
+                onOpenChange={setIsDetailDialogOpen}
+                showTrigger={false}
+            />
         </div>
     )
 }
