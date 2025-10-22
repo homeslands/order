@@ -71,25 +71,22 @@ export class VoucherProductController {
 
   @Delete()
   @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create voucher product' })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete voucher product' })
   @ApiResponseWithType({
-    status: HttpStatus.CREATED,
-    description: 'Voucher product has been created successfully',
+    status: HttpStatus.NO_CONTENT,
+    description: 'Voucher product has been deleted successfully',
     type: String,
   })
   async delete(
     @Body(new ValidationPipe({ transform: true }))
     deleteVoucherProductDto: DeleteVoucherProductRequestDto,
   ) {
-    const result = await this.voucherProductService.remove(
-      deleteVoucherProductDto,
-    );
+    await this.voucherProductService.remove(deleteVoucherProductDto);
     return {
       message: 'Voucher products have been deleted successfully',
       statusCode: HttpStatus.CREATED,
       timestamp: new Date().toISOString(),
-      result: `${result} voucher products have been deleted successfully`,
-    } as AppResponseDto<string>;
+    } as AppResponseDto<void>;
   }
 }
