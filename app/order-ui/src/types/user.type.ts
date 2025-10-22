@@ -109,6 +109,8 @@ export interface IGetAllUserGroupRequest {
   size?: number | 10
   sort?: string[]
   name?: string
+  voucher?: string
+  isAppliedVoucher?: boolean
   phonenumber?: string
 }
 
