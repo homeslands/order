@@ -220,18 +220,18 @@ export class VoucherProductService {
       async (manager) => await manager.softRemove(voucherProducts),
       (result) => {
         this.logger.log(
-          `Voucher created successfully: ${JSON.stringify(result)}`,
+          `Voucher products deleted successfully: ${JSON.stringify(result)}`,
           context,
         );
       },
       (error) => {
         this.logger.error(
-          `Failed to create voucher: ${error.message}`,
+          `Failed to delete voucher products: ${error.message}`,
           error.stack,
           context,
         );
         throw new VoucherException(
-          VoucherValidation.CREATE_VOUCHER_FAILED,
+          VoucherProductValidation.DELETE_VOUCHER_PRODUCT_FAILED,
           error.message,
         );
       },

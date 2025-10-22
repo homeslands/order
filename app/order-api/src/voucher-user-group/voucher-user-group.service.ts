@@ -1,9 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { VoucherUserGroup } from './voucher-user-group.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import {
   BulkCreateVoucherUserGroupRequestDto,
+  BulkDeleteVoucherUserGroupRequestDto,
   DeleteVoucherUserGroupRequestDto,
   VoucherUserGroupResponseDto,
 } from './voucher-user-group.dto';
@@ -158,6 +159,47 @@ export class VoucherUserGroupService {
         );
         throw new VoucherUserGroupException(
           VoucherUserGroupValidation.DELETE_VOUCHER_USER_GROUP_FAILED,
+        );
+      },
+    );
+  }
+
+  async bulkRemove(
+    bulkDeleteVoucherUserGroupDto: BulkDeleteVoucherUserGroupRequestDto,
+  ): Promise<void> {
+    const context = `${VoucherUserGroupService.name}.${this.bulkRemove.name}`;
+
+    const voucherUserGroups = await this.voucherUserGroupRepository.find({
+      where: {
+        voucher: { slug: In(bulkDeleteVoucherUserGroupDto.vouchers) },
+        userGroup: { slug: In(bulkDeleteVoucherUserGroupDto.userGroups) },
+      },
+      relations: { voucher: { orders: true } },
+    });
+
+    for (const voucherUserGroup of voucherUserGroups) {
+      if (voucherUserGroup?.voucher?.orders?.length > 0) {
+        this.logger.warn(VoucherValidation.VOUCHER_HAS_ORDERS.message, context);
+        throw new VoucherException(VoucherValidation.VOUCHER_HAS_ORDERS);
+      }
+    }
+
+    await this.transactionManagerService.execute<void>(
+      async (manager) => {
+        await manager.softRemove(voucherUserGroups);
+      },
+      () => {
+        this.logger.log(`Voucher user groups deleted successfully`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Failed to create voucher: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new VoucherException(
+          VoucherUserGroupValidation.DELETE_VOUCHER_USER_GROUP_FAILED,
+          error.message,
         );
       },
     );
