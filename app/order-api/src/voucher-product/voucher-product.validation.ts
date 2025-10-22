@@ -4,11 +4,13 @@ export const VOUCHER_PRODUCT_NOT_FOUND = 'VOUCHER_PRODUCT_NOT_FOUND';
 export const VOUCHER_PRODUCT_ALREADY_EXISTS = 'VOUCHER_PRODUCT_ALREADY_EXISTS';
 export const FIND_ONE_VOUCHER_PRODUCT_FAILED =
   'FIND_ONE_VOUCHER_PRODUCT_FAILED';
+export const DELETE_VOUCHER_PRODUCT_FAILED = 'DELETE_VOUCHER_PRODUCT_FAILED';
 
 export type TVoucherProductErrorCodeKey =
   | typeof VOUCHER_PRODUCT_NOT_FOUND
   | typeof VOUCHER_PRODUCT_ALREADY_EXISTS
-  | typeof FIND_ONE_VOUCHER_PRODUCT_FAILED;
+  | typeof FIND_ONE_VOUCHER_PRODUCT_FAILED
+  | typeof DELETE_VOUCHER_PRODUCT_FAILED;
 
 export type TVoucherProductErrorCode = Record<
   TVoucherProductErrorCodeKey,
@@ -28,5 +30,9 @@ export const VoucherProductValidation: TVoucherProductErrorCode = {
   FIND_ONE_VOUCHER_PRODUCT_FAILED: createErrorCode(
     157503,
     'Find one voucher product failed',
+  ),
+  DELETE_VOUCHER_PRODUCT_FAILED: createErrorCode(
+    157504,
+    'Failed to delete voucher product',
   ),
 };

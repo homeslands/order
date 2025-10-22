@@ -10,6 +10,7 @@ import {
 import { VoucherUserGroupService } from './voucher-user-group.service';
 import {
   BulkCreateVoucherUserGroupRequestDto,
+  BulkDeleteVoucherUserGroupRequestDto,
   DeleteVoucherUserGroupRequestDto,
   VoucherUserGroupResponseDto,
 } from './voucher-user-group.dto';
@@ -68,6 +69,27 @@ export class VoucherUserGroupController {
     return {
       message: 'Voucher user group has been deleted successfully',
       statusCode: HttpStatus.NO_CONTENT,
+      timestamp: new Date().toISOString(),
+    } as AppResponseDto<void>;
+  }
+
+  @Delete('bulk')
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Bulk delete voucher user groups' })
+  @ApiResponseWithType({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Voucher user groups have been deleted successfully',
+    type: String,
+  })
+  async bulkDelete(
+    @Body(new ValidationPipe({ transform: true }))
+    deleteVoucherProductDto: BulkDeleteVoucherUserGroupRequestDto,
+  ) {
+    await this.voucherUserGroupService.bulkRemove(deleteVoucherProductDto);
+    return {
+      message: 'Voucher user groups have been deleted successfully',
+      statusCode: HttpStatus.CREATED,
       timestamp: new Date().toISOString(),
     } as AppResponseDto<void>;
   }
