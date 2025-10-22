@@ -155,6 +155,10 @@
     "yes": "Yes",
     "no": "No",
     "userGroups": "User Groups",
-    "removeAppliedVoucherForUserGroup": "Remove Applied Voucher for User Group"
+    "removeAppliedVoucherForUserGroup": "Remove Applied Voucher for User Group",
+    "removeVoucherForUserGroup": "Confirm Remove",
+    "removeVoucherForUserGroupWarning1": "You are about to remove the applied voucher ",
+    "removeVoucherForUserGroupWarning2": " for this user group.",
+    "confirmRemoveVoucherForUserGroup": "Are you sure you want to remove this voucher?"
   }
 }
