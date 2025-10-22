@@ -35,7 +35,7 @@ export default function UserGroupPage() {
     size,
     hasPaging: true,
     name,
-  })
+  }, true)
 
   const handleSearchChange = (value: string) => {
     setName(value)

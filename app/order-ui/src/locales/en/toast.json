@@ -354,7 +354,7 @@
     "loyaltyPointAlreadyReserved": "Loyalty point already reserved in another order",
     "featureOnlyForRegisteredCustomer": "This feature is only available for registered customers",
     "changeFeatureLockStatusSuccess": "Update feature lock status successfully",
-    "distanceTooFar": "Distance is greater than 3km, not supported.",
+    "distanceTooFar": "Distance is greater than {{distance}}km, not supported.",
     "geolocationNotSupported": "Geolocation is not supported",
     "locationPermissionDenied": "You do not have permission to access the current location",
     "locationUnavailable": "The current location is unavailable",
