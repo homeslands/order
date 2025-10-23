@@ -285,6 +285,7 @@ const errorCodes: { [key: number]: string } = {
   143414: 'toast.invalidNumberOfUsagePerUser',
   143416: 'toast.mustVerifyIdentityToUseVoucher',
   143434: 'toast.userNotInUserGroupToApplyVoucher',
+  143437: 'toast.cannotUpdateAppliedVoucherForUserGroup',
   154510: 'toast.printerIpEmpty',
   154511: 'toast.printerPortEmpty',
   154512: 'toast.printerConnectError',
