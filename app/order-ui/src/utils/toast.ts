@@ -298,6 +298,7 @@ const errorCodes: { [key: number]: string } = {
   158409: 'toast.giftCardAlreadyUsed',
   159008: 'toast.featureOnlyForRegisteredCustomer',
   159601: 'toast.voucherForUserGroupAlreadyExists',
+  159605: 'toast.cannotApplyPublicVoucherToUserGroup',
   159016: 'toast.loyaltyPointAlreadyReserved',
   159017: 'toast.userGroupMemberNotFound',
   159203: 'toast.accountDisabled',
