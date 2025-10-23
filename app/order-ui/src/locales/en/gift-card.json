@@ -214,6 +214,15 @@
             "type": "Type",
             "points": "Points",
             "createdAt": "Created at"
+        },
+        "coinPolicy": {
+            "title": "Update coin policy",
+            "label": "Value",
+            "enterValue": "Enter value",
+            "submit": "Submit",
+            "tooltip": {
+                "update": "Update"
+            }
         }
     },
     "schema": {

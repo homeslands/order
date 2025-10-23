@@ -36,6 +36,7 @@ import enNotification from '@/locales/en/notification.json'
 import enGiftCard from '@/locales/en/gift-card.json'
 import enLoyaltyPoint from '@/locales/en/loyalty-point.json'
 import enSystem from '@/locales/en/system.json'
+import enCoinPolicy from '@/locales/en/coin-policy.json'
 
 import viToast from '@/locales/vi/toast.json'
 import viAuth from '@/locales/vi/auth.json'
@@ -71,6 +72,7 @@ import viNotification from '@/locales/vi/notification.json'
 import viGiftCard from '@/locales/vi/gift-card.json'
 import viLoyaltyPoint from '@/locales/vi/loyalty-point.json'
 import viSystem from '@/locales/vi/system.json'
+import viCoinPolicy from '@/locales/vi/coin-policy.json'
 
 i18n
   .use(LanguageDetector) // Tự động phát hiện ngôn ngữ
@@ -112,6 +114,7 @@ i18n
         giftCard: enGiftCard,
         loyaltyPoint: enLoyaltyPoint,
         system: enSystem,
+        coinPolicy: enCoinPolicy
       },
       vi: {
         toast: viToast,
@@ -148,6 +151,7 @@ i18n
         giftCard: viGiftCard,
         loyaltyPoint: viLoyaltyPoint,
         system: viSystem,
+        coinPolicy: viCoinPolicy
       },
     },
     lng: window.localStorage.getItem('i18nextLng') || 'vi',

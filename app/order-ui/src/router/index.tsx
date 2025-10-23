@@ -74,6 +74,7 @@ import {
   UserGroupMembersPage,
   ForgotPasswordByEmailPage,
   ForgotPasswordByPhonePage,
+  CoinPolicyPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -957,6 +958,26 @@ export const router = createBrowserRouter([
               <ProtectedElement
                 element={
                   <SuspenseElement component={CardOrderHistoryPage} />
+                }
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: ROUTE.STAFF_COIN_POLICY,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                element={
+                  <SuspenseElement component={CoinPolicyPage} />
                 }
               />
             ),

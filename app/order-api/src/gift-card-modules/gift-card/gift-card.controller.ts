@@ -4,6 +4,8 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
+  Logger,
   Param,
   Post,
   Query,
@@ -16,6 +18,7 @@ import { GiftCardService } from './gift-card.service';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { UseGiftCardDto } from './dto/use-gift-card.dto';
 import { FindAllGiftCardDto } from './dto/find-all-gift-card.dto';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @Controller('gift-card')
 @ApiTags('Gift Card Resource')
@@ -24,7 +27,11 @@ export class GiftCardController {
   /**
    *
    */
-  constructor(private readonly gcService: GiftCardService) {}
+  constructor(
+    private readonly gcService: GiftCardService,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: Logger,
+  ) { }
 
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -38,6 +45,9 @@ export class GiftCardController {
     @Query(new ValidationPipe({ whitelist: true, transform: true }))
     req: FindAllGiftCardDto,
   ) {
+    const context = `${GiftCardController.name}.${this.findAll.name}`;
+    this.logger.log(`REST request to find all gift cards: ${JSON.stringify(req)}`, context);
+
     const result = await this.gcService.findAll(req);
     return {
       statusCode: HttpStatus.OK,
@@ -54,6 +64,9 @@ export class GiftCardController {
     type: GiftCardResponseDto,
   })
   async findOne(@Param('slug') slug: string) {
+    const context = `${GiftCardController.name}.${this.findOne.name}`;
+    this.logger.log(`REST request to find gift card: ${slug}`, context);
+
     const result = await this.gcService.findOne(slug);
     return {
       statusCode: HttpStatus.OK,
@@ -73,6 +86,9 @@ export class GiftCardController {
     @Body(new ValidationPipe({ transform: true, whitelist: true }))
     req: UseGiftCardDto,
   ) {
+    const context = `${GiftCardController.name}.${this.use.name}`;
+    this.logger.log(`REST request to use gift card: ${JSON.stringify(req)}`, context);
+
     const result = await this.gcService.use(req);
     return {
       statusCode: HttpStatus.OK,

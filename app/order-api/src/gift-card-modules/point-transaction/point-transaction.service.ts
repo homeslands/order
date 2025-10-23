@@ -97,7 +97,7 @@ export class PointTransactionService {
 
     const filename = ExportFilename.EXPORT_ALL_SYSTEM_POINT_TRANSACTION;
     const excelConfig = this.buildExcelConfig();
-    const data = this.builData(pts);
+    const data = this.buildData(pts);
 
     return await this.sharedExportFileService.exportExcel(
       filename,
@@ -137,7 +137,7 @@ export class PointTransactionService {
     return excelConfig;
   }
 
-  private builData(data: any[]) {
+  private buildData(data: any[]) {
     const exportData = data.map((item, index) => ({
       ...item,
       index: index + 1,

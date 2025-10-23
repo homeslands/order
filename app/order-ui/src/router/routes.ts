@@ -20,6 +20,7 @@ import {
   LockOpen,
   TicketCheck,
   CoinsIcon,
+  ShieldCheckIcon,
 } from 'lucide-react'
 
 import type { ISidebarRoute } from '@/types'
@@ -173,6 +174,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     title: 'sidebar.giftCardFeatureFlag',
     path: ROUTE.STAFF_GIFT_CARD_FEATURE_FLAG,
     icon: LockOpen,
+    permission: Permission.BANNER_MANAGEMENT,
+  },
+  {
+    title: 'sidebar.coinPolicy',
+    path: ROUTE.STAFF_COIN_POLICY,
+    icon: ShieldCheckIcon,
     permission: Permission.BANNER_MANAGEMENT,
   },
   {

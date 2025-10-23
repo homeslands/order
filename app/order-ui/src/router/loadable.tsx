@@ -498,3 +498,9 @@ export const SystemLockManagementPage = React.lazy(() =>
     default: module.SystemLockManagementPage,
   })),
 )
+
+export const CoinPolicyPage = React.lazy(() =>
+  import('@/app/system/coin-policy/page').then((module) => ({
+    default: module.default,
+  })),
+)

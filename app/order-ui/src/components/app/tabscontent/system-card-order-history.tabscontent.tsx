@@ -74,7 +74,7 @@ export function SystemCardOrderTabContent() {
       startDate,
       endDate
     })
-  }, [setFilter, filter])
+  }, [filter.startDate, filter.endDate])
 
   const handleStatusChange = useCallback((v: string) => {
     setFilter(prev => (prev.status === v ? prev : { ...prev, status: v }));
