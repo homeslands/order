@@ -258,9 +258,9 @@ export const useVoucherColumns = (onSuccess: () => void, onSelectionChange: (sel
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
                 <ApplyVoucherSheet voucher={voucher} />
-                <ApplyVoucherForUserGroupSheet voucher={voucher} />
+                {voucher?.isUserGroup && <ApplyVoucherForUserGroupSheet voucher={voucher} />}
                 <RemoveAppliedVoucherSheet voucher={voucher} />
-                <RemoveAppliedVoucherForUserGroupSheet voucher={voucher} />
+                {voucher?.isUserGroup && <RemoveAppliedVoucherForUserGroupSheet voucher={voucher} />}
                 <UpdateVoucherSheet voucher={voucher} onSuccess={handleUpdateVoucherSuccess} />
                 <UpdateVoucherPaymentMethodSheet voucher={voucher} />
                 <DeleteVoucherDialog voucher={voucher} />

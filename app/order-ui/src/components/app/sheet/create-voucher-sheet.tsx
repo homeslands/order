@@ -81,6 +81,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
       value: 0,
       isActive: false,
       isPrivate: false,
+      isUserGroup: false,
       numberOfUsagePerUser: 1,
       maxUsage: 0,
       minOrderValue: 0,
@@ -195,6 +196,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
       value: 0,
       isActive: false,
       isPrivate: false,
+      isUserGroup: false,
       numberOfUsagePerUser: 1,
       maxUsage: 0,
       minOrderValue: 0,
@@ -595,9 +597,9 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         control={form.control}
         name="isPrivate"
         render={({ field }) => (
-          <FormItem className='flex flex-col gap-2'>
-            <FormLabel className="flex gap-1 items-start leading-6">
-              <span className="mt-1 text-destructive">*</span>
+          <FormItem className='flex flex-col gap-1'>
+            <FormLabel className="flex gap-1 items-center">
+              <span className="text-destructive">*</span>
               {t('voucher.isPrivate')}
             </FormLabel>
 
@@ -615,7 +617,30 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         )}
       />
     ),
-
+    isUserGroup: (
+      <FormField
+        control={form.control}
+        name="isUserGroup"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="flex gap-1 items-center">
+              <span className="text-destructive">*</span>
+              {t('voucher.isUserGroup')}
+            </FormLabel>
+            <FormControl>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="is-user-group"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
   }
 
   const handleCreateVoucherSuccess = () => {
@@ -708,6 +733,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
                   <div className={`flex flex-col gap-4 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.isVerificationIdentity}
                     {formFields.isPrivate}
+                    {formFields.isUserGroup}
                   </div>
                 </form>
               </Form>
