@@ -54,6 +54,6 @@ export default function CoinPolicyItemActions({ data, className }: ICoinPolicyIt
                 className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-destructive"
             />
         </div>
-        <UpdateCoinPolicyDialog data={data} />
+        {data?.isActive && <UpdateCoinPolicyDialog data={data} />}
     </div>
 }
