@@ -382,6 +382,8 @@
         "userBalanceExceedMaximum": "Số dư người dùng đang vượt quá giới hạn xu tối đa",
         "conflict": "Dữ liệu đã bị thay đổi, vui lòng tải lại trang để lấy dữ liệu mới nhất",
         "policyValueMustBeInteger": "Giá trị nhập phải là một số",
-        "cannotApplyPublicVoucherToUserGroup": "Không thể áp dụng voucher công khai cho nhóm khách hàng"
+        "cannotApplyPublicVoucherToUserGroup": "Không thể áp dụng voucher công khai cho nhóm khách hàng",
+        "requireVerificationForUserGroup": "Cần bật kiểm tra định danh cho nhóm khách hàng!",
+        "userNotInUserGroupToApplyVoucher": "Người dùng không thuộc nhóm khách hàng để áp dụng voucher"
       }
     }

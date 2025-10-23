@@ -68,6 +68,7 @@ export default function UpdateVoucherSheet({
       maxUsage: 0,
       isActive: false,
       isPrivate: false,
+      isUserGroup: false,
       numberOfUsagePerUser: 0,
       minOrderValue: 0,
       isVerificationIdentity: false,
@@ -98,6 +99,7 @@ export default function UpdateVoucherSheet({
         numberOfUsagePerUser: specificVoucherData.numberOfUsagePerUser,
         minOrderValue: specificVoucherData.minOrderValue,
         isVerificationIdentity: specificVoucherData.isVerificationIdentity,
+        isUserGroup: specificVoucherData.isUserGroup,
         products: (specificVoucherData.voucherProducts || []).map((item: { slug?: string; product?: { slug?: string } } | string) =>
           typeof item === 'string' ? item : item.slug || item.product?.slug || ''
         ).filter(Boolean),
@@ -601,6 +603,29 @@ export default function UpdateVoucherSheet({
         )}
       />
     ),
+    isUserGroup: (
+      <FormField
+        control={form.control}
+        name="isUserGroup"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="flex gap-1 items-start leading-6">
+              {t('voucher.isUserGroup')}
+            </FormLabel>
+            <FormControl>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="is-user-group"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
   }
 
   const handleUpdateVoucherSuccess = () => {
@@ -677,6 +702,7 @@ export default function UpdateVoucherSheet({
                   <div className="flex flex-col gap-4 p-4 rounded-md border dark:bg-transparent">
                     {formFields.isActive}
                     {formFields.isPrivate}
+                    {formFields.isUserGroup}
                   </div>
 
                   {/* Nhóm: Kiểm tra định danh */}
