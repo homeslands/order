@@ -384,6 +384,7 @@
         "policyValueMustBeInteger": "Giá trị nhập phải là một số",
         "cannotApplyPublicVoucherToUserGroup": "Không thể áp dụng voucher công khai cho nhóm khách hàng",
         "requireVerificationForUserGroup": "Cần bật kiểm tra định danh cho nhóm khách hàng!",
-        "userNotInUserGroupToApplyVoucher": "Người dùng không thuộc nhóm khách hàng để áp dụng voucher"
+        "userNotInUserGroupToApplyVoucher": "Người dùng không thuộc nhóm khách hàng để áp dụng voucher",
+        "cannotUpdateAppliedVoucherForUserGroup": "Không thể cập nhật voucher đã áp dụng cho nhóm khách hàng"
       }
     }
