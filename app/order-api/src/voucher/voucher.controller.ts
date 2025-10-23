@@ -20,6 +20,7 @@ import {
   ExportPdfVoucherDto,
   GetAllVoucherDto,
   GetAllVoucherForUserDto,
+  GetAllVoucherForUserDtoV2,
   GetAllVoucherForUserPublicDto,
   GetVoucherDto,
   RemoveVoucherPaymentMethodRequestDto,
@@ -132,6 +133,28 @@ export class VoucherController {
     options: GetAllVoucherForUserDto,
   ) {
     const result = await this.voucherService.findAllForUser(options);
+    return {
+      message: 'All voucher for order have been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<AppPaginatedResponseDto<VoucherResponseDto>>;
+  }
+
+  @Post('order/v2')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Retrieve all voucher for user' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'All voucher for order have been retrieved successfully',
+    type: VoucherResponseDto,
+    isArray: true,
+  })
+  async findAllForUserV2(
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    options: GetAllVoucherForUserDtoV2,
+  ) {
+    const result = await this.voucherService.findAllForUserV2(options);
     return {
       message: 'All voucher for order have been retrieved successfully',
       statusCode: HttpStatus.OK,
