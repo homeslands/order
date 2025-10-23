@@ -385,6 +385,7 @@
         "cannotApplyPublicVoucherToUserGroup": "Không thể áp dụng voucher công khai cho nhóm khách hàng",
         "requireVerificationForUserGroup": "Cần bật kiểm tra định danh cho nhóm khách hàng!",
         "userNotInUserGroupToApplyVoucher": "Người dùng không thuộc nhóm khách hàng để áp dụng voucher",
-        "cannotUpdateAppliedVoucherForUserGroup": "Không thể cập nhật voucher đã áp dụng cho nhóm khách hàng"
+        "cannotUpdateAppliedVoucherForUserGroup": "Không thể cập nhật voucher đã áp dụng cho nhóm khách hàng",
+        "updateCoinPolicySuccess": "Cập nhật cấu hình thẻ quà tặng thành công"
       }
     }

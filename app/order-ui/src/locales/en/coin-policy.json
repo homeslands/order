@@ -3,6 +3,7 @@
     "title": "Coin policy",
     "noData": "No data",
     "active": "Active",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "maxBalance": "Max balance"
   }
 }
