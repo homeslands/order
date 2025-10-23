@@ -123,6 +123,7 @@ const errorCodes: { [key: number]: string } = {
   143428: 'toast.mustVerifyIdentityToUseVoucher',
   143429: 'toast.voucherPaymentMethodAlreadyExists',
   143431: 'toast.voucherPaymentMethodValidationError',
+  143435: 'toast.requireVerificationForUserGroup',
   // Error data duplicate product and branch in product chef area
   154501: 'toast.duplicateProductAndBranch',
   158116: 'toast.voucherPaymentMethodInvalid',
@@ -282,6 +283,7 @@ const errorCodes: { [key: number]: string } = {
   143413: 'toast.invalidVoucherType',
   143414: 'toast.invalidNumberOfUsagePerUser',
   143416: 'toast.mustVerifyIdentityToUseVoucher',
+  143434: 'toast.userNotInUserGroupToApplyVoucher',
   154510: 'toast.printerIpEmpty',
   154511: 'toast.printerPortEmpty',
   154512: 'toast.printerConnectError',
