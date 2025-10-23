@@ -80,6 +80,7 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
       value: 0,
       isActive: false,
       isPrivate: false,
+      isUserGroup: false,
       numberOfUsagePerUser: 1,
       maxUsage: 0,
       minOrderValue: 0,
@@ -194,6 +195,7 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
       value: 0,
       isActive: false,
       isPrivate: false,
+      isUserGroup: false,
       numberOfUsagePerUser: 1,
       maxUsage: 0,
       minOrderValue: 0,
@@ -621,6 +623,30 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
         )}
       />
     ),
+    isUserGroup: (
+      <FormField
+        control={form.control}
+        name="isUserGroup"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="flex gap-1 items-center">
+              <span className="text-destructive">*</span>
+              {t('voucher.isUserGroup')}
+            </FormLabel>
+            <FormControl>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="is-user-group"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
   }
 
   const handleCreateVoucherSuccess = () => {
@@ -713,6 +739,7 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
                   <div className={`flex flex-col gap-4 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.isVerificationIdentity}
                     {formFields.isPrivate}
+                    {formFields.isUserGroup}
                   </div>
                 </form>
               </Form>

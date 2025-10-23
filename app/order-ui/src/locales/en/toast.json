@@ -378,6 +378,7 @@
     "voucherForUserGroupAlreadyExists": "Voucher already exists in user group",
     "applyVoucherForUserGroupSuccess": "Apply voucher to user group successfully",
     "removeAppliedVoucherForUserGroupSuccess": "Remove applied voucher for user group successfully",
+    "cannotApplyPublicVoucherToUserGroup": "Cannot apply public voucher to user group",
     "exceedMaxBalance": "Coin policy value must be greater than or equal to 5,000,000",
     "updateCoinPolicySuccess": "Update coin policy successfully",
     "userBalanceExceedMaximum": "User balance exceed the maximum allowed limit of coins",
