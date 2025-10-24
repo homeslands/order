@@ -476,6 +476,63 @@ export class GetAllVoucherForUserEligibleDto extends BaseQueryDto {
   })
   hasPaging?: boolean;
 }
+
+export class GetAllVoucherForUserPublicEligibleDto extends BaseQueryDto {
+  @ApiProperty({
+    description: 'The array of order items',
+    example: [
+      {
+        quantity: 2,
+        variant: '',
+        note: '',
+        promotion: '',
+        order: '',
+      },
+    ],
+  })
+  @IsArray({ message: INVALID_ORDER_ITEMS })
+  @ArrayNotEmpty({ message: INVALID_ORDER_ITEMS })
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderItemRequestDto)
+  orderItems: CreateOrderItemRequestDto[];
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The payment methods to be created voucher payment method',
+    required: false,
+    example: 'payment-method',
+  })
+  @IsOptional()
+  @IsEnum(PaymentMethod, {
+    message: `Each payment method must be one of: ${Object.values(PaymentMethod).join(', ')}`,
+  })
+  paymentMethod?: string;
+
+  @ApiProperty({
+    required: true,
+    description:
+      'The order value before apply voucher, after apply promotion if have',
+    example: 10000,
+  })
+  @AutoMap()
+  @IsNotEmpty({ message: 'INVALID_MIN_ORDER_VALUE' })
+  @Min(0)
+  minOrderValue: number;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option has paging or not',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true' || value === true; // Transform 'true' to `true` and others to `false`
+  })
+  hasPaging?: boolean;
+}
 export class GetAllVoucherForUserPublicDto extends BaseQueryDto {
   @AutoMap()
   @ApiProperty({
