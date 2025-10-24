@@ -123,7 +123,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
   return (
     <div
       key={item.slug}
-      className="flex flex-row sm:flex-col justify-between bg-white border rounded-xl backdrop-blur-md sm:shadow-xl transition-all duration-300 ease-in-out min-h-[8rem] sm:min-h-[12rem] dark:bg-transparent dark:border-muted-foreground/30 dark:shadow-none"
+      className="flex flex-row sm:flex-col justify-between bg-white border rounded-xl backdrop-blur-md transition-all duration-300 ease-in-out min-h-[8rem] sm:min-h-[12rem] dark:bg-transparent dark:border-muted-foreground/30 dark:shadow-none"
     >
       {/* Image */}
       <NavLink
