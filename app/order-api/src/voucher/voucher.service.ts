@@ -8,6 +8,7 @@ import {
   GetAllVoucherForUserDto,
   GetAllVoucherForUserEligibleDto,
   GetAllVoucherForUserPublicDto,
+  GetAllVoucherForUserPublicEligibleDto,
   GetVoucherDto,
   RemoveVoucherPaymentMethodRequestDto,
   ValidateVoucherDto,
@@ -563,6 +564,173 @@ export class VoucherService {
           });
       }),
     );
+
+    if (productIds?.length) {
+      const uniqueProductIds = [...new Set(productIds)];
+      const cartCount = uniqueProductIds.length;
+
+      qb.andWhere(
+        new Brackets((sub) => {
+          sub
+            .where(
+              new Brackets((q1) => {
+                q1.where('voucher.applicabilityRule = :rule4', {
+                  rule4: VoucherApplicabilityRule.AT_LEAST_ONE_REQUIRED,
+                }).andWhere(
+                  `
+                  EXISTS (
+                    SELECT 1
+                    FROM voucher_product_tbl vp1
+                    WHERE vp1.voucher_column = voucher.id_column
+                    AND vp1.deleted_at_column IS NULL
+                    AND vp1.product_column IN (:...productIds)
+                )`,
+                  { productIds },
+                );
+              }),
+            )
+            .orWhere(
+              new Brackets((q2) => {
+                q2.where('voucher.applicabilityRule = :rule5', {
+                  rule5: VoucherApplicabilityRule.ALL_REQUIRED,
+                }).andWhere(
+                  `
+                  voucher.id_column IN (
+                    SELECT vp2.voucher_column
+                    FROM voucher_product_tbl vp2
+                    WHERE vp2.product_column IN (:...productIdsForAll)
+                    AND vp2.deleted_at_column IS NULL
+                    GROUP BY vp2.voucher_column
+                    HAVING COUNT(DISTINCT vp2.product_column) = :cartCount
+                  )
+                `,
+                  { productIdsForAll: uniqueProductIds, cartCount },
+                );
+              }),
+            );
+        }),
+      );
+    }
+
+    if (paymentMethod) {
+      qb.andWhere(
+        `EXISTS (
+        SELECT 1
+        FROM voucher_payment_method_tbl vpm2
+        WHERE vpm2.voucher_column = voucher.id_column
+        AND vpm2.payment_method_column = :paymentMethod
+        AND vpm2.deleted_at_column IS NULL
+      )`,
+        { paymentMethod },
+      );
+    }
+
+    // distinct voucher
+    qb.distinct(true);
+
+    if (options?.hasPaging) {
+      qb.skip((options.page - 1) * options.size).take(options.size);
+    }
+
+    const [vouchers, total] = await qb.getManyAndCount();
+
+    const voucherIds = vouchers.map((voucher) => voucher.id);
+
+    const voucherResults = await this.voucherRepository.find({
+      where: { id: In(voucherIds) },
+      relations: {
+        voucherProducts: {
+          product: {
+            variants: true,
+          },
+        },
+        voucherPaymentMethods: true,
+      },
+    });
+
+    const totalPages = Math.ceil(total / options.size);
+    const hasNext = options.page < totalPages;
+    const hasPrevious = options.page > 1;
+    const vouchersDto = this.mapper.mapArray(
+      voucherResults,
+      Voucher,
+      VoucherResponseDto,
+    );
+    return {
+      hasNext,
+      hasPrevios: hasPrevious,
+      items: vouchersDto,
+      total,
+      page: options.hasPaging ? options.page : 1,
+      pageSize: options.hasPaging ? options.size : total,
+      totalPages,
+    } as AppPaginatedResponseDto<VoucherResponseDto>;
+  }
+
+  async findAllForUserPublicEligible(
+    options: GetAllVoucherForUserPublicEligibleDto,
+  ): Promise<AppPaginatedResponseDto<VoucherResponseDto>> {
+    const context = `${VoucherService.name}.${this.findAllForUserEligible.name}`;
+    this.logger.log(`Find all vouchers for user`, context);
+
+    const variantSlugs = options.orderItems.map((item) => item.variant);
+    const products = await this.productRepository.find({
+      where: { variants: { slug: In([...new Set(variantSlugs)]) } },
+    });
+    const productIds = products.map((product) => product.id);
+    const paymentMethod: string | undefined = options.paymentMethod;
+    const now = new Date(); // plus grace period time voucher
+
+    const qb: SelectQueryBuilder<Voucher> = this.voucherRepository
+      .createQueryBuilder('voucher')
+      .select([
+        'voucher.id',
+        'voucher.type',
+        'voucher.applicabilityRule',
+        'voucher.minOrderValue',
+        'voucher.isPrivate',
+        'voucher.isUserGroup',
+        'voucher.remainingUsage',
+      ])
+      .where('voucher.isActive = true')
+      .andWhere('voucher.isPrivate = false')
+      .andWhere('voucher.startDate <= :now', { now })
+      .andWhere('voucher.endDate >= :now', { now })
+      .andWhere('voucher.remainingUsage > 0')
+      .andWhere('voucher.isVerificationIdentity = false')
+      .andWhere('voucher.isUserGroup = false')
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where(
+            new Brackets((sub1) => {
+              sub1
+                .where('voucher.applicabilityRule = :rule1', {
+                  rule1: VoucherApplicabilityRule.ALL_REQUIRED,
+                })
+                .andWhere('voucher.type <> :type', {
+                  type: VoucherType.SAME_PRICE_PRODUCT,
+                })
+                .andWhere('voucher.minOrderValue <= :subtotal', {
+                  subtotal: options.minOrderValue,
+                });
+            }),
+          )
+            .orWhere(
+              new Brackets((sub2) => {
+                sub2
+                  .where('voucher.applicabilityRule = :rule2', {
+                    rule2: VoucherApplicabilityRule.ALL_REQUIRED,
+                  })
+                  .andWhere('voucher.type = :type', {
+                    type: VoucherType.SAME_PRICE_PRODUCT,
+                  });
+              }),
+            )
+            .orWhere('voucher.applicabilityRule = :rule3', {
+              rule3: VoucherApplicabilityRule.AT_LEAST_ONE_REQUIRED,
+            });
+        }),
+      );
 
     if (productIds?.length) {
       const uniqueProductIds = [...new Set(productIds)];
