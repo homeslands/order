@@ -415,7 +415,7 @@ export class GetAllVoucherForUserDto extends BaseQueryDto {
   hasPaging?: boolean;
 }
 
-export class GetAllVoucherForUserDtoV2 extends BaseQueryDto {
+export class GetAllVoucherForUserEligibleDto extends BaseQueryDto {
   @ApiProperty({
     description: 'The array of order items',
     example: [
