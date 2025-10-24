@@ -22,6 +22,7 @@ import {
   GetAllVoucherForUserDto,
   GetAllVoucherForUserEligibleDto,
   GetAllVoucherForUserPublicDto,
+  GetAllVoucherForUserPublicEligibleDto,
   GetVoucherDto,
   RemoveVoucherPaymentMethodRequestDto,
   ValidateVoucherDto,
@@ -201,9 +202,10 @@ export class VoucherController {
   })
   async findAllForUserPublicEligible(
     @Body(new ValidationPipe({ transform: true, whitelist: true }))
-    options: GetAllVoucherForUserEligibleDto,
+    options: GetAllVoucherForUserPublicEligibleDto,
   ) {
-    const result = await this.voucherService.findAllForUserEligible(options);
+    const result =
+      await this.voucherService.findAllForUserPublicEligible(options);
     return {
       message: 'All public voucher for order have been retrieved successfully',
       statusCode: HttpStatus.OK,
