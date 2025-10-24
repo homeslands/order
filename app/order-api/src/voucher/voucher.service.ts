@@ -6,7 +6,7 @@ import {
   ExportPdfVoucherDto,
   GetAllVoucherDto,
   GetAllVoucherForUserDto,
-  GetAllVoucherForUserDtoV2,
+  GetAllVoucherForUserEligibleDto,
   GetAllVoucherForUserPublicDto,
   GetVoucherDto,
   RemoveVoucherPaymentMethodRequestDto,
@@ -470,10 +470,10 @@ export class VoucherService {
     }
   }
 
-  async findAllForUserV2(
-    options: GetAllVoucherForUserDtoV2,
+  async findAllForUserEligible(
+    options: GetAllVoucherForUserEligibleDto,
   ): Promise<AppPaginatedResponseDto<VoucherResponseDto>> {
-    const context = `${VoucherService.name}.${this.findAllForUserV2.name}`;
+    const context = `${VoucherService.name}.${this.findAllForUserEligible.name}`;
     this.logger.log(`Find all vouchers for user`, context);
     const user = await this.userRepository.findOne({
       where: { slug: options.user ?? IsNull() },
