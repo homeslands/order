@@ -17,7 +17,6 @@ import { IUpdateBannerRequest } from '@/types'
 import { useUpdateBanner } from '@/hooks'
 import { showToast } from '@/utils'
 import { QUERYKEY } from '@/constants'
-import { IsActiveBannerSwitch } from '../switch'
 
 interface IConfirmUpdateBannerDialogProps {
   // isOpen: boolean
@@ -38,16 +37,14 @@ export default function ConfirmUpdateBannerDialog({
   const { t: tCommon } = useTranslation('common')
   const { t: tToast } = useTranslation('toast')
   const [isOpen, setIsOpen] = useState(false)
-  const [isActive, setIsActive] = useState(banner?.isActive || false)
   const { mutate: updateBanner } = useUpdateBanner()
 
   const handleSubmit = (banner: IUpdateBannerRequest) => {
     if (!banner) return
     updateBanner(
-      { ...banner, url: banner.useButtonUrl ? banner.url : "", isActive },
+      { ...banner, url: banner.useButtonUrl ? banner.url : "" },
       {
         onSuccess: () => {
-          setIsActive(false)
           onCompleted()
           setIsOpen(false)
           queryClient.invalidateQueries({
@@ -84,10 +81,6 @@ export default function ConfirmUpdateBannerDialog({
           <div className="py-4 text-sm text-gray-500">
             {t('banner.confirmUpdateBanner')}
             <br />
-            <IsActiveBannerSwitch
-              defaultValue={banner?.isActive || false}
-              onChange={(value) => setIsActive(value)}
-            />
             <span className='text-xs text-muted-foreground'>
               {t('banner.isActiveDescription')}
             </span>

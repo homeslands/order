@@ -7,4 +7,5 @@ export { default as IsNewProductSwitch } from './is-new-switch'
 export { default as IsComboSwitch } from './is-combo-switch'
 export { default as IsGiftSwitch } from './is-gift-switch'
 export { default as PrinterToggleSwitch } from './printer-toggle-switch'
+export { default as BannerStatusSwitch } from './banner-status-switch'
 
