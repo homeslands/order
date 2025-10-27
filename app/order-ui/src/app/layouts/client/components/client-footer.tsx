@@ -25,7 +25,7 @@ export function ClientFooter() {
       {/* <div className="w-full h-1.5 bg-primary"></div> */}
       <div className="container w-full py-6 space-y-4">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
-          
+
           {/* Cột 1: Điều hướng */}
           <div className="flex flex-col gap-2">
             <span className="font-bold text-lg text-primary">{t('footer.introduction')}</span>
@@ -46,6 +46,9 @@ export function ClientFooter() {
             <span className="cursor-pointer hover:underline" onClick={() => navigator(ROUTE.SECURITY)}>
               {t('footer.securityTerm')}
             </span>
+            <span className="cursor-pointer hover:underline" onClick={() => navigator(ROUTE.ACCOUNT_DELETION)}>
+              {t('footer.accountDeletion')}
+            </span>
             <span className="cursor-pointer hover:underline" onClick={() => navigator(ROUTE.ORDER_INSTRUCTIONS)}>
               {t('footer.orderInstructions')}
             </span>
@@ -58,7 +61,7 @@ export function ClientFooter() {
           <div className="flex flex-col gap-2">
             <span className="font-bold text-lg text-primary">{t('footer.contact')}</span>
             <div className="flex items-center font-bold">
-              <Phone className='size-5'/>
+              <Phone className='size-5' />
               <span className="ps-4">{t('footer.phoneNumber')}:</span>
               <a href={`tel:${phone}`} className="ps-2 hover:underline">
                 {phone}
@@ -66,7 +69,7 @@ export function ClientFooter() {
             </div>
 
             <div className="flex items-center font-bold">
-              <Mail className='size-5'/>
+              <Mail className='size-5' />
               <span className="ps-4">{t('footer.email')}:</span>
               <a
                 href={`mailto:${mail}`}
@@ -77,7 +80,7 @@ export function ClientFooter() {
             </div>
 
             <div className="flex gap-4">
-              <Facebook className='size-5'/>
+              <Facebook className='size-5' />
               <span
                 className="cursor-pointer hover:underline"
                 onClick={() => window.open(fanpageUrl, '_blank')}
