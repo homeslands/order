@@ -75,6 +75,7 @@ import {
   ForgotPasswordByEmailPage,
   ForgotPasswordByPhonePage,
   CoinPolicyPage,
+  AccountDeletionPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -117,6 +118,20 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <SuspenseElement component={ClientAboutPage} />,
+          },
+        ],
+      },
+      {
+        path: ROUTE.ACCOUNT_DELETION,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <PublicClientLayout />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={AccountDeletionPage} />,
           },
         ],
       },
