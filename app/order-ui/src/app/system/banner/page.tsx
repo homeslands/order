@@ -1,11 +1,11 @@
 import { SquareMenu } from 'lucide-react'
+import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 
 import { DataTable } from '@/components/ui'
 import { useBanners } from '@/hooks'
 import { useBannerColumns } from './DataTable/columns'
 import { BannerActionOptions } from './DataTable/actions'
-import { Helmet } from 'react-helmet'
 
 
 export default function BannerPage() {
