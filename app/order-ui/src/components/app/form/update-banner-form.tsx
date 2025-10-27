@@ -12,21 +12,27 @@ import {
     Input,
     Label,
     Switch,
+    Button,
 } from '@/components/ui'
 import { bannerUpadateSchema, TBannerUpdateSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { IBanner } from '@/types'
-import { ConfirmUpdateBannerDialog } from '../dialog'
+import { useUpdateBanner } from '@/hooks'
+import { useQueryClient } from '@tanstack/react-query'
+import { QUERYKEY } from '@/constants'
+import { showToast } from '@/utils'
 
 interface IFormUpdateBannerProps {
     banner: IBanner
-    onSubmit: (isOpen: boolean) => void
 }
 
 export const UpdateBannerForm: React.FC<IFormUpdateBannerProps> = ({
-    banner, onSubmit,
+    banner,
 }) => {
+    const queryClient = useQueryClient()
     const { t } = useTranslation(['banner'])
+    const { t: tToast } = useTranslation('toast')
+    const { mutate: updateBanner } = useUpdateBanner()
     const form = useForm<TBannerUpdateSchema>(
         {
             mode: "onChange",
@@ -42,8 +48,16 @@ export const UpdateBannerForm: React.FC<IFormUpdateBannerProps> = ({
         })
 
     const handleSubmit = () => {
-        onSubmit(false)
-        form.reset()
+        updateBanner(form.getValues(), {
+            onSuccess: () => {
+                queryClient.invalidateQueries({
+                    queryKey: [QUERYKEY.banners],
+                    exact: false,
+                    refetchType: 'all',
+                })
+                showToast(tToast('toast.updateBannerSuccess'))
+            }
+        })
     }
 
     const formFields = {
@@ -134,11 +148,9 @@ export const UpdateBannerForm: React.FC<IFormUpdateBannerProps> = ({
                         </div>
                     </div>
                     <div className="flex justify-end">
-                        <ConfirmUpdateBannerDialog
-                            banner={form.getValues()}
-                            onCompleted={handleSubmit}
-                            disabled={!form.formState.isValid || (form.watch('useButtonUrl') && form.watch("url").length === 0)}
-                        />
+                        <Button type="button" onClick={() => handleSubmit()} disabled={!form.formState.isValid || (form.watch('useButtonUrl') && form.watch("url").length === 0)}>
+                            {t('banner.update')}
+                        </Button>
                     </div>
                 </form>
             </Form>
