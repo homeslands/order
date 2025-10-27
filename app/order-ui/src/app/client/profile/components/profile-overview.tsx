@@ -30,7 +30,7 @@ export default function ProfileOverview() {
                     {t('profile.accountAndSecurity')}
                 </span>
                 <div
-                    className={`flex flex-col gap-2 px-2 py-4 w-full bg-white rounded-2xl border shadow-sm transition-all duration-300 ease-in-out border-muted-foreground/10 dark:bg-muted-foreground/10 dark:border`}
+                    className={`flex flex-col gap-2 px-2 py-4 w-full bg-white rounded-2xl border border-border transition-all duration-300 ease-in-out dark:bg-muted-foreground/10 dark:border`}
                 >
                     <Link to={`${ROUTE.CLIENT_PROFILE_INFO}`}>
                         <Button variant="ghost" className="flex justify-between px-0 w-full rounded-none">
@@ -54,7 +54,7 @@ export default function ProfileOverview() {
                     {t('profile.orderHistory')}
                 </span>
                 <div
-                    className={`flex flex-col gap-2 px-2 py-4 w-full bg-white rounded-2xl border shadow-sm transition-all duration-300 ease-in-out border-muted-foreground/10 dark:bg-muted-foreground/10 dark:border`}
+                    className={`flex flex-col gap-2 px-2 py-4 w-full bg-white rounded-2xl border border-border transition-all duration-300 ease-in-out dark:bg-muted-foreground/10 dark:border`}
                 >
                     {/* Item 1: Lịch sử đơn hàng */}
                     <Link to={`${ROUTE.CLIENT_PROFILE_HISTORY}`}>
@@ -110,7 +110,7 @@ export default function ProfileOverview() {
                 </span>
 
                 <div
-                    className={`flex flex-col gap-2 px-2 py-4 w-full bg-white rounded-2xl border shadow-sm transition-all duration-300 ease-in-out border-muted-foreground/10 dark:bg-muted-foreground/10 dark:border`}
+                    className={`flex flex-col gap-2 px-2 py-4 w-full bg-white rounded-2xl border border-border transition-all duration-300 ease-in-out dark:bg-muted-foreground/10 dark:border`}
                 >
                     {/* Item 1 */}
                     <Link to={`${ROUTE.CLIENT_PROFILE_LOYALTY_POINT}`}>
