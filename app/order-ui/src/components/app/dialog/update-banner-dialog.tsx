@@ -19,9 +19,6 @@ export default function UpdateBannerDialog({ banner }: { banner: IBanner }) {
     const { t } = useTranslation(['banner'])
     const [isOpen, setIsOpen] = useState(false)
 
-    const handleSubmit = (isOpen: boolean) => {
-        setIsOpen(isOpen)
-    }
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
@@ -37,7 +34,7 @@ export default function UpdateBannerDialog({ banner }: { banner: IBanner }) {
                         {t('banner.updateDescription')}
                     </DialogDescription>
                 </DialogHeader>
-                <UpdateBannerForm banner={banner} onSubmit={handleSubmit} />
+                <UpdateBannerForm banner={banner} />
             </DialogContent>
         </Dialog>
     )
