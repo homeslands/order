@@ -44,6 +44,12 @@ export const ForgotPasswordByPhonePage = React.lazy(() =>
   })),
 )
 
+export const AccountDeletionPage = React.lazy(() =>
+  import('@/app/client/account-deletion').then((module) => ({
+    default: module.AccountDeletionPage,
+  })),
+)
+
 //Views
 //----------------------------------------------//
 //Admin

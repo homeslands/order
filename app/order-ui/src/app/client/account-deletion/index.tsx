@@ -1,0 +1,1 @@
+export { default as AccountDeletionPage } from './page'
