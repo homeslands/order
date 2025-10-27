@@ -92,8 +92,6 @@ export default function SwiperBanner({
             {isExternal ? (
               <a
                 href={linkUrl}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="block w-full h-full"
               >
                 {BannerContent}
