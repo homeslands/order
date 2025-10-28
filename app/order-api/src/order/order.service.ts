@@ -77,8 +77,6 @@ import {
 } from 'src/feature-flag-system/feature-flag-system.constant';
 import { checkActiveUser } from 'src/auth/auth.utils';
 import { NotificationUtils } from 'src/notification/notification.utils';
-import { UserException } from 'src/user/user.exception';
-import { UserValidation } from 'src/user/user.validation';
 @Injectable()
 export class OrderService {
   constructor(
