@@ -76,6 +76,7 @@ import {
   FeatureSystemGroups,
 } from 'src/feature-flag-system/feature-flag-system.constant';
 import { checkActiveUser } from 'src/auth/auth.utils';
+import { NotificationUtils } from 'src/notification/notification.utils';
 @Injectable()
 export class OrderService {
   constructor(
@@ -104,6 +105,7 @@ export class OrderService {
     private readonly googleMapConnectorClient: GoogleMapConnectorClient,
     private readonly branchConfigService: BranchConfigService,
     private readonly featureFlagSystemService: FeatureFlagSystemService,
+    private readonly notificationUtils: NotificationUtils,
   ) {}
 
   async getMaxDistanceDelivery(branchSlug: string): Promise<number> {
@@ -1630,5 +1632,17 @@ export class OrderService {
       } as OrderItemResponseDto;
     });
     return orderItems;
+  }
+
+  async callCustomerToGetOrder(createdById: string, slug: string) {
+    const order = await this.orderUtils.getOrder({ where: { slug } });
+    if (!order) {
+      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
+    }
+
+    await this.notificationUtils.sendNotificationForCustomerToGetOrder(
+      createdById,
+      order,
+    );
   }
 }

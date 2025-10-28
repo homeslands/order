@@ -49,6 +49,9 @@ import { FeatureSystemGroup } from 'src/feature-flag-system/entities/feature-sys
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { NotificationUtils } from 'src/notification/notification.utils';
+import { NotificationProducer } from 'src/notification/notification.producer';
+import { Notification } from 'src/notification/notification.entity';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -159,6 +162,16 @@ describe('OrderController', () => {
         {
           provide: DataSource,
           useFactory: dataSourceMockFactory,
+        },
+        NotificationUtils,
+        NotificationProducer,
+        {
+          provide: getRepositoryToken(Notification),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: 'BullQueue_notification',
+          useValue: {},
         },
       ],
     }).compile();
