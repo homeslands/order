@@ -56,6 +56,7 @@ import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-poi
 import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
 import { HttpModule } from '@nestjs/axios';
 import { GoogleMapService } from 'src/google-map/google-map.service';
+import { NotificationUtils } from 'src/notification/notification.utils';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -118,6 +119,7 @@ import { GoogleMapService } from 'src/google-map/google-map.service';
     AccumulatedPointService,
     GoogleMapConnectorClient,
     GoogleMapService,
+    NotificationUtils,
   ],
   exports: [OrderService, OrderUtils, OrderScheduler],
 })

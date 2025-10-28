@@ -87,6 +87,9 @@ import { FeatureFlagSystem } from 'src/feature-flag-system/entities/feature-flag
 import { ChildFeatureFlagSystem } from 'src/feature-flag-system/entities/child-feature-flag-system.entity';
 import { FeatureSystemGroup } from 'src/feature-flag-system/entities/feature-system-group.entity';
 import { Catalog } from 'src/catalog/catalog.entity';
+import { NotificationUtils } from 'src/notification/notification.utils';
+import { NotificationProducer } from 'src/notification/notification.producer';
+import { Notification } from 'src/notification/notification.entity';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -280,6 +283,16 @@ describe('OrderService', () => {
         {
           provide: getRepositoryToken(ChildFeatureFlagSystem),
           useValue: repositoryMockFactory,
+        },
+        NotificationUtils,
+        NotificationProducer,
+        {
+          provide: getRepositoryToken(Notification),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: 'BullQueue_notification',
+          useValue: {},
         },
       ],
     }).compile();
