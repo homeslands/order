@@ -27,6 +27,15 @@ export class StaticPageScheduler {
     if (!(await this.isExistingStaticPage('POLICY'))) {
       this.generateStaticPage('POLICY', 'Policy', 'Policy content');
     }
+
+    // account deletion policy
+    if (!(await this.isExistingStaticPage('ACCOUNT-DELETION-POLICY'))) {
+      this.generateStaticPage(
+        'ACCOUNT-DELETION-POLICY',
+        'Account Deletion Policy',
+        'Account deletion policy content',
+      );
+    }
   }
 
   async generateStaticPage(key: string, title: string, content: string) {

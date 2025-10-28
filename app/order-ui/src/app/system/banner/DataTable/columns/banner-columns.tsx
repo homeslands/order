@@ -15,19 +15,22 @@ import { IBanner } from '@/types'
 import { DeleteBannerDialog, UploadBannerBannerDialog } from '@/components/app/dialog'
 import UpdateBannerDialog from '@/components/app/dialog/update-banner-dialog'
 import { publicFileURL } from '@/constants'
+import { BannerStatusSwitch } from '@/components/app/switch'
 
 export const useBannerColumns = (): ColumnDef<IBanner>[] => {
   const { t } = useTranslation(['banner'])
   const { t: tCommon } = useTranslation(['common'])
   return [
     {
-      accessorKey: 'slug',
+      accessorKey: 'status',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('banner.slug')} />
+        <DataTableColumnHeader column={column} title={t('banner.status')} />
       ),
       cell: ({ row }) => {
-        const slug = row.getValue('slug')
-        return slug !== null && slug !== undefined ? slug : tCommon('banner.noData')
+        const banner = row.original
+        return <div className='w-full flex justify-center items-center'>
+          <BannerStatusSwitch banner={banner} />
+        </div>
       },
     },
     {

@@ -76,6 +76,7 @@ export const ROUTE = {
   CONTACT: '/contact',
   HELP: '/help',
   POLICY: '/policy',
+  ACCOUNT_DELETION: '/delete-account',
   SECURITY: '/security',
   DOCS: '/docs',
   ORDER_INSTRUCTIONS: '/order-instructions',
