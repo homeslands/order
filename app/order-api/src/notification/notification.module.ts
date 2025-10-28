@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { NotificationController } from './notification.controller';
 import { BullModule } from '@nestjs/bullmq';
@@ -13,6 +13,7 @@ import { NotificationProfile } from './notification.mapper';
 import { NotificationUtils } from './notification.utils';
 import { User } from 'src/user/user.entity';
 
+@Global()
 @Module({
   imports: [
     BullModule.registerQueue({
