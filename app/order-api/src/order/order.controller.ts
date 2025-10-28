@@ -53,6 +53,8 @@ import {
   FeatureFlagSystems,
   FeatureSystemGroups,
 } from 'src/feature-flag-system/feature-flag-system.constant';
+import { HasRoles } from 'src/role/roles.decorator';
+import { RoleEnum } from 'src/role/role.enum';
 
 @ApiTags('Order')
 @Controller('orders')
@@ -448,5 +450,29 @@ export class OrderController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<DistanceAndDurationResponseDto>;
+  }
+
+  @Post(':slug/call-customer-to-get-order')
+  @HasRoles(
+    RoleEnum.Chef,
+    RoleEnum.Staff,
+    RoleEnum.Manager,
+    RoleEnum.Admin,
+    RoleEnum.SuperAdmin,
+  )
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Call customer to get order' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  async callCustomerToGetOrder(
+    @Param('slug') slug: string,
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    currentUserDto: CurrentUserDto,
+  ) {
+    await this.orderService.callCustomerToGetOrder(currentUserDto.userId, slug);
+    return {
+      message: 'Call customer to get order successfully',
+      statusCode: HttpStatus.NO_CONTENT,
+      timestamp: new Date().toISOString(),
+    } as AppResponseDto<void>;
   }
 }

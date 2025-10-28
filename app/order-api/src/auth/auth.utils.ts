@@ -3,6 +3,7 @@ import { UserScopeDto } from 'src/user/user.dto';
 import { User } from 'src/user/user.entity';
 import { AuthValidation } from './auth.validation';
 import { AuthException } from './auth.exception';
+import { RoleEnum } from 'src/role/role.enum';
 
 @Injectable()
 export class AuthUtils {
@@ -30,4 +31,14 @@ export function checkActiveUser(user: User): void {
   if (!user?.isActive) {
     throw new AuthException(AuthValidation.USER_NOT_ACTIVE);
   }
+}
+
+export function isDefinedCustomer(user: User): boolean {
+  if (
+    user.role?.name === RoleEnum.Customer &&
+    user.phonenumber !== 'default-customer'
+  )
+    return true;
+
+  return false;
 }
