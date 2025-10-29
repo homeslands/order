@@ -64,6 +64,15 @@ export async function getOrderBySlug(
   return response.data
 }
 
+export async function callCustomerToGetOrder(
+  slug: string,
+): Promise<IApiResponse<IOrder>> {
+  const response = await http.post<IApiResponse<IOrder>>(
+    `/orders/${slug}/call-customer-to-get-order`,
+  )
+  return response.data
+}
+
 export async function createOrder(
   params: ICreateOrderRequest,
 ): Promise<IApiResponse<ICreateOrderResponse>> {

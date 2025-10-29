@@ -39,6 +39,7 @@
     "createChefOrderConfirmation": "Bạn có chắc chắn muốn thông báo cho bếp đơn hàng này không?",
     "createChefOrderWarning": "Bạn sắp sửa thông báo cho bếp đơn hàng ",
     "createdAt": "Ngày tạo",
+    "callCustomerToGetOrder": "Gọi khách đến lấy đơn",
     "export": "In phiếu bếp",
     "exportAutoChefOrderTicket": "In nhãn dán món tự động",
     "exportChefOrder": "In phiếu bếp",
