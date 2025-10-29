@@ -30,6 +30,7 @@ import {
   getDistanceAndDuration,
   getAddressByPlaceId,
   getAddressSuggestions,
+  callCustomerToGetOrder,
 } from '@/api'
 import {
   ICreateOrderRequest,
@@ -72,6 +73,14 @@ export const useOrderBySlug = (slug: string | null | undefined) => {
     queryFn: () => getOrderBySlug(slug!), // dùng ! vì đã kiểm tra ở trên
     enabled: isValidSlug, // ✅ Chặn không fetch nếu slug không hợp lệ
     placeholderData: keepPreviousData,
+  })
+}
+
+export const useCallCustomerToGetOrder = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return callCustomerToGetOrder(slug)
+    },
   })
 }
 
