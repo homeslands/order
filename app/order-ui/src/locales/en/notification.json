@@ -10,6 +10,7 @@
     "order": "New order",
     "order-needs-delivered": "Order needs delivered, please deliver it quickly",
     "order-needs-processed": "Order needs processed, please process it quickly",
+    "order-needs-ready-to-get": "Order is ready to get, please come to get it",
     "read": "Read",
     "time": {
       "daysAgo": "{{days}} days ago",

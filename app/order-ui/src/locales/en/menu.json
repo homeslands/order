@@ -330,7 +330,8 @@
     "searchByPhoneNumber": "Enter phone number",
     "deliveryAddress": "Delivery address",
     "deliveryPhone": "Delivery phone",
-    "deliveryFee": "Delivery fee"
+    "deliveryFee": "Delivery fee",
+    "callCustomerToGetOrder": "Call customer to get order"
   },
   "paymentMethod": {
     "bankTransfer": "Bank transfer",
