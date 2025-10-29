@@ -59,7 +59,7 @@ export default function ChefOrderItemDetailSheet({
         </SheetHeader>
         {chefOrder ? (
           <div className="h-[calc(100vh-12rem)] flex-1 px-2 pt-2">
-            <ChefOrderItemList onSuccess={handleChangeStatusSuccess} chefOrderStatus={chefOrderStatus} chefOrderItemData={specificChefOrderDetail} orderSlug={chefOrder?.order?.slug ?? ''} />
+            <ChefOrderItemList onSuccess={handleChangeStatusSuccess} chefOrderStatus={chefOrderStatus} chefOrderItemData={specificChefOrderDetail} />
           </div>
         ) : (
           <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">

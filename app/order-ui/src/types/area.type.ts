@@ -3,6 +3,7 @@ import { IBase } from './base.type'
 import { IBranch } from './branch.type'
 import { IProduct, IProductVariant } from './product.type'
 import { ITable } from './table.type'
+import { IOrder } from './dish.type'
 
 export enum ChefOrderStatus {
   PENDING = 'pending',
@@ -69,7 +70,7 @@ export interface ICreateChefOrderRequest {
 
 export interface IChefOrders extends IBase {
   status: ChefOrderStatus
-  order: IChefOrderInfo
+  order: IOrder
   chefOrderItems: ISpecificChefOrderItemInfo[]
   printerChefOrders: IPrinterChefOrders[]
   printerLabels: IPrinterLabels[]
