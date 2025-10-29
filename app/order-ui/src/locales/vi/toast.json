@@ -379,6 +379,7 @@
         "exceedMaxBalance": "Số dư tối da phải lớn hơn hoặc bằng 5,000,000",
         "userBalanceExceedMaximum": "Số dư người dùng đang vượt quá giới hạn xu tối đa",
         "conflict": "Dữ liệu đã bị thay đổi, vui lòng tải lại trang để lấy dữ liệu mới nhất",
-        "policyValueMustBeInteger": "Giá trị nhập phải là một số"
+        "policyValueMustBeInteger": "Giá trị nhập phải là một số",
+        "callCustomerToGetOrderSuccess": "Gọi khách đến lấy đơn thành công"
       }
     }

@@ -10,6 +10,7 @@
     "order": "Đơn hàng mới",
     "order-needs-delivered": "Đơn hàng cần giao hàng, vui lòng giao hàng sớm!",
     "order-needs-processed": "Đơn hàng cần xử lý, vui lòng xử lý sớm!",
+    "order-needs-ready-to-get": "Đơn hàng đã sẵn sàng, vui lòng đến lấy!",
     "read": "Đã đọc",
     "time": {
       "daysAgo": "{{days}} ngày trước",

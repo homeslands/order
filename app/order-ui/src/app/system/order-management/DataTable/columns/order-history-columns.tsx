@@ -6,6 +6,7 @@ import {
   DownloadIcon,
   SquarePen,
   Loader2,
+  ShoppingBag,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
@@ -18,9 +19,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui'
-import { IOrder, OrderStatus, OrderTypeEnum } from '@/types'
+import { IOrder, OrderStatus, OrderTypeEnum, ChefOrderStatus } from '@/types'
 import { PaymentMethod, paymentStatus, PrinterJobType, ROUTE } from '@/constants'
-import { useExportOrderInvoice, useExportPayment, useGetAuthorityGroup, useReprintFailedInvoicePrinterJobs } from '@/hooks'
+import { useCallCustomerToGetOrder, useExportOrderInvoice, useExportPayment, useGetAuthorityGroup, useReprintFailedInvoicePrinterJobs } from '@/hooks'
 import { formatCurrency, hasPermissionInBoth, loadDataToPrinter, showToast } from '@/utils'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { CreateChefOrderDialog, OutlineCancelOrderDialog } from '@/components/app/dialog'
@@ -49,6 +50,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   const { mutate: exportPayment } = useExportPayment()
   const { mutate: exportOrderInvoice } = useExportOrderInvoice()
   const { mutate: reprintOrderInvoice, isPending: isReprinting } = useReprintFailedInvoicePrinterJobs()
+  const { mutate: callCustomerToGetOrder, isPending: isCallingCustomerToGetOrder } = useCallCustomerToGetOrder()
 
   const handleExportPayment = (slug: string) => {
     exportPayment(slug, {
@@ -78,6 +80,17 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
     })
   }
 
+  const handleCallCustomerToGetOrder = (order: IOrder) => {
+    callCustomerToGetOrder(order.slug, {
+      onSuccess: () => {
+        showToast(tToast('toast.callCustomerToGetOrderSuccess'))
+      },
+      onError: () => {
+        showToast(tToast('toast.callCustomerToGetOrderError'))
+      }
+    })
+  }
+
   return [
     {
       accessorKey: 'createdAt',
@@ -92,6 +105,27 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
           </div>
         )
       },
+    },
+    {
+      accessorKey: 'callCustomerToGetOrder',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('order.callCustomerToGetOrder')} />
+      ),
+      cell: ({ row }) => {
+        const order = row.original
+        const hasCompletedChefOrder = order.chefOrders?.some(chefOrder => chefOrder.status === ChefOrderStatus.COMPLETED) ?? false
+        return hasCompletedChefOrder ? (
+          <Button variant="outline" disabled={isCallingCustomerToGetOrder} className='text-xs xl:text-sm' onClick={(e) => {
+            e.stopPropagation()
+            handleCallCustomerToGetOrder(order)
+          }}
+          >
+            {isCallingCustomerToGetOrder && <Loader2 className="mr-2 animate-spin" />}
+            {!isCallingCustomerToGetOrder && <ShoppingBag className="w-4 h-4" />}
+            {t('order.callCustomerToGetOrder')}
+          </Button>
+        ) : null
+      }
     },
     {
       accessorKey: 'exportInvoice',

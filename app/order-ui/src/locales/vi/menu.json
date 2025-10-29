@@ -332,7 +332,8 @@
     "searchByPhoneNumber": "Nhập số điện thoại",
     "deliveryAddress": "Địa chỉ giao hàng",
     "deliveryPhone": "Số điện thoại giao hàng",
-    "deliveryFee": "Phí giao hàng"
+    "deliveryFee": "Phí giao hàng",
+    "callCustomerToGetOrder": "Gọi khách đến lấy đơn"
   },
   "paymentMethod": {
     "bankTransfer": "Chuyển khoản ngân hàng",

@@ -13,6 +13,7 @@ import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
 import { NavigationSheet } from '@/components/app/sheet'
 import { useIsMobile } from '@/hooks'
+import { ClientNotificationPopover } from '@/components/app/popover'
 
 export function ClientHeader() {
   const { t } = useTranslation('sidebar')
@@ -94,6 +95,9 @@ export function ClientHeader() {
                 </Button>
               </NavLink>
             )}
+            {/* Notifications */}
+            <ClientNotificationPopover />
+
             {/* Settings */}
             <SettingsDropdown />
 

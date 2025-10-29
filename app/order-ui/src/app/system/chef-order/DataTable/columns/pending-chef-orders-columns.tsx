@@ -2,7 +2,7 @@ import moment from 'moment'
 import { ColumnDef } from '@tanstack/react-table'
 import ejs from 'ejs'
 import { useTranslation } from 'react-i18next'
-import { DownloadIcon, Loader2, MoreHorizontal } from 'lucide-react'
+import { DownloadIcon, Loader2, MoreHorizontal, ShoppingBag } from 'lucide-react'
 
 import {
   Button,
@@ -58,7 +58,7 @@ import { Be_Vietnam_Pro_base64 } from '@/assets/font/base64';
 import { Logo } from '@/assets/images';
 import { useUserStore } from '@/stores'
 import { PrinterJobType } from '@/constants'
-import { useReprintFailedChefOrderPrinterJobs, useReprintFailedLabelPrinterJobs } from '@/hooks'
+import { useCallCustomerToGetOrder, useReprintFailedChefOrderPrinterJobs, useReprintFailedLabelPrinterJobs } from '@/hooks'
 
 const CHEF_ORDER_TEMPLATE = `<!DOCTYPE html>
 <html lang="vi">
@@ -304,6 +304,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
   const { userInfo } = useUserStore()
   const { mutate: reprintFailedChefOrderJobs, isPending: isReprintingFailedChefOrderJobs } = useReprintFailedChefOrderPrinterJobs()
   const { mutate: reprintFailedLabelJobs, isPending: isReprintingFailedLabelJobs } = useReprintFailedLabelPrinterJobs()
+  const { mutate: callCustomerToGetOrder, isPending: isCallingCustomerToGetOrder } = useCallCustomerToGetOrder()
 
 
   const handleExportChefOrder = async (chefOrder: IChefOrders | undefined) => {
@@ -325,6 +326,19 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
     const templateText = CHEF_ORDER_TICKET_TEMPLATE;
     return ejs.render(templateText, data);
   };
+
+  const handleCallCustomerToGetOrder = async (chefOrder: IChefOrders | undefined) => {
+    if (!chefOrder) return;
+    callCustomerToGetOrder(chefOrder.order.slug, {
+      onSuccess: () => {
+        showToast(tToast('toast.callCustomerToGetOrderSuccess'))
+        onSuccess?.()
+      },
+      onError: () => {
+        showToast(tToast('toast.callCustomerToGetOrderError'))
+      }
+    })
+  }
 
   const exportChefOrderTicket = async (chefOrder: IChefOrders | undefined) => {
     if (!chefOrder) return;
@@ -462,6 +476,28 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
       },
       enableSorting: false,
       enableHiding: false,
+    },
+    {
+      accessorKey: 'callCustomerToGetOrder',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('chefOrder.callCustomerToGetOrder')} />
+      ),
+      cell: ({ row }) => {
+        const chefOrder = row.original
+        return (
+          chefOrder.status !== ChefOrderStatus.COMPLETED ? (
+            <Button variant="outline" disabled={isCallingCustomerToGetOrder} className='text-xs xl:text-sm' onClick={(e) => {
+              e.stopPropagation()
+              handleCallCustomerToGetOrder(chefOrder)
+            }}
+            >
+              {isCallingCustomerToGetOrder && <Loader2 className="mr-2 animate-spin" />}
+              {!isCallingCustomerToGetOrder && <ShoppingBag className="w-4 h-4" />}
+              {t('chefOrder.callCustomerToGetOrder')}
+            </Button>
+          ) : null
+        )
+      },
     },
     {
       accessorKey: 'export',
