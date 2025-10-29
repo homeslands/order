@@ -333,9 +333,6 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
       onSuccess: () => {
         showToast(tToast('toast.callCustomerToGetOrderSuccess'))
         onSuccess?.()
-      },
-      onError: () => {
-        showToast(tToast('toast.callCustomerToGetOrderError'))
       }
     })
   }
@@ -485,19 +482,17 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
       cell: ({ row }) => {
         const chefOrder = row.original
         return (
-          chefOrder.status !== ChefOrderStatus.COMPLETED ? (
-            <Button variant="outline" disabled={isCallingCustomerToGetOrder} className='text-xs xl:text-sm' onClick={(e) => {
-              e.stopPropagation()
-              handleCallCustomerToGetOrder(chefOrder)
-            }}
-            >
-              {isCallingCustomerToGetOrder && <Loader2 className="mr-2 animate-spin" />}
-              {!isCallingCustomerToGetOrder && <ShoppingBag className="w-4 h-4" />}
-              {t('chefOrder.callCustomerToGetOrder')}
-            </Button>
-          ) : null
+          <Button disabled={isCallingCustomerToGetOrder} variant="outline" className='text-xs xl:text-sm' onClick={(e) => {
+            e.stopPropagation()
+            handleCallCustomerToGetOrder(chefOrder)
+          }}
+          >
+            {isCallingCustomerToGetOrder && <Loader2 className="mr-2 animate-spin" />}
+            {!isCallingCustomerToGetOrder && <ShoppingBag className="w-4 h-4" />}
+            {t('chefOrder.callCustomerToGetOrder')}
+          </Button>
         )
-      },
+      }
     },
     {
       accessorKey: 'export',
