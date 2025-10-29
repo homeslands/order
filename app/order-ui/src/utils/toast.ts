@@ -265,6 +265,7 @@ const errorCodes: { [key: number]: string } = {
   154508: 'toast.endDateCanNotBeEmpty',
   154509: 'toast.productNotBelongToAnyChefArea',
   155501: 'toast.notificationNotFound',
+  155503: 'toast.receiverNotFound',
   156001: 'toast.authorityNotFound',
   156002: 'toast.authorityUpdateFailed',
   156003: 'toast.authorityDeleteFailed',
@@ -309,7 +310,7 @@ const errorCodes: { [key: number]: string } = {
   119006: 'toast.userNotFound',
   159706: 'toast.exceedMaxBalance',
   159707: 'toast.userBalanceExceedMaximum',
-  159704: 'toast.policyValueMustBeInteger'
+  159704: 'toast.policyValueMustBeInteger',
 }
 
 export function showToast(message: string) {

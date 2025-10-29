@@ -19,7 +19,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui'
-import { IOrder, OrderStatus, OrderTypeEnum, ChefOrderStatus } from '@/types'
+import { IOrder, OrderStatus, OrderTypeEnum } from '@/types'
 import { PaymentMethod, paymentStatus, PrinterJobType, ROUTE } from '@/constants'
 import { useCallCustomerToGetOrder, useExportOrderInvoice, useExportPayment, useGetAuthorityGroup, useReprintFailedInvoicePrinterJobs } from '@/hooks'
 import { formatCurrency, hasPermissionInBoth, loadDataToPrinter, showToast } from '@/utils'
@@ -84,9 +84,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
     callCustomerToGetOrder(order.slug, {
       onSuccess: () => {
         showToast(tToast('toast.callCustomerToGetOrderSuccess'))
-      },
-      onError: () => {
-        showToast(tToast('toast.callCustomerToGetOrderError'))
       }
     })
   }
@@ -113,8 +110,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       ),
       cell: ({ row }) => {
         const order = row.original
-        const hasCompletedChefOrder = order.chefOrders?.some(chefOrder => chefOrder.status === ChefOrderStatus.COMPLETED) ?? false
-        return hasCompletedChefOrder ? (
+        return (
           <Button variant="outline" disabled={isCallingCustomerToGetOrder} className='text-xs xl:text-sm' onClick={(e) => {
             e.stopPropagation()
             handleCallCustomerToGetOrder(order)
@@ -124,8 +120,8 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
             {!isCallingCustomerToGetOrder && <ShoppingBag className="w-4 h-4" />}
             {t('order.callCustomerToGetOrder')}
           </Button>
-        ) : null
-      }
+        )
+      },
     },
     {
       accessorKey: 'exportInvoice',

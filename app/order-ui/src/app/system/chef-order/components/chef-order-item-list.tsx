@@ -7,14 +7,12 @@ import ChefOrderItemDetail from './chef-order-item-detail'
 import { ScrollAreaViewport } from '@radix-ui/react-scroll-area'
 
 interface IChefOrderItemListProps {
-  orderSlug: string
   onSuccess: () => void
   chefOrderStatus: ChefOrderStatus | undefined
   chefOrderItemData?: ISpecificChefOrderItemInfo[]
 }
 
 export default function ChefOrderItemList({
-  orderSlug,
   chefOrderStatus,
   chefOrderItemData,
   onSuccess,
@@ -130,7 +128,7 @@ export default function ChefOrderItemList({
             {filteredItems.length > 0 ? (
               filteredItems.map((item) => (
                 <div key={item.slug} className="grid gap-4 items-center w-full">
-                  <ChefOrderItemDetail onSuccess={onSuccess} chefOrderStatus={chefOrderStatus || ChefOrderStatus.PENDING} chefOrderItem={item} orderSlug={orderSlug} />
+                  <ChefOrderItemDetail onSuccess={onSuccess} chefOrderStatus={chefOrderStatus || ChefOrderStatus.PENDING} chefOrderItem={item} />
                 </div>
               ))
             ) : (

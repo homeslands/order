@@ -4,22 +4,20 @@ import { useState } from 'react'
 
 import { ChefOrderItemStatus, ChefOrderStatus, ISpecificChefOrderItemInfo, IUpdateChefOrderItemStatusRequest } from '@/types'
 import { Button, Tabs, TabsContent } from '@/components/ui'
-import { useCallCustomerToGetOrder, useUpdateChefOrderItemStatus } from '@/hooks'
+import { useUpdateChefOrderItemStatus } from '@/hooks'
 import { showToast } from '@/utils'
 
 interface ChefOrderItemDetailProps {
-  orderSlug?: string
   chefOrderItem: ISpecificChefOrderItemInfo
   chefOrderStatus: ChefOrderStatus
   onSuccess: () => void
 }
 
-export default function ChefOrderItemDetail({ orderSlug, chefOrderItem, chefOrderStatus, onSuccess }: ChefOrderItemDetailProps) {
+export default function ChefOrderItemDetail({ chefOrderItem, chefOrderStatus, onSuccess }: ChefOrderItemDetailProps) {
   const { t } = useTranslation(['chefArea'])
   const { t: tToast } = useTranslation('toast')
   const { t: tCommon } = useTranslation('common')
   const { mutate: updateChefOrderItemStatus } = useUpdateChefOrderItemStatus()
-  const { mutate: callCustomerToGetOrder } = useCallCustomerToGetOrder()
   const [activeTab, setActiveTab] = useState(chefOrderItem.status)
   const handleStatusChange = (slug: string, status: string) => {
     if (!slug) return
@@ -32,16 +30,6 @@ export default function ChefOrderItemDetail({ orderSlug, chefOrderItem, chefOrde
         showToast(tToast('toast.updateChefOrderItemStatusSuccess'))
         setActiveTab(status as ChefOrderItemStatus)
         onSuccess()
-        if (orderSlug && orderSlug !== '') {
-          callCustomerToGetOrder(orderSlug, {
-            onSuccess: () => {
-              showToast(tToast('toast.callCustomerToGetOrderSuccess'))
-            },
-            onError: () => {
-              showToast(tToast('toast.callCustomerToGetOrderError'))
-            }
-          })
-        }
       }
     })
   }
