@@ -36,12 +36,14 @@ import {
   useSpecificVoucher,
   useValidateVoucher,
   useVouchersForOrder,
+  usePublicVouchersForOrder,
   useUpdateVoucherInOrder,
 } from '@/hooks'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, isVoucherApplicableToCartItems, showErrorToast, showToast } from '@/utils'
 import {
   IValidateVoucherRequest,
   IVoucher,
+  IGetAllVoucherRequest,
 } from '@/types'
 import { useOrderFlowStore, useThemeStore, useUserStore } from '@/stores'
 import { APPLICABILITY_RULE, Role, VOUCHER_TYPE } from '@/constants'
@@ -68,13 +70,14 @@ export default function StaffVoucherListSheetInPayment({
   const voucher = paymentData?.orderData?.voucher || null
   const orderData = paymentData?.orderData
 
-  // Get payment method from voucher first, then fallback to paymentData
+  // Ưu tiên method đang được chọn trong store, sau đó fallback sang method đầu tiên của voucher
   const paymentMethod = useMemo(() => {
+    if (paymentData?.paymentMethod) return paymentData.paymentMethod
     if (voucher?.voucherPaymentMethods?.length && voucher.voucherPaymentMethods.length > 0) {
       return voucher.voucherPaymentMethods[0].paymentMethod
     }
-    return paymentData?.paymentMethod
-  }, [voucher?.voucherPaymentMethods, paymentData?.paymentMethod])
+    return undefined
+  }, [paymentData?.paymentMethod, voucher?.voucherPaymentMethods])
 
   const displayItems = calculateOrderItemDisplay(orderData?.orderItems || [], voucher)
   const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
@@ -85,26 +88,34 @@ export default function StaffVoucherListSheetInPayment({
     orderData.owner.role.name === Role.CUSTOMER &&
     orderData.owner.phonenumber !== 'default-customer';
 
+  const minOrderValue = useMemo(() => {
+    return (cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0)
+  }, [cartTotals])
+
+  const voucherForOrderRequestParam: IGetAllVoucherRequest = {
+    hasPaging: true,
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    ...(isCustomerOwner ? { user: orderData?.owner?.slug || '' } : {}),
+    ...(paymentMethod ? { paymentMethod } : {}),
+    minOrderValue: minOrderValue,
+    orderItems: (orderData?.orderItems || []).map(item => ({
+      quantity: item.quantity,
+      variant: item.variant.slug,
+      promotion: item.promotion ? item.promotion.slug : '',
+      order: item.slug || '',
+    })),
+  }
+
   const { data: voucherList, refetch: refetchVoucherList } = useVouchersForOrder(
-    isCustomerOwner // Nếu owner là khách có tài khoản
-      ? {
-        isActive: true,
-        hasPaging: true,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-        paymentMethod: paymentMethod
-      }
-      :
-      {
-        isVerificationIdentity: false,
-        isActive: true,
-        hasPaging: true,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-        paymentMethod: paymentMethod
-      },
-    !!sheetOpen
+    isCustomerOwner ? voucherForOrderRequestParam : undefined,
+    !!sheetOpen && isCustomerOwner
   );
+
+  const { data: publicVoucherList } = usePublicVouchersForOrder(
+    !isCustomerOwner ? voucherForOrderRequestParam : undefined,
+    !!sheetOpen && !isCustomerOwner
+  )
 
   const { data: specificVoucher, refetch: refetchSpecificVoucher } = useSpecificVoucher(
     {
@@ -283,11 +294,7 @@ export default function StaffVoucherListSheetInPayment({
   }, [specificVoucher?.result, inputValue])
 
   useEffect(() => {
-    const baseList = isCustomerOwner
-      ? voucherList?.result?.items || [] // Khách default - lấy public vouchers
-      : isCustomerOwner
-        ? voucherList?.result?.items || [] // Owner là khách có tài khoản - lấy all vouchers
-        : voucherList?.result?.items || []; // Nhân viên hoặc case khác - lấy vouchers không yêu cầu xác thực
+    const baseList = (isCustomerOwner ? voucherList?.result?.items : publicVoucherList?.result?.items) || []
     let newList = [...baseList];
 
     // Add specific voucher from search
@@ -307,7 +314,7 @@ export default function StaffVoucherListSheetInPayment({
     }
 
     setLocalVoucherList(newList)
-  }, [voucherList?.result?.items, specificVoucher?.result, orderData?.voucher, userInfo, isCustomerOwner])
+  }, [isCustomerOwner, voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, orderData?.voucher, userInfo])
 
   // check if voucher is private and user is logged in, then refetch specific voucher
   useEffect(() => {

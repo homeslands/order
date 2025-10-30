@@ -2,6 +2,8 @@
   "customer": {
     "userGroup": {
       "title": "User group",
+      "chooseUserGroup": "Choose user group",
+      "all": "All",
       "searchByName": "Search by name",
       "createdAt": "Created at",
       "createdBy": "Created by",

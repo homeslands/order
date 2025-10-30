@@ -2,6 +2,8 @@
   "customer": {
     "userGroup": {
       "title": "Nhóm khách hàng",
+      "chooseUserGroup": "Chọn nhóm khách hàng",
+      "all": "Tất cả",
       "searchByName": "Tìm kiếm theo tên",
       "createdAt": "Ngày tạo",
       "createdBy": "Người tạo",
