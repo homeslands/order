@@ -1,9 +1,10 @@
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { UsersIcon } from 'lucide-react'
+import { RotateCcw, UsersIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import {
+  Button,
   Select,
   SelectContent,
   SelectItem,
@@ -63,6 +64,13 @@ export default function SelectUserGroupDropdown() {
     setSearchParams(next, { replace: true })
   }
 
+  const handleReset = () => {
+    const next = new URLSearchParams(searchParams)
+    next.delete('userGroup')
+    next.delete('isAppliedUserGroup')
+    setSearchParams(next, { replace: true })
+  }
+
   // Điều kiện hiển thị option "Tất cả" cho user group: chỉ khi isAppliedUserGroup !== 'true'
   const showAllOptionForUserGroup = isAppliedUserGroup !== 'true'
 
@@ -94,11 +102,9 @@ export default function SelectUserGroupDropdown() {
           />
         </SelectTrigger>
         <SelectContent className="w-56">
-          {showAllOptionForUserGroup && (
-            <SelectItem value="all">
-              <span className="text-xs">{t('customer.userGroup.chooseUserGroup')}</span>
-            </SelectItem>
-          )}
+          <SelectItem value="all">
+            <span className="text-xs">{t('customer.userGroup.all')}</span>
+          </SelectItem>
           {userGroupsData && userGroupsData.map((item) => {
             return (
               <SelectItem value={item.slug} key={item.slug}>
@@ -108,6 +114,16 @@ export default function SelectUserGroupDropdown() {
           })}
         </SelectContent>
       </Select>
+
+      <Button
+        variant="outline"
+        size="sm"
+        className="gap-2 h-8"
+        onClick={handleReset}
+      >
+        <RotateCcw className="h-3.5 w-3.5" />
+        <span className="text-xs">{t('customer.userGroup.reset')}</span>
+      </Button>
     </div>
   )
 }
