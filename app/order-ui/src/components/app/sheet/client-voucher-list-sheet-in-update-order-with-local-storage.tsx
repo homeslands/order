@@ -42,9 +42,10 @@ import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, isVouche
 import {
   IValidateVoucherRequest,
   IVoucher,
+  IGetAllVoucherRequest,
 } from '@/types'
 import { useOrderFlowStore, useThemeStore, useUserStore } from '@/stores'
-import { APPLICABILITY_RULE, Role, VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, Role, VOUCHER_TYPE, PaymentMethod } from '@/constants'
 
 export default function ClientVoucherListSheetInUpdateOrderWithLocalStorage() {
   const isMobile = useIsMobile()
@@ -66,6 +67,14 @@ export default function ClientVoucherListSheetInUpdateOrderWithLocalStorage() {
 
   const voucher = updatingData?.updateDraft?.voucher || null
   const orderDraft = updatingData?.updateDraft
+
+  // Ưu tiên method từ orderDraft, sau đó fallback sang method đầu tiên của voucher
+  const paymentMethod = (
+    (orderDraft?.paymentMethod as PaymentMethod | undefined) ??
+    (voucher?.voucherPaymentMethods && voucher.voucherPaymentMethods.length > 0
+      ? (voucher.voucherPaymentMethods[0].paymentMethod as PaymentMethod)
+      : undefined)
+  )
 
   // Create a temporary cart item for calculation
   const tempCartItem = orderDraft ? {
@@ -102,26 +111,33 @@ export default function ClientVoucherListSheetInUpdateOrderWithLocalStorage() {
     orderDraft.ownerRole === Role.CUSTOMER &&
     orderDraft.ownerPhoneNumber === 'default-customer';
 
+  const minOrderValue = (cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0)
+
+  const voucherForOrderRequestParam: IGetAllVoucherRequest = {
+    hasPaging: true,
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    ...(isCustomerOwner ? { user: (orderDraft?.owner || getUserInfo()?.slug || '') } : {}),
+    ...(paymentMethod ? { paymentMethod } : {}),
+    minOrderValue: minOrderValue,
+    orderItems: (orderDraft?.orderItems || []).map(item => ({
+      quantity: item.quantity,
+      variant: item.variant.slug,
+      promotion: item.promotion ? item.promotion.slug : '',
+      order: item.slug || '',
+    })),
+  }
+
   const { data: voucherList } = useVouchersForOrder(
     isCustomerOwner // Nếu owner là khách có tài khoản
-      ? {
-        isActive: true,
-        hasPaging: true,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-      }
+      ? voucherForOrderRequestParam
       : undefined,
     !!sheetOpen && isCustomerOwner
   );
 
   const { data: publicVoucherList } = usePublicVouchersForOrder(
     !isCustomerOwner
-      ? {
-        isActive: true,
-        hasPaging: true,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-      }
+      ? voucherForOrderRequestParam
       : undefined,
     !!sheetOpen && !isCustomerOwner
   )
