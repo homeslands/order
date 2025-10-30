@@ -71,7 +71,7 @@ export default function SelectUserGroupDropdown() {
         </SelectTrigger>
         <SelectContent className="w-56">
           <SelectItem value="all">
-            <span className="text-xs">Tất cả nhóm</span>
+            <span className="text-xs">{t('customer.userGroup.all')}</span>
           </SelectItem>
           {userGroupsData && userGroupsData.map((item) => {
             return (
@@ -90,7 +90,7 @@ export default function SelectUserGroupDropdown() {
         onClick={handleReset}
       >
         <RotateCcw className="h-3.5 w-3.5" />
-        <span className="text-xs">Reset</span>
+        <span className="text-xs">{t('customer.userGroup.reset')}</span>
       </Button>
     </div>
   )
