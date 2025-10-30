@@ -65,7 +65,7 @@ export interface IGetAllVoucherRequest {
   voucherGroup?: string
   minOrderValue?: number
   paymentMethod?: string
-  userGroups?: string // user group slug
+  userGroup?: string // user group slug
   isActive?: boolean
   isPrivate?: boolean
   isVerificationIdentity?: boolean

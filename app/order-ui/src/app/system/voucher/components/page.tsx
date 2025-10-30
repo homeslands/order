@@ -17,6 +17,8 @@ export default function VoucherPage() {
     const { slug } = useParams()
     const [searchParams] = useSearchParams()
     const userGroupSlug = searchParams.get('userGroup') || ''
+    const isAppliedUserGroupParam = searchParams.get('isAppliedUserGroup')
+    const isAppliedUserGroup = isAppliedUserGroupParam === 'true' ? true : isAppliedUserGroupParam === 'false' ? false : undefined
     const [isOpen, setIsOpen] = useState(false)
     const [selectedVouchers, setSelectedVouchers] = useState<IVoucher[]>([])
     const [voucherCode, setVoucherCode] = useState<string>('')
@@ -26,7 +28,8 @@ export default function VoucherPage() {
     const { data: voucherListData, isLoading: isLoadingList, refetch: refetchList } = useVouchers({
         sort: 'DESC',
         voucherGroup: slug,
-        userGroups: userGroupSlug || undefined,
+        userGroup: userGroupSlug || undefined,
+        isAppliedUserGroup,
         page: pagination.pageIndex,
         size: pagination.pageSize,
         hasPaging: true
