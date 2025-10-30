@@ -43,6 +43,7 @@ import {
 } from '@/hooks'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, isVoucherApplicableToCartItems, showErrorToast, showToast } from '@/utils'
 import {
+  IGetAllVoucherRequest,
   IValidateVoucherRequest,
   IVoucher,
 } from '@/types'
@@ -73,13 +74,17 @@ export default function ClientVoucherListSheetInPayment({
   const voucher = paymentData?.orderData?.voucher || null
   const orderData = paymentData?.orderData
 
-  // Get payment method from voucher first, then fallback to paymentData
+  // Ưu tiên method đang được chọn trong store để đồng bộ với Payment page,
+  // nếu chưa có thì fallback sang method đầu tiên của voucher
   const paymentMethod = useMemo(() => {
+    if (paymentData?.paymentMethod) {
+      return paymentData.paymentMethod
+    }
     if (voucher?.voucherPaymentMethods?.length && voucher.voucherPaymentMethods.length > 0) {
       return voucher.voucherPaymentMethods[0].paymentMethod
     }
-    return paymentData?.paymentMethod
-  }, [voucher?.voucherPaymentMethods, paymentData?.paymentMethod])
+    return undefined
+  }, [paymentData?.paymentMethod, voucher?.voucherPaymentMethods])
 
   const displayItems = calculateOrderItemDisplay(orderData?.orderItems || [], voucher)
   const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
@@ -96,28 +101,39 @@ export default function ClientVoucherListSheetInPayment({
     orderData.owner.role.name === Role.CUSTOMER &&
     orderData.owner.phonenumber === 'default-customer';
 
+  const minOrderValue = useMemo(() => {
+    return orderData?.orderItems.reduce((acc, item) => {
+      const original = item.variant?.price ?? 0
+      const promotionDiscount = (item.promotion?.value ?? 0) / 100 * original
+      return acc + (original - promotionDiscount) * item.quantity
+    }, 0) || 0
+  }, [orderData?.orderItems])
+
+  const voucherForOrderRequestParam: IGetAllVoucherRequest = {
+    hasPaging: true,
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    user: userInfo?.slug,
+    paymentMethod: paymentMethod,
+    minOrderValue: minOrderValue,
+    orderItems: orderData?.orderItems.map(item => ({
+      quantity: item.quantity,
+      variant: item.variant.slug,
+      promotion: item.promotion ? item.promotion.slug : '',
+      order: item.slug || '',
+    })) || [],
+  }
+
   const { data: voucherList, refetch: refetchVoucherList } = useVouchersForOrder(
     isCustomerOwner // Nếu owner là khách có tài khoản
-      ? {
-        isActive: true,
-        hasPaging: true,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-        paymentMethod: paymentMethod
-      }
+      ? voucherForOrderRequestParam
       : undefined,
     !!sheetOpen && isCustomerOwner
   );
 
   const { data: publicVoucherList, refetch: refetchPublicVoucherList } = usePublicVouchersForOrder(
     !isCustomerOwner
-      ? {
-        isActive: true,
-        hasPaging: true,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-        paymentMethod: paymentMethod
-      }
+      ? voucherForOrderRequestParam
       : undefined,
     !!sheetOpen && !isCustomerOwner
   )

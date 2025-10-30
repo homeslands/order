@@ -70,11 +70,9 @@ export async function getVouchers(
 export async function getVouchersForOrder(
   params?: IGetAllVoucherRequest,
 ): Promise<IApiResponse<IPaginationResponse<IVoucher>>> {
-  const response = await http.get<IApiResponse<IPaginationResponse<IVoucher>>>(
-    '/voucher/order',
-    {
-      params,
-    },
+  const response = await http.post<IApiResponse<IPaginationResponse<IVoucher>>>(
+    '/voucher/order/eligible',
+    params,
   )
   return response.data
 }

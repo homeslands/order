@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
@@ -15,6 +15,8 @@ export default function VoucherPage() {
     const { t } = useTranslation(['voucher'])
     const { t: tHelmet } = useTranslation('helmet')
     const { slug } = useParams()
+    const [searchParams] = useSearchParams()
+    const userGroupSlug = searchParams.get('userGroup') || ''
     const [isOpen, setIsOpen] = useState(false)
     const [selectedVouchers, setSelectedVouchers] = useState<IVoucher[]>([])
     const [voucherCode, setVoucherCode] = useState<string>('')
@@ -22,8 +24,9 @@ export default function VoucherPage() {
     const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
     const { handlePageChange, handlePageSizeChange, pagination } = usePagination()
     const { data: voucherListData, isLoading: isLoadingList, refetch: refetchList } = useVouchers({
-        order: 'DESC',
+        sort: 'DESC',
         voucherGroup: slug,
+        userGroups: userGroupSlug || undefined,
         page: pagination.pageIndex,
         size: pagination.pageSize,
         hasPaging: true
