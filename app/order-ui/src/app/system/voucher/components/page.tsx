@@ -33,6 +33,10 @@ export default function VoucherPage() {
             isAppliedUserGroup: true,
             userGroup: userGroupSlug,
         }),
+        isVerificationIdentity: true,
+        isUserGroup: true,
+        isAppliedUserGroup: true,
+        userGroup: userGroupSlug || undefined,
         page: pagination.pageIndex,
         size: pagination.pageSize,
         hasPaging: true
