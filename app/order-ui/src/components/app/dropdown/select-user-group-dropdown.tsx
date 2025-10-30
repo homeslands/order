@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { UsersIcon, RotateCcw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { UsersIcon, RotateCcw } from 'lucide-react'
 
 import {
   Button,
