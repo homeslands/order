@@ -81,7 +81,7 @@ export async function getPublicVouchersForOrder(
   params?: IGetAllVoucherRequest,
 ): Promise<IApiResponse<IPaginationResponse<IVoucher>>> {
   const response = await http.get<IApiResponse<IPaginationResponse<IVoucher>>>(
-    '/voucher/order/public',
+    '/voucher/order/public/eligible',
     {
       params,
     },
