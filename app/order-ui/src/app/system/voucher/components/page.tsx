@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
-import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { DataTable } from '@/components/ui'
 import { usePagination, useSpecificVoucher, useVouchers } from '@/hooks'

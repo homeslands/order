@@ -45,25 +45,6 @@ export default function SelectUserGroupDropdown() {
     setSearchParams(next, { replace: true })
   }
 
-  const handleAppliedChange = (value: string) => {
-    if (value === (isAppliedUserGroup || 'all')) return
-    const next = new URLSearchParams(searchParams)
-    if (value === 'all') {
-      next.delete('isAppliedUserGroup')
-    } else {
-      next.set('isAppliedUserGroup', value)
-    }
-    // Khi chọn "Áp theo nhóm" thì bắt buộc phải có userGroup, nếu chưa có thì set về item đầu tiên
-    if (value === 'true' && !userGroupSlug) {
-      // Set về user group đầu tiên nếu chưa có
-      const firstUserGroup = userGroupsData?.[0]
-      if (firstUserGroup) {
-        next.set('userGroup', firstUserGroup.slug)
-      }
-    }
-    setSearchParams(next, { replace: true })
-  }
-
   const handleReset = () => {
     const next = new URLSearchParams(searchParams)
     next.delete('userGroup')
@@ -76,20 +57,6 @@ export default function SelectUserGroupDropdown() {
 
   return (
     <div className="flex gap-2 items-center">
-      <Select
-        value={isAppliedUserGroup}
-        onValueChange={(value) => handleAppliedChange(value)}
-      >
-        <SelectTrigger className="w-fit">
-          <SelectValue className="text-xs" placeholder={t('customer.userGroup.applyToGroup')} />
-        </SelectTrigger>
-        <SelectContent className="w-[180px]">
-          <SelectItem value="all"><span className="text-xs">{t('customer.userGroup.all')}</span></SelectItem>
-          <SelectItem value="true"><span className="text-xs">{t('customer.userGroup.applyToGroup')}</span></SelectItem>
-          <SelectItem value="false"><span className="text-xs">{t('customer.userGroup.notApplyToGroup')}</span></SelectItem>
-        </SelectContent>
-      </Select>
-
       <Select
         value={userGroupSlug ?? (showAllOptionForUserGroup ? 'all' : userGroupsData?.[0]?.slug)}
         onValueChange={(value) => handleSelectChange(value)}
