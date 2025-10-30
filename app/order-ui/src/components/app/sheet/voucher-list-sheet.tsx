@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import {
@@ -43,6 +43,7 @@ import {
 } from '@/hooks'
 import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, isVoucherApplicableToCartItems, showErrorToast, showToast } from '@/utils'
 import {
+  IGetAllVoucherRequest,
   IValidateVoucherRequest,
   IVoucher,
 } from '@/types'
@@ -90,26 +91,39 @@ export default function VoucherListSheet() {
     userInfo.role?.name === Role.CUSTOMER &&
     userInfo.phonenumber !== 'default-customer';
 
+  const minOrderValue = useMemo(() => {
+    return cartItems?.orderItems.reduce((acc, item) => {
+      const original = item.originalPrice ?? 0
+      const promotionDiscount = item.promotionDiscount ?? 0
+      return acc + (original - promotionDiscount) * item.quantity
+    }, 0) || 0
+  }, [cartItems?.orderItems])
+
+  const voucherForOrderRequestParam: IGetAllVoucherRequest = {
+    hasPaging: true,
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    user: userInfo?.slug,
+    paymentMethod: cartItems?.paymentMethod,
+    minOrderValue: minOrderValue,
+    orderItems: cartItems?.orderItems.map(item => ({
+      quantity: item.quantity,
+      variant: item.variant.slug,
+      promotion: item.promotion ? item.promotion.slug : '',
+      order: item.slug || '',
+    })) || [],
+  }
+
   const { data: voucherList } = useVouchersForOrder(
     isCustomerOwner // Nếu owner là khách có tài khoản
-      ? {
-        isActive: true,
-        hasPaging: true,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-      }
+      ? voucherForOrderRequestParam
       : undefined,
     !!sheetOpen && isCustomerOwner
   )
 
   const { data: publicVoucherList } = usePublicVouchersForOrder(
     !isCustomerOwner
-      ? {
-        isActive: true,
-        hasPaging: true,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-      }
+      ? voucherForOrderRequestParam
       : undefined,
     !!sheetOpen && !isCustomerOwner
   )

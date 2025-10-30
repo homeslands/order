@@ -35,11 +35,13 @@ import {
   useSpecificVoucher,
   useValidateVoucher,
   useVouchersForOrder,
+  usePublicVouchersForOrder,
 } from '@/hooks'
 import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, isVoucherApplicableToCartItems, showErrorToast, showToast } from '@/utils'
 import {
   IValidateVoucherRequest,
   IVoucher,
+  IGetAllVoucherRequest,
 } from '@/types'
 import { useOrderFlowStore, useThemeStore, useUserStore } from '@/stores'
 import { APPLICABILITY_RULE, Role, VOUCHER_TYPE } from '@/constants'
@@ -80,23 +82,32 @@ export default function StaffVoucherListSheet() {
     cartItems.ownerRole === Role.CUSTOMER &&
     cartItems.ownerPhoneNumber !== 'default-customer';
 
+  const minOrderValue = (cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0)
+
+  const voucherForOrderRequestParam: IGetAllVoucherRequest = {
+    hasPaging: true,
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    ...(isCustomerOwner ? { user: cartItems?.owner || '' } : {}),
+    ...(cartItems?.paymentMethod ? { paymentMethod: cartItems.paymentMethod } : {}),
+    minOrderValue: minOrderValue,
+    orderItems: (cartItems?.orderItems || []).map(item => ({
+      quantity: item.quantity,
+      variant: item.variant.slug,
+      promotion: item.promotion ? item.promotion.slug : '',
+      order: item.slug || '',
+    })),
+  }
+
   const { data: voucherList } = useVouchersForOrder(
-    isCustomerOwner
-      ? {
-        isActive: true,
-        hasPaging: true,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-      }
-      : {
-        isVerificationIdentity: false,
-        isActive: true,
-        hasPaging: true,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-      },
-    !!sheetOpen
+    isCustomerOwner ? voucherForOrderRequestParam : undefined,
+    !!sheetOpen && isCustomerOwner
   );
+
+  const { data: publicVoucherList } = usePublicVouchersForOrder(
+    !isCustomerOwner ? voucherForOrderRequestParam : undefined,
+    !!sheetOpen && !isCustomerOwner
+  )
 
 
   const { data: specificVoucher, refetch: refetchSpecificVoucher } = useSpecificVoucher(
@@ -213,19 +224,18 @@ export default function StaffVoucherListSheet() {
   }, [userInfo, specificVoucher?.result]);
 
   useEffect(() => {
-    const baseList = (userInfo ? voucherList?.result.items : []) || []
+    const baseList = (isCustomerOwner ? voucherList?.result?.items : publicVoucherList?.result?.items) || []
     let newList = [...baseList]
 
-    if (userInfo && specificVoucher?.result) {
+    if (specificVoucher?.result) {
       const existingIndex = newList.findIndex(v => v.slug === specificVoucher.result.slug)
       if (existingIndex === -1) {
         newList = [specificVoucher.result, ...newList]
       }
     }
 
-
     setLocalVoucherList(newList)
-  }, [userInfo, voucherList?.result?.items, specificVoucher?.result])
+  }, [isCustomerOwner, voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result])
 
   useEffect(() => {
     if (cartItems?.voucher) {
