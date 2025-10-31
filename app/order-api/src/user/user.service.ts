@@ -14,6 +14,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import {
   CreateUserRequestDto,
   GetAllUserQueryRequestDto,
+  UpdateUserLanguageRequestDto,
   UpdateUserRequestDto,
   UpdateUserRoleRequestDto,
   UserResponseDto,
@@ -295,6 +296,24 @@ export class UserService {
     user.isActive = !user.isActive;
     await this.userRepository.save(user);
     this.logger.log(`User ${slug} active status has been toggled`, context);
+    return this.mapper.map(user, User, UserResponseDto);
+  }
+
+  async updateUserLanguage(
+    userId: string,
+    requestData: UpdateUserLanguageRequestDto,
+  ) {
+    const context = `${UserService.name}.${this.updateUserLanguage.name}`;
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+    if (!user) {
+      this.logger.warn(`User ${userId} not found`, context);
+      throw new UserException(UserValidation.USER_NOT_FOUND);
+    }
+    user.language = requestData.language;
+    await this.userRepository.save(user);
+    this.logger.log(`User ${user.slug} language has been updated`, context);
     return this.mapper.map(user, User, UserResponseDto);
   }
 }

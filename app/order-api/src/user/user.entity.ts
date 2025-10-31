@@ -21,7 +21,8 @@ import { VerifyPhoneNumberToken } from 'src/auth/entity/verify-phone-number-toke
 import { Balance } from 'src/gift-card-modules/balance/entities/balance.entity';
 import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
 import { UserGroupMember } from 'src/user-group-member/user-group-member.entity';
-
+import { FirebaseDeviceToken } from 'src/notification/firebase/firebase-device-token.entity';
+import { UserLanguage } from './user.constant';
 @Entity('user_tbl')
 export class User extends Base {
   @AutoMap()
@@ -38,6 +39,10 @@ export class User extends Base {
   @Column({ name: 'last_name_column', nullable: true })
   @AutoMap()
   lastName: string;
+
+  @AutoMap()
+  @Column({ name: 'language_column', default: UserLanguage.VI })
+  language: string;
 
   @Column({ name: 'is_active_column', default: true })
   @AutoMap()
@@ -137,4 +142,11 @@ export class User extends Base {
   // One to many with user group members
   @OneToMany(() => UserGroupMember, (userGroupMember) => userGroupMember.user)
   userGroupMembers: UserGroupMember[];
+
+  // One to many with device tokens
+  @OneToMany(
+    () => FirebaseDeviceToken,
+    (firebaseDeviceToken) => firebaseDeviceToken.user,
+  )
+  firebaseDeviceTokens: FirebaseDeviceToken[];
 }

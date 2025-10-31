@@ -1,7 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 import { AccumulatedPointResponseDto } from 'src/accumulated-point/accumulated-point.dto';
 import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 import {
@@ -15,6 +15,8 @@ import {
 import { BranchResponseDto } from 'src/branch/branch.dto';
 import { BalanceResponseDto } from 'src/gift-card-modules/balance/dto/balance-response.dto';
 import { RoleResponseDto } from 'src/role/role.dto';
+import { INVALID_LANGUAGE } from './user.validation';
+import { UserLanguage } from './user.constant';
 
 export class CreateUserRequestDto {
   @ApiProperty()
@@ -117,6 +119,9 @@ export class UserResponseDto extends BaseResponseDto {
 
   @AutoMap()
   isActive: boolean;
+
+  @AutoMap()
+  language: string;
 }
 
 export class GeneralUserResponseDto extends BaseResponseDto {
@@ -201,4 +206,11 @@ export class GetAllUserQueryRequestDto extends BaseQueryDto {
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
   hasPaging?: boolean;
+}
+
+export class UpdateUserLanguageRequestDto {
+  @ApiProperty()
+  @IsNotEmpty({ message: INVALID_LANGUAGE })
+  @IsEnum(UserLanguage, { message: INVALID_LANGUAGE })
+  language: string;
 }

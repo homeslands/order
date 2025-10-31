@@ -12,8 +12,10 @@ import { baseMapper } from 'src/app/base.mapper';
 import { Notification } from './notification.entity';
 import {
   CreateNotificationDto,
+  FirebaseRegisterDeviceTokenResponseDto,
   NotificationResponseDto,
 } from './notification.dto';
+import { FirebaseDeviceToken } from './firebase/firebase-device-token.entity';
 
 @Injectable()
 export class NotificationProfile extends AutomapperProfile {
@@ -41,6 +43,12 @@ export class NotificationProfile extends AutomapperProfile {
           (d) => d.metadata,
           mapFrom((s) => JSON.stringify(s.metadata)),
         ),
+      );
+      createMap(
+        mapper,
+        FirebaseDeviceToken,
+        FirebaseRegisterDeviceTokenResponseDto,
+        extend(baseMapper(mapper)),
       );
     };
   }
