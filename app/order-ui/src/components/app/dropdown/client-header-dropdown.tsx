@@ -16,11 +16,13 @@ import { ProfileAvatar } from '@/components/app/avatar'
 import { LogoutDialog, UseGiftCardDialog } from '@/components/app/dialog'
 import { ROUTE } from '@/constants'
 import { useAuthStore } from '@/stores'
+import { useIsMobile } from '@/hooks'
 
 export default function ClientHeaderDropdown() {
   const { t } = useTranslation(['sidebar'])
   const { isAuthenticated } = useAuthStore()
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
   if (!isAuthenticated())
     return (
       <Button
@@ -45,42 +47,42 @@ export default function ClientHeaderDropdown() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem className="h-9 px-0">
+          <DropdownMenuItem className="px-0 h-9">
             <NavLink
-              to={`${ROUTE.CLIENT_PROFILE}?tab=info`}
-              className="flex h-9 w-full justify-start"
+              to={isMobile ? ROUTE.CLIENT_PROFILE : ROUTE.CLIENT_PROFILE_INFO}
+              className="flex justify-start w-full h-9"
             >
               <Button
                 variant="ghost"
-                className="flex w-full justify-start gap-1 text-sm"
+                className="flex gap-1 justify-start w-full text-sm"
               >
                 <User className="icon" />
                 {t('header.profile')}
               </Button>
             </NavLink>
           </DropdownMenuItem>
-          <DropdownMenuItem className="h-9 px-0">
+          <DropdownMenuItem className="px-0 h-9">
             <NavLink
-              to={`${ROUTE.CLIENT_PROFILE}?tab=history`}
-              className="flex h-9 w-full justify-start"
+              to={ROUTE.CLIENT_PROFILE_HISTORY}
+              className="flex justify-start w-full h-9"
             >
               <Button
                 variant="ghost"
-                className="flex w-full justify-start gap-1 text-sm"
+                className="flex gap-1 justify-start w-full text-sm"
               >
                 <Inbox className="icon" />
                 {t('header.myOrders')}
               </Button>
             </NavLink>
           </DropdownMenuItem>
-          <DropdownMenuItem className="h-9 px-0">
+          <DropdownMenuItem className="px-0 h-9">
             <NavLink
-              to={`${ROUTE.CLIENT_PROFILE}?tab=gift-card`}
-              className="flex h-9 w-full justify-start"
+              to={ROUTE.CLIENT_PROFILE_GIFT_CARD}
+              className="flex justify-start w-full h-9"
             >
               <Button
                 variant="ghost"
-                className="flex w-full justify-start gap-1 text-sm"
+                className="flex gap-1 justify-start w-full text-sm"
               >
                 <Archive className="icon" />
                 {t('header.listGiftCard')}

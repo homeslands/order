@@ -30,7 +30,13 @@ import {
   ClientHomePage,
   ClientCartPage,
   ClientOrderHistoryPage,
-  ClientProfilePage,
+  ProfileLayout,
+  ProfileOverview,
+  ClientInfoPage,
+  OrderHistoryPage,
+  LoyaltyPointPage,
+  CoinPage,
+  GiftCardPageProfile,
   ClientPaymentPage,
   RevenuePage,
   StaticPageManagementPage,
@@ -78,7 +84,7 @@ import {
   AccountDeletionPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
-import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
+import { ClientLayout, PublicClientLayout, AdaptiveClientShell } from '@/app/layouts/client'
 import { BranchManagementPage } from '@/app/system/branch'
 import { DocsLayout } from '@/app/layouts/system'
 import ErrorPage from '@/app/error-page'
@@ -302,34 +308,6 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <SuspenseElement component={OrderSuccessPage} />,
-          },
-        ],
-      },
-      {
-        path: `${ROUTE.CLIENT_ORDER_SUCCESS}/:slug`,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
-          {
-            index: true,
-            element: <SuspenseElement component={ClientOrderSuccessPage} />,
-          },
-        ],
-      },
-      {
-        path: `${ROUTE.CLIENT_GIFT_CARD_SUCCESS}/:slug`,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
-          {
-            index: true,
-            element: <SuspenseElement component={GiftCardSuccessPage} />,
           },
         ],
       },
@@ -1081,201 +1059,219 @@ export const router = createBrowserRouter([
           },
         ],
       },
+      // Client routes with shell
       {
-        path: ROUTE.CLIENT_HOME,
         element: (
           <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
+            <SuspenseElement component={AdaptiveClientShell} />
           </Suspense>
         ),
         children: [
           {
-            index: true,
-            element: <SuspenseElement component={ClientHomePage} />,
+            path: ROUTE.CLIENT_HOME,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                index: true,
+                element: <SuspenseElement component={ClientHomePage} />,
+              },
+            ],
           },
-        ],
-      },
-      {
-        path: ROUTE.CLIENT_MENU,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <ClientLayout />
-          </Suspense>
-        ),
-        children: [
           {
-            index: true,
-            element: <SuspenseElement component={ClientMenuPage} />,
+            path: ROUTE.CLIENT_MENU,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                index: true,
+                element: <SuspenseElement component={ClientMenuPage} />,
+              },
+            ],
           },
-        ],
-      },
-      {
-        path: `${ROUTE.CLIENT_MENU_ITEM}`,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
           {
-            index: true,
-            element: <SuspenseElement component={ClientProductDetailPage} />,
+            path: `${ROUTE.CLIENT_MENU_ITEM}`,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                index: true,
+                element: <SuspenseElement component={ClientProductDetailPage} />,
+              },
+            ],
           },
-        ],
-      },
-      {
-        path: ROUTE.CLIENT_CART,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
           {
-            index: true,
-            element: <SuspenseElement component={ClientCartPage} />,
+            path: ROUTE.CLIENT_CART,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                index: true,
+                element: <SuspenseElement component={ClientCartPage} />,
+              },
+            ],
           },
-        ],
-      },
-      {
-        path: ROUTE.CLIENT_PAYMENT,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
           {
-            index: true,
-            element: <SuspenseElement component={ClientPaymentPage} />,
+            path: ROUTE.CLIENT_PAYMENT,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                index: true,
+                element: <SuspenseElement component={ClientPaymentPage} />,
+              },
+            ],
           },
-        ],
-      },
-      {
-        path: ROUTE.CLIENT_ORDERS_PUBLIC,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
           {
-            index: true,
-            element: <SuspenseElement component={OrdersPublicPage} />,
+            path: ROUTE.CLIENT_ORDERS_PUBLIC,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                index: true,
+                element: <SuspenseElement component={OrdersPublicPage} />,
+              },
+            ],
           },
-        ],
-      },
-      {
-        path: `${ROUTE.CLIENT_ORDERS_PUBLIC}/:slug`,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
           {
-            index: true,
-            element: <SuspenseElement component={PublicOrderDetailPage} />,
+            path: `${ROUTE.CLIENT_ORDERS_PUBLIC}/:slug`,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                index: true,
+                element: <SuspenseElement component={PublicOrderDetailPage} />,
+              },
+            ],
           },
-        ],
-      },
-      {
-        path: ROUTE.CLIENT_ORDER_HISTORY,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
           {
-            index: true,
-            element: (
-              <ProtectedElement
-                // allowedRoles={[Role.CUSTOMER]}
-                element={<SuspenseElement component={ClientOrderHistoryPage} />}
-              />
-            ),
+            path: ROUTE.CLIENT_ORDER_HISTORY,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                index: true,
+                element: (
+                  <ProtectedElement
+                    // allowedRoles={[Role.CUSTOMER]}
+                    element={<SuspenseElement component={ClientOrderHistoryPage} />}
+                  />
+                ),
+              },
+            ],
           },
-        ],
-      },
-      {
-        path: `${ROUTE.CLIENT_UPDATE_ORDER}/:slug`,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
           {
-            index: true,
-            element: (
-              <ProtectedElement
-                // allowedRoles={[Role.CUSTOMER]}
-                element={<SuspenseElement component={ClientUpdateOrderPage} />}
-              />
-            ),
+            path: `${ROUTE.CLIENT_UPDATE_ORDER}/:slug`,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                index: true,
+                element: (
+                  <ProtectedElement
+                    // allowedRoles={[Role.CUSTOMER]}
+                    element={<SuspenseElement component={ClientUpdateOrderPage} />}
+                  />
+                ),
+              },
+            ],
           },
-        ],
-      },
-      {
-        path: ROUTE.HOME,
-        element: <ClientLayout />,
-        children: [
           {
-            index: true,
-            element: (
-              <ProtectedElement
-                // allowedRoles={RoutePermissions[ROUTE.HOME]}
-                element={<ClientHomePage />}
-              />
-            ),
+            path: ROUTE.HOME,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                index: true,
+                element: (
+                  <ProtectedElement
+                    // allowedRoles={RoutePermissions[ROUTE.HOME]}
+                    element={<ClientHomePage />}
+                  />
+                ),
+              },
+            ],
           },
-        ],
-      },
-      {
-        path: ROUTE.CLIENT_PROFILE,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
           {
-            index: true,
-            element: (
-              <ProtectedElement
-                // allowedRoles={[Role.CUSTOMER]}
-                element={<SuspenseElement component={ClientProfilePage} />}
-              />
-            ),
+            path: ROUTE.CLIENT_PROFILE,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                element: (
+                  <ProtectedElement
+                    element={<SuspenseElement component={ProfileLayout} />}
+                  />
+                ),
+                children: [
+                  {
+                    index: true,
+                    element: <SuspenseElement component={ProfileOverview} />,
+                  },
+                  {
+                    path: 'info',
+                    element: <SuspenseElement component={ClientInfoPage} />,
+                  },
+                  {
+                    path: 'history',
+                    element: <SuspenseElement component={OrderHistoryPage} />,
+                  },
+                  {
+                    path: 'loyalty-point',
+                    element: <SuspenseElement component={LoyaltyPointPage} />,
+                  },
+                  {
+                    path: 'coin',
+                    element: <SuspenseElement component={CoinPage} />,
+                  },
+                  {
+                    path: 'gift-card',
+                    element: <SuspenseElement component={GiftCardPageProfile} />,
+                  },
+                ],
+              },
+            ],
           },
-        ],
-      },
-      {
-        path: ROUTE.CLIENT_GIFT_CARD,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
           {
-            index: true,
-            element: <SuspenseElement component={ClientGiftCardPage} />,
+            path: ROUTE.CLIENT_GIFT_CARD,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                index: true,
+                element: <SuspenseElement component={ClientGiftCardPage} />,
+              },
+            ],
           },
-        ],
-      },
-      {
-        path: ROUTE.CLIENT_GIFT_CARD_CHECKOUT,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
           {
-            index: true,
-            element: <SuspenseElement component={ClientGiftCardCheckoutPage} />,
+            path: ROUTE.CLIENT_GIFT_CARD_CHECKOUT,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                index: true,
+                element: <SuspenseElement component={ClientGiftCardCheckoutPage} />,
+              },
+            ],
+          },
+          {
+            path: ROUTE.CLIENT_GIFT_CARD_CHECKOUT_WITH_SLUG,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                index: true,
+                element: (
+                  <SuspenseElement component={ClientGiftCardCheckoutWithSlugPage} />
+                ),
+              },
+            ],
+          },
+          {
+            path: `${ROUTE.CLIENT_ORDER_SUCCESS}/:slug`,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                index: true,
+                element: <SuspenseElement component={ClientOrderSuccessPage} />,
+              },
+            ],
+          },
+          {
+            path: `${ROUTE.CLIENT_GIFT_CARD_SUCCESS}/:slug`,
+            element: <SuspenseElement component={ClientLayout} />,
+            children: [
+              {
+                index: true,
+                element: <SuspenseElement component={GiftCardSuccessPage} />,
+              },
+            ],
           },
         ],
       },
@@ -1291,22 +1287,6 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <SuspenseElement component={SystemGiftCardCheckoutWithSlugPage} />
-            ),
-          },
-        ],
-      },
-      {
-        path: ROUTE.CLIENT_GIFT_CARD_CHECKOUT_WITH_SLUG,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
-          {
-            index: true,
-            element: (
-              <SuspenseElement component={ClientGiftCardCheckoutWithSlugPage} />
             ),
           },
         ],

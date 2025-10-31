@@ -61,7 +61,7 @@ export default function ProductImageCarousel({
   }, [autoScroll])
 
   return (
-    <div className="flex w-full flex-col items-center gap-2">
+    <div className="flex w-full flex-col items-center gap-2 px-2">
       <Carousel
         opts={{
           align: 'start',
@@ -75,9 +75,8 @@ export default function ProductImageCarousel({
             <CarouselItem key={index} className="w-full basis-1/2 md:basis-1/3">
               <div className="flex w-full py-1">
                 <Card
-                  className={`group relative w-full cursor-pointer transition-all duration-300 ease-in-out hover:ring-2 hover:ring-primary ${
-                    selectedIndex === index ? 'ring-2 ring-primary' : ''
-                  }`}
+                  className={`group relative w-full cursor-pointer transition-all duration-300 ease-in-out hover:ring-2 hover:ring-primary ${selectedIndex === index ? 'ring-2 ring-primary' : ''
+                    }`}
                   onClick={() => handleImageClick(image, index)}
                 >
                   <img
@@ -96,9 +95,8 @@ export default function ProductImageCarousel({
           {images?.map((_, index) => (
             <button
               key={index}
-              className={`h-2 w-2 rounded-full transition-all ${
-                current === index ? 'w-4 bg-primary' : 'bg-gray-300'
-              }`}
+              className={`h-2 w-2 rounded-full transition-all ${current === index ? 'w-4 bg-primary' : 'bg-gray-300'
+                }`}
               onClick={() => handleImageClick(images[index], index)}
             />
           ))}

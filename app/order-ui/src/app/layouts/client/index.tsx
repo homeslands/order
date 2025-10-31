@@ -1,2 +1,6 @@
 export { default as ClientLayout } from './ClientLayout'
 export { default as PublicClientLayout } from './client-layout-public'
+export { default as ClientShell } from './client-shell'
+export { default as ClientDetailShell } from './client-detail-shell'
+export { default as ClientProfileShell } from './client-profile-shell'
+export { default as AdaptiveClientShell } from './adaptive-client-shell'

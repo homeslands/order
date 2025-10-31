@@ -95,7 +95,7 @@ export default function CustomerOrderTabsContent() {
             const displayItems = calculateOrderItemDisplay(orderItems, voucher)
             const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
             return (
-              <div key={orderItem.slug} className="flex flex-col gap-4 p-0 mt-2 bg-white rounded-lg border dark:bg-transparent">
+              <div key={orderItem.slug} className="flex flex-col gap-4 p-0 mt-2 bg-white rounded-lg border dark:bg-muted-foreground/10">
                 <div className="flex gap-4 items-center p-4 w-full border-b bg-primary/15 dark:bg-muted-foreground/10">
                   <span className="text-xs text-muted-foreground">
                     {moment(orderItem.createdAt).format('HH:mm:ss DD/MM/YYYY')}

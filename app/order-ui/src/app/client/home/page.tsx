@@ -4,12 +4,12 @@ import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet'
+import { ChevronRight } from 'lucide-react'
 
 import { Button } from '@/components/ui'
 import { useBanners, useIsMobile, usePublicSpecificMenu, useSpecificMenu } from '@/hooks'
 import { ROUTE, youtubeVideoId } from '@/constants'
 import { SliderMenu, StoreCarousel, SwiperBanner, YouTubeVideoSection } from './components'
-// import { AdPopup } from '@/components/app/AdPopup'
 import { useBranchStore, useUserStore } from '@/stores'
 import { IMenuItem } from '@/types'
 
@@ -101,7 +101,7 @@ export default function HomePage() {
                   {t('home.exploreMenu')}
                 </div>
                 <NavLink to={ROUTE.CLIENT_MENU}>
-                  <Button>{t('home.viewMenu')}</Button>
+                  <Button variant="ghost" className="text-muted-foreground">{t('home.viewMenu')} <ChevronRight className="icon" /></Button>
                 </NavLink>
               </div>
               <SliderMenu
@@ -128,7 +128,7 @@ export default function HomePage() {
                   {t('home.topPromotion')}
                 </div>
                 <NavLink to={ROUTE.CLIENT_MENU}>
-                  <Button>{t('home.viewMore')}</Button>
+                  <Button variant="ghost" className="text-muted-foreground">{t('home.viewMore')} <ChevronRight className="icon" /></Button>
                 </NavLink>
               </div>
               <SliderMenu
@@ -153,7 +153,7 @@ export default function HomePage() {
               <div className="w-full flex-between">
                 <div className="primary-highlight">{t('home.bestSeller')}</div>
                 <NavLink to={ROUTE.CLIENT_MENU}>
-                  <Button>{t('home.viewMore')}</Button>
+                  <Button variant="ghost" className="text-muted-foreground">{t('home.viewMore')} <ChevronRight className="icon" /></Button>
                 </NavLink>
               </div>
               <SliderMenu
@@ -178,7 +178,7 @@ export default function HomePage() {
               <div className="w-full flex-between">
                 <div className="primary-highlight">{t('home.newProduct')}</div>
                 <NavLink to={ROUTE.CLIENT_MENU}>
-                  <Button>{t('home.viewMore')}</Button>
+                  <Button variant="ghost" className="text-muted-foreground">{t('home.viewMore')} <ChevronRight className="icon" /></Button>
                 </NavLink>
               </div>
 

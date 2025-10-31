@@ -1,5 +1,11 @@
 {
   "profile": {
+    "accountAndSecurity": "Account and Security",
+    "orderHistory": "Order History",
+    "memberAndPromotion": "Member and Promotion",
+    "basicInfo": "Basic Information",
+    "contactInfo": "Contact Information",
+    "addressInfo": "Address Information",
     "address": "Address",
     "addressEmojiInvalid": "Address must not contain emojis",
     "addressRequired": "Address is required",
@@ -7,6 +13,7 @@
     "all": "All",
     "allTransactions": "All Transactions",
     "applyFilter": "Apply Filter",
+    "backToMenu": "Back",
     "branch": "Branch",
     "cardOrder": {
       "cardPrice": "Card Price",
@@ -123,6 +130,8 @@
     "firstNameTooLong": "First name must not exceed 100 characters",
     "fromDate": "From Date",
     "generalInfo": "General Information",
+    "hideBalance": "Hide balance",
+    "showBalance": "Show balance",
     "giftCard": {
       "code": "Gift Card Code",
       "copyCode": "Copy Code",

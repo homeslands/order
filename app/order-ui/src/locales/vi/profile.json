@@ -1,5 +1,11 @@
 {
   "profile": {
+    "accountAndSecurity": "Tài khoản và bảo mật",
+    "orderHistory": "Lịch sử đơn hàng",
+    "memberAndPromotion": "Thành viên và khuyến mãi",
+    "basicInfo": "Thông tin cơ bản",
+    "contactInfo": "Thông tin liên hệ",
+    "addressInfo": "Thông tin địa chỉ",
     "address": "Địa chỉ",
     "addressEmojiInvalid": "Địa chỉ không được chứa emoji",
     "addressRequired": "Địa chỉ không được để trống",
@@ -7,6 +13,7 @@
     "all": "Tất cả",
     "allTransactions": "Tất cả giao dịch",
     "applyFilter": "Áp dụng lọc",
+    "backToMenu": "Quay lại",
     "branch": "Chi nhánh",
     "cardOrder": {
       "cardPrice": "Giá thẻ",
@@ -115,6 +122,8 @@
     "firstNameTooLong": "Tên không được vượt quá 100 ký tự",
     "fromDate": "Từ ngày",
     "generalInfo": "Thông tin chung",
+    "hideBalance": "Ẩn số dư",
+    "showBalance": "Hiện số dư",
     "giftCard": {
       "code": "Mã thẻ quà tặng",
       "copyCode": "Sao chép mã",

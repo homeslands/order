@@ -367,9 +367,52 @@ export const ClientOrderHistoryPage = React.lazy(() =>
   })),
 )
 
-export const ClientProfilePage = React.lazy(() =>
-  import('@/app/client/profile').then((module) => ({
-    default: module.ProfilePage,
+// Profile Layout
+export const ProfileLayout = React.lazy(() =>
+  import('@/app/client/profile/layout').then((module) => ({
+    default: module.default,
+  })),
+)
+
+// Profile Overview (Mobile menu)
+export const ProfileOverview = React.lazy(() =>
+  import('@/app/client/profile/components/profile-overview').then((module) => ({
+    default: module.default,
+  })),
+)
+
+// Profile Info Page
+export const ClientInfoPage = React.lazy(() =>
+  import('@/app/client/profile/components/client-info-page').then((module) => ({
+    default: module.default,
+  })),
+)
+
+// Profile History Page
+export const OrderHistoryPage = React.lazy(() =>
+  import('@/app/client/profile/components/order-history-page').then((module) => ({
+    default: module.default,
+  })),
+)
+
+// Profile Loyalty Point Page
+export const LoyaltyPointPage = React.lazy(() =>
+  import('@/app/client/profile/components/loyalty-point-page').then((module) => ({
+    default: module.default,
+  })),
+)
+
+// Profile Coin Page
+export const CoinPage = React.lazy(() =>
+  import('@/app/client/profile/components/coin-page').then((module) => ({
+    default: module.default,
+  })),
+)
+
+// Profile Gift Card Page
+export const GiftCardPageProfile = React.lazy(() =>
+  import('@/app/client/profile/components/gift-card-page').then((module) => ({
+    default: module.default,
   })),
 )
 
