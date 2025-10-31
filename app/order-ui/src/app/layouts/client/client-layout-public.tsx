@@ -5,7 +5,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib'
 import { DownloadProgress } from '@/components/app/progress'
 import { useCartItemStore, useDownloadStore, usePaymentMethodStore, useUserStore } from '@/stores'
-import { ClientHeader, ClientFooter, BackToTop, BottomBar } from './components'
+import { ClientHeader, ClientFooter, BackToTop, BottomBarStatic } from './components'
 import { Role, ROUTE } from '@/constants'
 import { useTables } from '@/hooks'
 
@@ -61,7 +61,7 @@ export default function PublicClientLayout() {
       </main>
 
       {/* Footer */}
-      {isMobile && <BottomBar />}
+      {isMobile && <BottomBarStatic />}
       <ClientFooter />
     </div>
   )

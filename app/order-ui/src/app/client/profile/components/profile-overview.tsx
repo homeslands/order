@@ -78,23 +78,8 @@ export default function ProfileOverview() {
                                 <div className="p-2 rounded-full bg-primary/10">
                                     <GiftIcon className="w-5 h-5 text-primary" />
                                 </div>
-                                <div className="flex flex-1 justify-between items-center py-2 pl-1 border-b border-muted-foreground/10">
+                                <div className="flex flex-1 justify-between items-center py-2 pl-1 border-muted-foreground/10">
                                     <span className="text-[15px] font-medium">{t('profile.giftCard.defaultTitle')}</span>
-                                    <ChevronRightIcon className="icon text-muted-foreground" />
-                                </div>
-                            </div>
-                        </Button>
-                    </Link>
-
-                    {/* Item 3: Quản lý xu */}
-                    <Link to={`${ROUTE.CLIENT_PROFILE_COIN}`}>
-                        <Button variant="ghost" className="flex justify-between px-0 w-full rounded-none">
-                            <div className="flex gap-3 items-center w-full">
-                                <div className="p-2 rounded-full bg-primary/10">
-                                    <Coins className="w-5 h-5 text-primary" />
-                                </div>
-                                <div className="flex flex-1 justify-between items-center py-2 pl-1">
-                                    <span className="text-[15px] font-medium">{t('profile.coin')}</span>
                                     <ChevronRightIcon className="icon text-muted-foreground" />
                                 </div>
                             </div>
