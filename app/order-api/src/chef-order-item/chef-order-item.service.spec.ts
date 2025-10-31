@@ -19,6 +19,9 @@ import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { NotificationLanguageService } from 'src/notification/language/notification-language.service';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { SystemConfig } from 'src/system-config/system-config.entity';
 
 describe('ChefOrderItemService', () => {
   let service: ChefOrderItemService;
@@ -77,6 +80,12 @@ describe('ChefOrderItemService', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
+        },
+        NotificationLanguageService,
+        SystemConfigService,
+        {
+          provide: getRepositoryToken(SystemConfig),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();
