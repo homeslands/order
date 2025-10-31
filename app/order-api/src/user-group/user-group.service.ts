@@ -1,6 +1,13 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, FindOptionsWhere, FindManyOptions } from 'typeorm';
+import {
+  Repository,
+  Like,
+  FindOptionsWhere,
+  FindManyOptions,
+  In,
+  Not,
+} from 'typeorm';
 import { UserGroup } from './user-group.entity';
 import {
   CreateUserGroupDto,
@@ -20,12 +27,17 @@ import {
   attachCreatedByForSingleEntity,
 } from 'src/user/user.helper';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
+import { VoucherException } from 'src/voucher/voucher.exception';
+import { VoucherValidation } from 'src/voucher/voucher.validation';
 
 @Injectable()
 export class UserGroupService {
   constructor(
     @InjectRepository(UserGroup)
     private readonly userGroupRepository: Repository<UserGroup>,
+    @InjectRepository(Voucher)
+    private readonly voucherRepository: Repository<Voucher>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectMapper() private readonly mapper: Mapper,
@@ -62,6 +74,7 @@ export class UserGroupService {
   async getAllUserGroups(
     query: GetAllUserGroupQueryRequestDto,
   ): Promise<AppPaginatedResponseDto<UserGroupResponseDto>> {
+    const context = `${UserGroupService.name}.${this.getAllUserGroups.name}`;
     // Construct where options
     const whereOptions: FindOptionsWhere<UserGroup> = {};
 
@@ -86,6 +99,26 @@ export class UserGroupService {
         userGroupMembers: {
           user: { phonenumber: query.phoneNumber },
         },
+      };
+    }
+
+    if (query.voucher) {
+      const voucher = await this.voucherRepository.findOne({
+        where: { slug: query.voucher },
+        relations: {
+          voucherUserGroups: { userGroup: true },
+        },
+      });
+      if (!voucher) {
+        this.logger.warn(`Voucher not found`, context);
+        throw new VoucherException(VoucherValidation.VOUCHER_NOT_FOUND);
+      }
+      const userGroupIds = voucher.voucherUserGroups.map(
+        (item) => item.userGroup.id,
+      );
+      findManyOptions.where = {
+        ...whereOptions,
+        id: query.isAppliedVoucher ? In(userGroupIds) : Not(In(userGroupIds)),
       };
     }
 
@@ -133,7 +166,14 @@ export class UserGroupService {
     const context = `${UserGroupService.name}.${this.findOne.name}`;
     const userGroup = await this.userGroupRepository.findOne({
       where: { slug },
-      relations: ['userGroupMembers', 'userGroupMembers.user'],
+      relations: {
+        voucherUserGroups: {
+          voucher: true,
+        },
+        userGroupMembers: {
+          user: true,
+        },
+      },
     });
 
     if (!userGroup) {
@@ -189,6 +229,7 @@ export class UserGroupService {
       where: { slug },
       relations: {
         userGroupMembers: true,
+        voucherUserGroups: true,
       },
     });
 
@@ -200,6 +241,7 @@ export class UserGroupService {
     await this.transactionManagerService.execute<void>(
       async (manager) => {
         await manager.softRemove(userGroup.userGroupMembers);
+        await manager.softRemove(userGroup.voucherUserGroups);
         await manager.softRemove(userGroup);
       },
       () => {

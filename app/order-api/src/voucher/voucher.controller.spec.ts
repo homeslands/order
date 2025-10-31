@@ -41,6 +41,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
 import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
 import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
+import { UserGroup } from 'src/user-group/user-group.entity';
 
 describe('VoucherController', () => {
   let controller: VoucherController;
@@ -148,6 +149,10 @@ describe('VoucherController', () => {
           useValue: {
             emit: jest.fn(), // Mock the emit method
           },
+        },
+        {
+          provide: getRepositoryToken(UserGroup),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();

@@ -20,7 +20,9 @@ import {
   ExportPdfVoucherDto,
   GetAllVoucherDto,
   GetAllVoucherForUserDto,
+  GetAllVoucherForUserEligibleDto,
   GetAllVoucherForUserPublicDto,
+  GetAllVoucherForUserPublicEligibleDto,
   GetVoucherDto,
   RemoveVoucherPaymentMethodRequestDto,
   ValidateVoucherDto,
@@ -140,6 +142,28 @@ export class VoucherController {
     } as AppResponseDto<AppPaginatedResponseDto<VoucherResponseDto>>;
   }
 
+  @Post('order/eligible')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Retrieve all voucher for user' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'All voucher for order have been retrieved successfully',
+    type: VoucherResponseDto,
+    isArray: true,
+  })
+  async findAllForUserEligible(
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    options: GetAllVoucherForUserEligibleDto,
+  ) {
+    const result = await this.voucherService.findAllForUserEligible(options);
+    return {
+      message: 'All voucher for order have been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<AppPaginatedResponseDto<VoucherResponseDto>>;
+  }
+
   @Get('order/public')
   @Public()
   @HttpCode(HttpStatus.OK)
@@ -156,6 +180,32 @@ export class VoucherController {
     options: GetAllVoucherForUserPublicDto,
   ) {
     const result = await this.voucherService.findAllForUserPublic(options);
+    return {
+      message: 'All public voucher for order have been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<AppPaginatedResponseDto<VoucherResponseDto>>;
+  }
+
+  @Post('order/public/eligible')
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Retrieve all public voucher for user' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description:
+      'All public voucher for order have been retrieved successfully',
+    type: VoucherResponseDto,
+    isArray: true,
+  })
+  async findAllForUserPublicEligible(
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    options: GetAllVoucherForUserPublicEligibleDto,
+  ) {
+    const result =
+      await this.voucherService.findAllForUserPublicEligible(options);
     return {
       message: 'All public voucher for order have been retrieved successfully',
       statusCode: HttpStatus.OK,

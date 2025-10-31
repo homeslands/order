@@ -6,6 +6,7 @@ import { VoucherType, VoucherValueType } from '../voucher.constant';
 import { VoucherGroup } from 'src/voucher-group/voucher-group.entity';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { VoucherPaymentMethod } from './voucher-payment-method.entity';
+import { VoucherUserGroup } from 'src/voucher-user-group/voucher-user-group.entity';
 
 @Entity('voucher_tbl')
 export class Voucher extends Base {
@@ -98,4 +99,19 @@ export class Voucher extends Base {
     },
   )
   voucherPaymentMethods: VoucherPaymentMethod[];
+
+  // if true, only user in user group can use voucher
+  // if false, all user can use voucher
+  // if isUserGroup is true, isVerificationIdentity must be true
+  // if isVerificationIdentity is false, isUserGroup must be false
+  // if isVerificationIdentity is true, isUserGroup can be true or false
+  @AutoMap()
+  @Column({ name: 'is_user_group_column', default: false })
+  isUserGroup: boolean;
+
+  @OneToMany(
+    () => VoucherUserGroup,
+    (voucherUserGroup) => voucherUserGroup.voucher,
+  )
+  voucherUserGroups: VoucherUserGroup[];
 }

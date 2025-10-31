@@ -48,6 +48,16 @@ export const DELETE_VOUCHER_PAYMENT_METHOD_FAILED =
   'DELETE_VOUCHER_PAYMENT_METHOD_FAILED';
 export const VOUCHER_MUST_HAVE_AT_LEAST_ONE_PAYMENT_METHOD =
   'VOUCHER_MUST_HAVE_AT_LEAST_ONE_PAYMENT_METHOD';
+export const USER_NOT_IN_USER_GROUP_THAT_CAN_USE_VOUCHER =
+  'USER_NOT_IN_USER_GROUP_THAT_CAN_USE_VOUCHER';
+export const IS_VERIFICATION_IDENTITY_MUST_BE_TRUE_IF_IS_USER_GROUP_IS_TRUE =
+  'IS_VERIFICATION_IDENTITY_MUST_BE_TRUE_IF_IS_USER_GROUP_IS_TRUE';
+export const VOUCHER_HAS_USED_CAN_NOT_UPDATE_IS_USER_GROUP =
+  'VOUCHER_HAS_USED_CAN_NOT_UPDATE_IS_USER_GROUP';
+export const VOUCHER_HAS_USER_GROUP_CAN_NOT_UPDATE_IS_USER_GROUP =
+  'VOUCHER_HAS_USER_GROUP_CAN_NOT_UPDATE_IS_USER_GROUP';
+export const VOUCHER_HAS_USER_GROUP_CAN_NOT_UPDATE_IS_VERIFICATION_IDENTITY =
+  'VOUCHER_HAS_USER_GROUP_CAN_NOT_UPDATE_IS_VERIFICATION_IDENTITY';
 export type TVoucherErrorCodeKey =
   | typeof VOUCHER_NOT_FOUND
   | typeof FIND_ALL_VOUCHER_FAILED
@@ -79,7 +89,12 @@ export type TVoucherErrorCodeKey =
   | typeof CREATE_VOUCHER_PAYMENT_METHOD_FAILED
   | typeof VOUCHER_PAYMENT_METHOD_NOT_FOUND
   | typeof DELETE_VOUCHER_PAYMENT_METHOD_FAILED
-  | typeof VOUCHER_MUST_HAVE_AT_LEAST_ONE_PAYMENT_METHOD;
+  | typeof VOUCHER_MUST_HAVE_AT_LEAST_ONE_PAYMENT_METHOD
+  | typeof USER_NOT_IN_USER_GROUP_THAT_CAN_USE_VOUCHER
+  | typeof IS_VERIFICATION_IDENTITY_MUST_BE_TRUE_IF_IS_USER_GROUP_IS_TRUE
+  | typeof VOUCHER_HAS_USED_CAN_NOT_UPDATE_IS_USER_GROUP
+  | typeof VOUCHER_HAS_USER_GROUP_CAN_NOT_UPDATE_IS_USER_GROUP
+  | typeof VOUCHER_HAS_USER_GROUP_CAN_NOT_UPDATE_IS_VERIFICATION_IDENTITY;
 
 export type TVoucherErrorCode = Record<TVoucherErrorCodeKey, TErrorCodeValue>;
 
@@ -167,6 +182,28 @@ export const VoucherValidation: TVoucherErrorCode = {
     143433,
     'Voucher must have at least one payment method',
   ),
+  USER_NOT_IN_USER_GROUP_THAT_CAN_USE_VOUCHER: createErrorCode(
+    143434,
+    'User not in user group that can use voucher',
+  ),
+  IS_VERIFICATION_IDENTITY_MUST_BE_TRUE_IF_IS_USER_GROUP_IS_TRUE:
+    createErrorCode(
+      143435,
+      'Is verification identity must be true if is user group is true',
+    ),
+  VOUCHER_HAS_USED_CAN_NOT_UPDATE_IS_USER_GROUP: createErrorCode(
+    143436,
+    'Voucher has used can not update is user group',
+  ),
+  VOUCHER_HAS_USER_GROUP_CAN_NOT_UPDATE_IS_USER_GROUP: createErrorCode(
+    143437,
+    'Voucher has user group can not update is user group',
+  ),
+  VOUCHER_HAS_USER_GROUP_CAN_NOT_UPDATE_IS_VERIFICATION_IDENTITY:
+    createErrorCode(
+      143438,
+      'Voucher has user group can not update is verification identity',
+    ),
 };
 
 // Custom validator decorator for date range validation

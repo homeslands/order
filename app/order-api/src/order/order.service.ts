@@ -516,7 +516,12 @@ export class OrderService {
         where: {
           slug: requestData.voucher ?? IsNull(),
         },
-        relations: ['voucherProducts.product'],
+        relations: {
+          voucherProducts: {
+            product: true,
+          },
+          voucherUserGroups: { userGroup: true },
+        },
       });
 
       if (previousVoucher?.id === voucher.id) {
@@ -716,7 +721,12 @@ export class OrderService {
         where: {
           slug: requestData.voucher ?? IsNull(),
         },
-        relations: ['voucherProducts.product'],
+        relations: {
+          voucherProducts: {
+            product: true,
+          },
+          voucherUserGroups: { userGroup: true },
+        },
       });
 
       if (previousVoucher?.id === voucher.id) {
@@ -882,7 +892,12 @@ export class OrderService {
         where: {
           slug: requestData.voucher ?? IsNull(),
         },
-        relations: ['voucherProducts.product'],
+        relations: {
+          voucherProducts: {
+            product: true,
+          },
+          voucherUserGroups: { userGroup: true },
+        },
       });
     } catch (error) {
       this.logger.warn(`${error.message}`, context);
@@ -1014,7 +1029,12 @@ export class OrderService {
         where: {
           slug: requestData.voucher ?? IsNull(),
         },
-        relations: ['voucherProducts.product'],
+        relations: {
+          voucherProducts: {
+            product: true,
+          },
+          voucherUserGroups: { userGroup: true },
+        },
       });
     } catch (error) {
       this.logger.warn(`${error.message}`, context);

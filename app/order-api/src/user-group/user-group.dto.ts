@@ -99,6 +99,28 @@ export class GetAllUserGroupQueryRequestDto extends BaseQueryDto {
   @AutoMap()
   phoneNumber?: string;
 
+  @AutoMap()
+  @ApiProperty({
+    description: 'Get user groups base on voucher',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  voucher?: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'Get user groups that are either applied to a voucher or not',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  isAppliedVoucher?: boolean;
+
   @ApiPropertyOptional({
     description: 'Has paging or not',
     example: true,

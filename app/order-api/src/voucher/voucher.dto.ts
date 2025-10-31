@@ -167,6 +167,18 @@ export class CreateVoucherDto {
   })
   @Type(() => String)
   paymentMethods: string[];
+
+  @AutoMap()
+  @ApiProperty({
+    required: false,
+    type: Boolean,
+  })
+  @IsNotEmpty({ message: 'INVALID_IS_USER_GROUP' })
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return undefined; // Default true
+    return value === 'true' || value === true; // Transform 'true' to `true` and others to `false`
+  })
+  isUserGroup: boolean;
 }
 
 export class BulkCreateVoucherDto {
@@ -312,6 +324,18 @@ export class BulkCreateVoucherDto {
   })
   @Type(() => String)
   paymentMethods: string[];
+
+  @AutoMap()
+  @ApiProperty({
+    required: false,
+    type: Boolean,
+  })
+  @IsNotEmpty({ message: 'INVALID_IS_USER_GROUP' })
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return undefined; // Default true
+    return value === 'true' || value === true; // Transform 'true' to `true` and others to `false`
+  })
+  isUserGroup: boolean;
 }
 
 export class UpdateVoucherDto extends CreateVoucherDto {
@@ -369,6 +393,131 @@ export class GetAllVoucherForUserDto extends BaseQueryDto {
     return value === 'true' || value === true; // Transform 'true' to `true` and others to `false`
   })
   isVerificationIdentity?: boolean;
+
+  @ApiProperty({ required: true, type: String })
+  @AutoMap()
+  @IsNotEmpty({ message: 'INVALID_USER_SLUG' })
+  @IsString({ message: 'INVALID_USER_SLUG' })
+  user: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option has paging or not',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true' || value === true; // Transform 'true' to `true` and others to `false`
+  })
+  hasPaging?: boolean;
+}
+
+export class GetAllVoucherForUserEligibleDto extends BaseQueryDto {
+  @ApiProperty({
+    description: 'The array of order items',
+    example: [
+      {
+        quantity: 2,
+        variant: '',
+        note: '',
+        promotion: '',
+        order: '',
+      },
+    ],
+  })
+  @IsArray({ message: INVALID_ORDER_ITEMS })
+  @ArrayNotEmpty({ message: INVALID_ORDER_ITEMS })
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderItemRequestDto)
+  orderItems: CreateOrderItemRequestDto[];
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The payment methods to be created voucher payment method',
+    required: false,
+    example: 'payment-method',
+  })
+  @IsOptional()
+  @IsEnum(PaymentMethod, {
+    message: `Each payment method must be one of: ${Object.values(PaymentMethod).join(', ')}`,
+  })
+  paymentMethod?: string;
+
+  @ApiProperty({
+    required: true,
+    description:
+      'The order value before apply voucher, after apply promotion if have',
+    example: 10000,
+  })
+  @AutoMap()
+  @IsNotEmpty({ message: 'INVALID_MIN_ORDER_VALUE' })
+  @Min(0)
+  minOrderValue: number;
+
+  @ApiProperty({ required: false, type: String })
+  @AutoMap()
+  @IsOptional()
+  user?: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option has paging or not',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true' || value === true; // Transform 'true' to `true` and others to `false`
+  })
+  hasPaging?: boolean;
+}
+
+export class GetAllVoucherForUserPublicEligibleDto extends BaseQueryDto {
+  @ApiProperty({
+    description: 'The array of order items',
+    example: [
+      {
+        quantity: 2,
+        variant: '',
+        note: '',
+        promotion: '',
+        order: '',
+      },
+    ],
+  })
+  @IsArray({ message: INVALID_ORDER_ITEMS })
+  @ArrayNotEmpty({ message: INVALID_ORDER_ITEMS })
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderItemRequestDto)
+  orderItems: CreateOrderItemRequestDto[];
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The payment methods to be created voucher payment method',
+    required: false,
+    example: 'payment-method',
+  })
+  @IsOptional()
+  @IsEnum(PaymentMethod, {
+    message: `Each payment method must be one of: ${Object.values(PaymentMethod).join(', ')}`,
+  })
+  paymentMethod?: string;
+
+  @ApiProperty({
+    required: true,
+    description:
+      'The order value before apply voucher, after apply promotion if have',
+    example: 10000,
+  })
+  @AutoMap()
+  @IsNotEmpty({ message: 'INVALID_MIN_ORDER_VALUE' })
+  @Min(0)
+  minOrderValue: number;
 
   @AutoMap()
   @ApiProperty({
@@ -436,9 +585,9 @@ export class GetAllVoucherForUserPublicDto extends BaseQueryDto {
   hasPaging?: boolean;
 }
 export class GetAllVoucherDto extends BaseQueryDto {
-  @ApiProperty({ required: true })
+  @ApiProperty({ required: false })
   @AutoMap()
-  @IsNotEmpty({ message: 'INVALID_VOUCHER_GROUP' })
+  @IsOptional()
   voucherGroup: string;
 
   @ApiProperty({ required: false })
@@ -476,6 +625,28 @@ export class GetAllVoucherDto extends BaseQueryDto {
     return value === 'true' || value === true; // Transform 'true' to `true` and others to `false`
   })
   isPrivate?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'Get vouchers base on user group',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  userGroup?: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'Get vouchers that are either applied to a user group or not',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  isAppliedUserGroup?: boolean;
 
   @AutoMap()
   @ApiProperty({
@@ -626,6 +797,9 @@ export class VoucherResponseDto extends BaseResponseDto {
   @ApiProperty()
   @AutoMap()
   voucherPaymentMethods: VoucherPaymentMethodResponseDto[];
+
+  @AutoMap()
+  isUserGroup: boolean;
 }
 
 export class ExportPdfVoucherDto {
