@@ -338,7 +338,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
   }
 
   const exportChefOrderTicket = async (chefOrder: IChefOrders | undefined) => {
-    if (!chefOrder) return;
+    if (!chefOrder || !chefOrder.chefOrderItems?.length) return;
 
     try {
       let allHtmlContent = '';
@@ -347,14 +347,14 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         const html = await generateChefOrderTicketHTML({
           logoString: Be_Vietnam_Pro_base64,
           logo: Logo,
-          referenceNumber: chefOrder.order.referenceNumber?.toString() || '',
+          referenceNumber: chefOrder?.order?.referenceNumber?.toString() || '-',
           orderItem: {
             variant: {
-              name: item.orderItem.variant.product?.name || '',
-              size: item.orderItem.variant.size?.name || '',
-              note: item.orderItem.note || ''
+              name: item?.orderItem?.variant?.product?.name || '-',
+              size: item?.orderItem?.variant?.size?.name || '-',
+              note: item?.orderItem?.note || ''
             },
-            quantity: item.orderItem.quantity.toString(),
+            quantity: item?.orderItem?.quantity?.toString() || '0',
           },
         });
 
@@ -383,7 +383,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
   };
 
   const exportChefOrder = async (chefOrder: IChefOrders | undefined) => {
-    if (!chefOrder) return;
+    if (!chefOrder || !chefOrder.chefOrderItems?.length) return;
 
     try {
       let allHtmlContent = '';
@@ -391,17 +391,17 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
       const html = await generateChefOrderHTML({
         logoString: Be_Vietnam_Pro_base64,
         logo: Logo,
-        branchName: userInfo?.branch?.name || '',
-        referenceNumber: chefOrder?.order?.referenceNumber?.toString() || '',
-        createdAt: chefOrder?.createdAt,
+        branchName: userInfo?.branch?.name || '-',
+        referenceNumber: chefOrder?.order?.referenceNumber?.toString() || '-',
+        createdAt: chefOrder?.createdAt || new Date().toISOString(),
         type: chefOrder?.order?.type || '',
-        tableName: chefOrder?.order?.table?.name || '',
+        tableName: chefOrder?.order?.table?.name || '-',
         timeLeftTakeOut: chefOrder?.order?.timeLeftTakeOut?.toString(),
         note: chefOrder?.order?.description || '',
-        invoiceItems: chefOrder?.chefOrderItems.map(item => ({
+        invoiceItems: (chefOrder?.chefOrderItems || []).map(item => ({
           variant: {
-            name: item?.orderItem?.variant?.product?.name || '',
-            size: item?.orderItem?.variant?.size?.name || '',
+            name: item?.orderItem?.variant?.product?.name || '-',
+            size: item?.orderItem?.variant?.size?.name || '-',
           },
           quantity: item?.defaultQuantity?.toString() || '0',
           note: item?.orderItem?.note || ''
@@ -426,7 +426,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
   };
 
   const handleReprintFailedChefOrderPrinterJobs = async (chefOrder: IChefOrders | undefined) => {
-    if (!chefOrder) return;
+    if (!chefOrder?.slug) return;
     await Promise.all([
       reprintFailedChefOrderJobs(chefOrder.slug, {
         onSuccess: () => showToast(tToast('toast.reprintFailedChefOrderSuccess')),
@@ -435,7 +435,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
   };
 
   const handleReprintFailedLabelPrinterJobs = async (chefOrder: IChefOrders | undefined) => {
-    if (!chefOrder) return;
+    if (!chefOrder?.slug) return;
     await Promise.all([
       reprintFailedLabelJobs(chefOrder.slug, {
         onSuccess: () => showToast(tToast('toast.reprintFailedLabelJobsSuccess')),
@@ -455,9 +455,10 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
       ),
       cell: ({ row }) => {
         const chefOrder = row.original
+        const status = chefOrder?.status
         return (
           <>
-            {chefOrder.status === ChefOrderStatus.PENDING ? (
+            {status === ChefOrderStatus.PENDING ? (
               <div className='min-w-24' onClick={(e) => e.stopPropagation()}>
                 <ConfirmUpdateChefOrderStatusDialog chefOrder={chefOrder} onSuccess={onSuccess} />
               </div>
@@ -501,8 +502,9 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
       ),
       cell: ({ row }) => {
         const chefOrder = row.original
+        const status = chefOrder?.status
         return (
-          chefOrder.status !== ChefOrderStatus.PENDING ? (
+          status !== ChefOrderStatus.PENDING ? (
             <Button variant="outline" className='text-xs xl:text-sm' onClick={(e) => {
               e.stopPropagation()
               handleExportChefOrder(chefOrder)
@@ -522,8 +524,9 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
       ),
       cell: ({ row }) => {
         const chefOrder = row.original
+        const status = chefOrder?.status
         return (
-          chefOrder.status !== ChefOrderStatus.PENDING ? (
+          status !== ChefOrderStatus.PENDING ? (
             <Button variant="outline" className='text-xs xl:text-sm' onClick={(e) => {
               e.stopPropagation()
               handleExportChefOrderTicket(chefOrder)
@@ -542,7 +545,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         <DataTableColumnHeader key={column.id} column={column} title={t('chefOrder.referenceNumber')} />
       ),
       cell: ({ row }) => {
-        const referenceNumber = row.original.order.referenceNumber
+        const referenceNumber = row.original?.order?.referenceNumber || '-'
         return <span className="text-xs text-muted-foreground xl:text-sm">{referenceNumber}</span>
       },
     },
@@ -569,7 +572,11 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         <DataTableColumnHeader column={column} title={t('chefOrder.location')} />
       ),
       cell: ({ row }) => {
-        const location = row.original.order.type === OrderTypeEnum.AT_TABLE ? t('chefOrder.table') + " " + row.original.order.table.name : t('chefOrder.take-out')
+        const orderType = row.original?.order?.type
+        const tableName = row.original?.order?.table?.name
+        const location = orderType === OrderTypeEnum.AT_TABLE
+          ? `${t('chefOrder.table')} ${tableName || '-'}`
+          : t('chefOrder.take-out')
         return <span className="text-xs text-muted-foreground xl:text-sm">{location}</span>
       },
     },
@@ -599,7 +606,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         <DataTableColumnHeader column={column} title={t('chefOrder.quantity')} />
       ),
       cell: ({ row }) => {
-        const quantity = row.original?.chefOrderItems?.length
+        const quantity = row.original?.chefOrderItems?.length || 0
         return (
           <span className="text-xs text-muted-foreground xl:text-sm">
             {quantity} {t('chefOrder.items')}
@@ -641,8 +648,10 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         }
 
         for (const job of printerChefOrders) {
-          const status = job.status as PrinterJobType
-          countByStatus[status]++
+          const status = job?.status as PrinterJobType
+          if (status && Object.prototype.hasOwnProperty.call(countByStatus, status)) {
+            countByStatus[status]++
+          }
         }
 
         const statusLabels: Record<PrinterJobType, string> = {
@@ -690,8 +699,10 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         }
 
         for (const job of printerLabels) {
-          const status = job.status as PrinterJobType
-          countByStatus[status]++
+          const status = job?.status as PrinterJobType
+          if (status && Object.prototype.hasOwnProperty.call(countByStatus, status)) {
+            countByStatus[status]++
+          }
         }
 
         const totalJobs = Object.values(countByStatus).reduce((sum, value) => sum + value, 0)
@@ -730,7 +741,11 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
       header: tCommon('common.action'),
       cell: ({ row }) => {
         const chefOrder = row.original
-        const failedJobs = chefOrder?.printerChefOrders?.filter(job => job.status === PrinterJobType.FAILED)
+        const failedChefOrderJobs = chefOrder?.printerChefOrders?.filter(job => job?.status === PrinterJobType.FAILED) || []
+        const failedLabelJobs = chefOrder?.printerLabels?.filter(job => job?.status === PrinterJobType.FAILED) || []
+        const hasCompletedItems = chefOrder?.chefOrderItems?.some(item => item?.status === ChefOrderItemStatus.COMPLETED)
+        const status = chefOrder?.status
+
         return (
           <div>
             <DropdownMenu>
@@ -744,12 +759,12 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
-                {chefOrder?.chefOrderItems?.some(item => item.status === ChefOrderItemStatus.COMPLETED) && chefOrder?.status !== ChefOrderStatus.COMPLETED && (
+                {hasCompletedItems && status !== ChefOrderStatus.COMPLETED && (
                   <div onClick={(e) => e.stopPropagation()}>
                     <ConfirmCompleteChefOrderDialog chefOrder={chefOrder} />
                   </div>
                 )}
-                {chefOrder?.status !== ChefOrderStatus.PENDING && failedJobs?.length > 0 ? (
+                {status !== ChefOrderStatus.PENDING && failedChefOrderJobs.length > 0 ? (
                   <Button
                     disabled={isReprintingFailedChefOrderJobs}
                     variant="ghost"
@@ -764,7 +779,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
                     {t('chefOrder.reprintFailedChefOrderJobs')}
                   </Button>
                 ) : null}
-                {chefOrder?.status !== ChefOrderStatus.PENDING && failedJobs ? (
+                {status !== ChefOrderStatus.PENDING && failedLabelJobs.length > 0 ? (
                   <Button
                     disabled={isReprintingFailedLabelJobs}
                     variant="ghost"
