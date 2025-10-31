@@ -50,6 +50,7 @@ import { SharedPointTransactionService } from 'src/shared/services/shared-point-
 import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
 import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
 import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
+import { NotificationLanguageService } from 'src/notification/language/notification-language.service';
 
 describe('JobController', () => {
   let controller: JobController;
@@ -193,6 +194,7 @@ describe('JobController', () => {
           provide: getRepositoryToken(AccumulatedPointTransactionHistory),
           useValue: repositoryMockFactory,
         },
+        NotificationLanguageService,
       ],
     }).compile();
 

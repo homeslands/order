@@ -12,6 +12,12 @@ import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { User } from 'src/user/user.entity';
 import { Notification } from './notification.entity';
+import { NotificationLanguageService } from './language/notification-language.service';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { FirebaseService } from './firebase/firebase.service';
+import { FirebaseDeviceToken } from './firebase/firebase-device-token.entity';
+import { SystemConfig } from 'src/system-config/system-config.entity';
+import { ConfigService } from '@nestjs/config';
 
 describe('NotificationController', () => {
   let controller: NotificationController;
@@ -40,6 +46,18 @@ describe('NotificationController', () => {
           useFactory: mapperMockFactory,
         },
         { provide: DataSource, useFactory: dataSourceMockFactory },
+        NotificationLanguageService,
+        SystemConfigService,
+        FirebaseService,
+        ConfigService,
+        {
+          provide: getRepositoryToken(FirebaseDeviceToken),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(SystemConfig),
+          useFactory: repositoryMockFactory,
+        },
       ],
     }).compile();
 

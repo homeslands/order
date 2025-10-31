@@ -284,6 +284,10 @@ export class AuthProfileResponseDto {
   @AutoMap()
   @ApiProperty()
   isVerifiedPhonenumber: boolean;
+
+  @AutoMap()
+  @ApiProperty()
+  readonly language: string;
 }
 
 // PickType: Get the fields from AuthProfileResponseDto

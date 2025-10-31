@@ -49,6 +49,7 @@ import { GiftCard } from 'src/gift-card-modules/gift-card/entities/gift-card.ent
 import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
 import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
 import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
+import { NotificationLanguageService } from 'src/notification/language/notification-language.service';
 
 describe('JobService', () => {
   let service: JobService;
@@ -191,6 +192,7 @@ describe('JobService', () => {
           provide: getRepositoryToken(AccumulatedPointTransactionHistory),
           useValue: repositoryMockFactory,
         },
+        NotificationLanguageService,
       ],
     }).compile();
 

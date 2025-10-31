@@ -88,6 +88,15 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   GOOGLE_MAPS_API_KEY: string;
+
+  @IsNotEmpty()
+  FIREBASE_PROJECT_ID: string;
+
+  @IsNotEmpty()
+  FIREBASE_CLIENT_EMAIL: string;
+
+  @IsNotEmpty()
+  FIREBASE_PRIVATE_KEY: string;
 }
 
 export function validate(config: Record<string, unknown>) {
