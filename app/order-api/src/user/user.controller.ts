@@ -15,7 +15,9 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import {
   CreateUserRequestDto,
+  CurrentUserDto,
   GetAllUserQueryRequestDto,
+  UpdateUserLanguageRequestDto,
   UpdateUserRequestDto,
   UpdateUserRoleRequestDto,
   UserResponseDto,
@@ -23,6 +25,7 @@ import {
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
+import { CurrentUser } from './user.decorator';
 
 @Controller('user')
 @ApiTags('User')
@@ -181,6 +184,32 @@ export class UserController {
     const result = await this.userService.toggleActiveUser(slug);
     return {
       message: 'User active status has been toggled successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<UserResponseDto>;
+  }
+
+  @Patch(':slug/language')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update user language' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'User language has been updated successfully',
+    type: UserResponseDto,
+  })
+  async updateUserLanguage(
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    currentUserDto: CurrentUserDto,
+    @Body(new ValidationPipe({ transform: true }))
+    requestData: UpdateUserLanguageRequestDto,
+  ): Promise<AppResponseDto<UserResponseDto>> {
+    const result = await this.userService.updateUserLanguage(
+      currentUserDto.userId,
+      requestData,
+    );
+    return {
+      message: 'User language has been updated successfully',
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,

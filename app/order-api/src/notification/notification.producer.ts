@@ -2,7 +2,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { QueueRegisterKey } from 'src/app/app.constants';
-import { CREATE_NOTIFICATION_JOB } from './notification.contanst';
+import { CREATE_NOTIFICATION_JOB } from './notification.constants';
 import { CreateNotificationDto } from './notification.dto';
 
 @Injectable()
