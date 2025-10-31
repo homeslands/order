@@ -14,10 +14,12 @@
     "test:cov": "vitest run --coverage"
   },
   "dependencies": {
+    "@capacitor-firebase/messaging": "^7.3.1",
     "@capacitor/android": "^7.4.3",
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
     "@capacitor/ios": "^7.4.3",
+    "@capacitor/local-notifications": "^7.0.3",
     "@googlemaps/js-api-loader": "^1.16.10",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^3.10.0",
@@ -61,6 +63,7 @@
     "ejs": "^3.1.10",
     "embla-carousel-react": "^8.5.2",
     "file-saver": "^2.0.5",
+    "firebase": "^12.4.0",
     "framer-motion": "^11.18.2",
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.10.3",
