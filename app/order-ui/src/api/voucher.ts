@@ -2,8 +2,11 @@ import {
   IApiResponse,
   IApplyVoucherRequest,
   ICreateMultipleVoucherRequest,
+  ICreateVoucherForUserGroupRequest,
+  ICreateVoucherForUserGroupResponse,
   ICreateVoucherGroupRequest,
   ICreateVoucherRequest,
+  IDeleteVoucherForUserGroupRequest,
   IGetAllVoucherGroupRequest,
   IGetAllVoucherRequest,
   IGetSpecificVoucherRequest,
@@ -67,11 +70,9 @@ export async function getVouchers(
 export async function getVouchersForOrder(
   params?: IGetAllVoucherRequest,
 ): Promise<IApiResponse<IPaginationResponse<IVoucher>>> {
-  const response = await http.get<IApiResponse<IPaginationResponse<IVoucher>>>(
-    '/voucher/order',
-    {
-      params,
-    },
+  const response = await http.post<IApiResponse<IPaginationResponse<IVoucher>>>(
+    '/voucher/order/eligible',
+    params,
   )
   return response.data
 }
@@ -79,11 +80,9 @@ export async function getVouchersForOrder(
 export async function getPublicVouchersForOrder(
   params?: IGetAllVoucherRequest,
 ): Promise<IApiResponse<IPaginationResponse<IVoucher>>> {
-  const response = await http.get<IApiResponse<IPaginationResponse<IVoucher>>>(
-    '/voucher/order/public',
-    {
-      params,
-    },
+  const response = await http.post<IApiResponse<IPaginationResponse<IVoucher>>>(
+    '/voucher/order/public/eligible',
+    params,
   )
   return response.data
 }
@@ -218,6 +217,28 @@ export async function deleteVoucherPaymentMethod(
       data: {
         paymentMethod: data.paymentMethod,
       },
+    },
+  )
+  return response.data
+}
+
+// voucher for user group
+export async function createVoucherForUserGroup(
+  data: ICreateVoucherForUserGroupRequest,
+): Promise<IApiResponse<ICreateVoucherForUserGroupResponse>> {
+  const response = await http.post<
+    IApiResponse<ICreateVoucherForUserGroupResponse>
+  >('/voucher-user-group/bulk', data)
+  return response.data
+}
+
+export async function deleteVoucherForUserGroup(
+  data: IDeleteVoucherForUserGroupRequest,
+): Promise<IApiResponse<null>> {
+  const response = await http.delete<IApiResponse<null>>(
+    `/voucher-user-group/bulk`,
+    {
+      data,
     },
   )
   return response.data

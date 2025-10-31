@@ -35,6 +35,7 @@ export interface IVoucher extends IBase {
   startDate: string
   endDate: string
   isVerificationIdentity?: boolean
+  isUserGroup: boolean
   voucherProducts: IVoucherProduct[] //Product slug
   voucherPaymentMethods: {
     paymentMethod: (typeof VOUCHER_PAYMENT_METHOD)[keyof typeof VOUCHER_PAYMENT_METHOD]
@@ -50,17 +51,27 @@ export interface IVoucherProduct {
 }
 
 export interface IGetAllVoucherRequest {
-  order?: string
-  voucherGroup?: string
-  minOrderValue?: number
-  isVerificationIdentity?: boolean
-  paymentMethod?: string
-  date?: string
-  isActive?: boolean
-  isPrivate?: boolean
   hasPaging?: boolean
   page?: number | 1
   size?: number | 10
+  sort?: 'DESC' | 'ASC'
+  orderItems?: {
+    quantity: number
+    variant: string
+    promotion: string
+    order: string
+  }[]
+  user?: string // order owner slug
+  voucherGroup?: string
+  minOrderValue?: number
+  paymentMethod?: string
+  userGroup?: string // user group slug
+  isActive?: boolean
+  isPrivate?: boolean
+  isVerificationIdentity?: boolean
+  isAppliedUserGroup?: boolean
+  isUserGroup?: boolean
+  date?: string
 }
 
 export interface IGetAllVoucherGroupRequest {
@@ -160,6 +171,11 @@ export interface IRemoveAppliedVoucherRequest {
   vouchers: string[] //Voucher slug
 }
 
+export interface IRemoveAppliedVoucherForUserGroupRequest {
+  userGroups: string[] //User group slug
+  vouchers: string[] //Voucher slug
+}
+
 export interface IUpdateVoucherPaymentMethodRequest {
   voucher: string //Voucher slug
   paymentMethods: string[]
@@ -176,4 +192,19 @@ export interface IVoucherPaymentMethodDiff {
   newPaymentMethods: string[]
   toAdd: string[]
   toRemove: string[]
+}
+
+export interface ICreateVoucherForUserGroupRequest {
+  userGroups: string[] //User group slug
+  vouchers: string[] //Voucher slug
+}
+
+export interface ICreateVoucherForUserGroupResponse {
+  userGroup: string //User group slug
+  vouchers: string[] //Voucher slug
+}
+
+export interface IDeleteVoucherForUserGroupRequest {
+  userGroups: string[] //User group slug
+  vouchers: string[] //Voucher slug
 }

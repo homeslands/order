@@ -7,6 +7,7 @@
     "apply": "Apply",
     "applyForOrderValueFrom": "Apply for order value from",
     "applyVoucher": "Apply Voucher",
+    "applyVoucherForUserGroup": "Apply Voucher for User Group",
     "atLeastOneRequired": "At least one product required",
     "bestChoice": "Best Choice",
     "chooseTool": "Choose Tool",
@@ -143,6 +144,21 @@
     "appliedVoucherNote": "This voucher is applied to your order and will remain active",
     "cannotRemoveApplied": "Cannot remove voucher that is currently applied to the order",
     "currentlyApplied": "Currently Applied",
-    "availableVouchers": "Available Vouchers"
+    "availableVouchers": "Available Vouchers",
+    "detailInfo": "Detail Information",
+    "basicInfo": "Basic Information",
+    "usageInfo": "Usage Information",
+    "applicableProducts": "Applicable Products",
+    "used": "Used",
+    "remaining": "Remaining",
+    "isUserGroup": "Apply for User Group",
+    "yes": "Yes",
+    "no": "No",
+    "userGroups": "User Groups",
+    "removeAppliedVoucherForUserGroup": "Remove Applied Voucher for User Group",
+    "removeVoucherForUserGroup": "Confirm Remove",
+    "removeVoucherForUserGroupWarning1": "You are about to remove the applied voucher ",
+    "removeVoucherForUserGroupWarning2": " for this user group.",
+    "confirmRemoveVoucherForUserGroup": "Are you sure you want to remove this voucher?"
   }
 }

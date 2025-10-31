@@ -1,26 +1,42 @@
 import { useCallback, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
-import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { DataTable } from '@/components/ui'
 import { usePagination, useSpecificVoucher, useVouchers } from '@/hooks'
 import { VoucherAction } from '../DataTable/actions'
 import { useVoucherColumns } from '../DataTable/columns'
 import { IVoucher } from '@/types'
+import { VoucherDetailInfoDialog } from '@/components/app/dialog'
 
 export default function VoucherPage() {
     const { t } = useTranslation(['voucher'])
     const { t: tHelmet } = useTranslation('helmet')
     const { slug } = useParams()
+    const [searchParams] = useSearchParams()
+    const userGroupSlug = searchParams.get('userGroup') || ''
     const [isOpen, setIsOpen] = useState(false)
     const [selectedVouchers, setSelectedVouchers] = useState<IVoucher[]>([])
     const [voucherCode, setVoucherCode] = useState<string>('')
+    const [selectedVoucherSlug, setSelectedVoucherSlug] = useState<string>('')
+    const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
     const { handlePageChange, handlePageSizeChange, pagination } = usePagination()
     const { data: voucherListData, isLoading: isLoadingList, refetch: refetchList } = useVouchers({
-        order: 'DESC',
+        sort: 'DESC',
         voucherGroup: slug,
+        // Chỉ truyền các filter khi có userGroup
+        ...(userGroupSlug && {
+            isVerificationIdentity: true,
+            isUserGroup: true,
+            isAppliedUserGroup: true,
+            userGroup: userGroupSlug,
+        }),
+        isVerificationIdentity: true,
+        isUserGroup: true,
+        isAppliedUserGroup: true,
+        userGroup: userGroupSlug || undefined,
         page: pagination.pageIndex,
         size: pagination.pageSize,
         hasPaging: true
@@ -57,6 +73,11 @@ export default function VoucherPage() {
         setVoucherCode(value)
     }
 
+    const handleRowClick = (voucher: IVoucher) => {
+        setSelectedVoucherSlug(voucher.slug)
+        setIsDetailDialogOpen(true)
+    }
+
     return (
         <div className="flex flex-col flex-1 w-full">
             <Helmet>
@@ -79,11 +100,18 @@ export default function VoucherPage() {
                     hiddenInput={false}
                     searchPlaceholder={t('voucher.searchByCode')}
                     onInputChange={handleSearchChange}
+                    onRowClick={handleRowClick}
                     actionOptions={() => <VoucherAction onSuccess={handleCreateVoucherSuccess} selectedVouchers={selectedVouchers} onOpenChange={setIsOpen} isConfirmExportVoucherDialogOpen={isOpen} />}
                     onPageChange={handlePageChange}
                     onPageSizeChange={handlePageSizeChange}
                 />
             </div>
+            <VoucherDetailInfoDialog
+                voucherSlug={selectedVoucherSlug}
+                isOpen={isDetailDialogOpen}
+                onOpenChange={setIsDetailDialogOpen}
+                showTrigger={false}
+            />
         </div>
     )
 }

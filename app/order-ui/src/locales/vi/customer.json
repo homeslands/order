@@ -2,6 +2,12 @@
   "customer": {
     "userGroup": {
       "title": "Nhóm khách hàng",
+      "chooseUserGroup": "Chọn nhóm khách hàng",
+      "all": "Tất cả",
+      "reset": "Reset",
+      "applyToGroup": "Áp theo nhóm",
+      "notApplyToGroup": "Không áp theo nhóm",
+      "applyStatus": "Trạng thái áp dụng",
       "searchByName": "Tìm kiếm theo tên",
       "createdAt": "Ngày tạo",
       "createdBy": "Người tạo",

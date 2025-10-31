@@ -26,6 +26,12 @@ describe('Voucher API', () => {
       minOrderValue: 100000,
       date: '2024-01-01',
       isActive: true,
+      orderItems: [],
+      user: 'user-1',
+      paymentMethod: 'payment-method-1',
+      hasPaging: true,
+      page: 1,
+      size: 10,
     }
 
     it('should fetch vouchers correctly', async () => {

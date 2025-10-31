@@ -313,7 +313,6 @@
         "updateSystemConfigSuccess": "Cập nhật cấu hình hệ thống thành công",
         "updateTableStatusSuccess": "Cập nhật trạng thái bàn thành công",
         "updateTableSuccess": "Cập nhật bàn thành công",
-        "updateCoinPolicySuccess": "Cập nhật cấu hình thẻ quà tặng thành công",
         "updateUserRoleSuccess": "Cập nhật chức danh người dùng thành công",
         "updateUserSuccess": "Cập nhật người dùng thành công",
         "updateUserStatusSuccess": "Cập nhật trạng thái người dùng thành công",
@@ -356,7 +355,7 @@
         "featureOnlyForRegisteredCustomer": "Tính năng này chỉ dành cho khách hàng đã đăng ký tài khoản",
         "changeFeatureLockStatusSuccess": "Cập nhật trạng thái khóa tính năng thành công",
         "confirmAddressSuccess": "Địa chỉ đã được cập nhật thành công",
-        "distanceTooFar": "Khoảng cách vượt quá 3km, không hỗ trợ giao hàng đến địa chỉ này",
+        "distanceTooFar": "Khoảng cách vượt quá {{distance}}km, không hỗ trợ giao hàng đến địa chỉ này",
         "geolocationNotSupported": "Vị trí hiện tại không được hỗ trợ",
         "locationPermissionDenied": "Bạn không có quyền truy cập vị trí hiện tại",
         "locationUnavailable": "Vị trí hiện tại không khả dụng",
@@ -376,9 +375,16 @@
         "forgotPasswordTokenExists": "Mã xác thực đã tồn tại",
         "forgotPasswordTokenNotExists": "Mã xác thực không đúng!",
         "passwordNotMatch": "Mật khẩu mới và xác nhận mật khẩu mới không khớp",
+        "voucherForUserGroupAlreadyExists": "Voucher đã tồn tại trong nhóm khách hàng",
+        "applyVoucherForUserGroupSuccess": "Áp dụng voucher cho nhóm khách hàng thành công",
+        "removeAppliedVoucherForUserGroupSuccess": "Hủy áp dụng voucher cho nhóm khách hàng thành công",
+        "cannotApplyPublicVoucherToUserGroup": "Không thể áp dụng voucher công khai cho nhóm khách hàng",
+        "requireVerificationForUserGroup": "Cần bật kiểm tra định danh cho nhóm khách hàng!",
+        "userNotInUserGroupToApplyVoucher": "Người dùng không thuộc nhóm khách hàng để áp dụng voucher",
         "exceedMaxBalance": "Số dư tối da phải lớn hơn hoặc bằng 5,000,000",
         "userBalanceExceedMaximum": "Số dư người dùng đang vượt quá giới hạn xu tối đa",
         "conflict": "Dữ liệu đã bị thay đổi, vui lòng tải lại trang để lấy dữ liệu mới nhất",
-        "policyValueMustBeInteger": "Giá trị nhập phải là một số"
+        "policyValueMustBeInteger": "Giá trị nhập phải là một số",
+        "cannotUpdateAppliedVoucherForUserGroup": "Không thể cập nhật voucher đã áp dụng cho nhóm khách hàng"
       }
     }

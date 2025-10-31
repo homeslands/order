@@ -35,15 +35,17 @@ import {
   useSpecificVoucher,
   useValidateVoucher,
   useVouchersForOrder,
+  usePublicVouchersForOrder,
   useUpdateVoucherInOrder,
 } from '@/hooks'
 import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, isVoucherApplicableToCartItems, showErrorToast, showToast } from '@/utils'
 import {
   IValidateVoucherRequest,
   IVoucher,
+  IGetAllVoucherRequest,
 } from '@/types'
 import { useOrderFlowStore, useThemeStore, useUserStore } from '@/stores'
-import { APPLICABILITY_RULE, Role, VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, Role, VOUCHER_TYPE, PaymentMethod } from '@/constants'
 
 export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
   const isMobile = useIsMobile()
@@ -64,6 +66,14 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
 
   const voucher = updatingData?.updateDraft?.voucher || null
   const orderDraft = updatingData?.updateDraft
+
+  // Ưu tiên method từ orderDraft, sau đó fallback method đầu tiên của voucher
+  const paymentMethod = (
+    (orderDraft?.paymentMethod as PaymentMethod | undefined) ??
+    (voucher?.voucherPaymentMethods && voucher.voucherPaymentMethods.length > 0
+      ? (voucher.voucherPaymentMethods[0].paymentMethod as PaymentMethod)
+      : undefined)
+  )
 
   // Create a temporary cart item for calculation
   const tempCartItem = orderDraft ? {
@@ -94,23 +104,32 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
     orderDraft.ownerRole === Role.CUSTOMER &&
     orderDraft.ownerPhoneNumber !== 'default-customer';
 
+  const minOrderValue = (cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0)
+
+  const voucherForOrderRequestParam: IGetAllVoucherRequest = {
+    hasPaging: true,
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    ...(isCustomerOwner ? { user: orderDraft?.owner || '' } : {}),
+    ...(paymentMethod ? { paymentMethod } : {}),
+    minOrderValue: minOrderValue,
+    orderItems: (orderDraft?.orderItems || []).map(item => ({
+      quantity: item.quantity,
+      variant: item.variant.slug,
+      promotion: item.promotion ? item.promotion.slug : '',
+      order: item.slug || '',
+    })),
+  }
+
   const { data: voucherList } = useVouchersForOrder(
-    isCustomerOwner
-      ? {
-        isActive: true,
-        hasPaging: true,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-      }
-      : {
-        isVerificationIdentity: false,
-        isActive: true,
-        hasPaging: true,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-      },
-    !!sheetOpen
+    isCustomerOwner ? voucherForOrderRequestParam : undefined,
+    !!sheetOpen && isCustomerOwner
   );
+
+  const { data: publicVoucherList } = usePublicVouchersForOrder(
+    !isCustomerOwner ? voucherForOrderRequestParam : undefined,
+    !!sheetOpen && !isCustomerOwner
+  )
 
 
   const { data: specificVoucher, refetch: refetchSpecificVoucher } = useSpecificVoucher(
@@ -316,11 +335,11 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
   }, [userInfo, specificVoucher?.result]);
 
   useEffect(() => {
-    const baseList = (userInfo ? voucherList?.result.items : []) || []
+    const baseList = (isCustomerOwner ? voucherList?.result?.items : publicVoucherList?.result?.items) || []
     let newList = [...baseList]
 
     // Add specific voucher from search
-    if (userInfo && specificVoucher?.result) {
+    if (specificVoucher?.result) {
       const existingIndex = newList.findIndex(v => v.slug === specificVoucher.result.slug)
       if (existingIndex === -1) {
         newList = [specificVoucher.result, ...newList]
@@ -344,7 +363,7 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
     })
 
     setLocalVoucherList(newList)
-  }, [userInfo, voucherList?.result?.items, specificVoucher?.result, orderDraft?.voucher, removedVouchers])
+  }, [isCustomerOwner, voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, orderDraft?.voucher, removedVouchers])
 
   useEffect(() => {
     if (orderDraft?.voucher) {

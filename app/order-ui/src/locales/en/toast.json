@@ -354,7 +354,7 @@
     "loyaltyPointAlreadyReserved": "Loyalty point already reserved in another order",
     "featureOnlyForRegisteredCustomer": "This feature is only available for registered customers",
     "changeFeatureLockStatusSuccess": "Update feature lock status successfully",
-    "distanceTooFar": "Distance is greater than 3km, not supported.",
+    "distanceTooFar": "Distance is greater than {{distance}}km, not supported.",
     "geolocationNotSupported": "Geolocation is not supported",
     "locationPermissionDenied": "You do not have permission to access the current location",
     "locationUnavailable": "The current location is unavailable",
@@ -379,6 +379,13 @@
     "updateCoinPolicySuccess": "Update coin policy successfully",
     "userBalanceExceedMaximum": "User balance exceed the maximum allowed limit of coins",
     "conflict": "Data has been changed, please, refresh the page to get latest data",
-    "policyValueMustBeInteger": "Value must be integer"
+    "policyValueMustBeInteger": "Value must be integer",
+    "voucherForUserGroupAlreadyExists": "Voucher already exists in user group",
+    "applyVoucherForUserGroupSuccess": "Apply voucher to user group successfully",
+    "removeAppliedVoucherForUserGroupSuccess": "Remove applied voucher for user group successfully",
+    "cannotApplyPublicVoucherToUserGroup": "Cannot apply public voucher to user group",
+    "requireVerificationForUserGroup": "Require verification identity for user group!",
+    "userNotInUserGroupToApplyVoucher": "User is not in user group to apply voucher",
+    "cannotUpdateAppliedVoucherForUserGroup": "Cannot update applied voucher for user group"
   }
 }
