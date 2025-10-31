@@ -21,17 +21,67 @@ export default function SwiperBanner({
   const isMobile = useIsMobile()
   const [, setIsImageLoaded] = useState(false)
 
+  // Helper function để extract pathname từ URL
+  const extractPathname = (url: string): string => {
+    try {
+      const urlObj = new URL(url)
+      return urlObj.pathname
+    } catch {
+      // Nếu không phải URL hợp lệ, coi như là pathname
+      return url
+    }
+  }
+
+  // Helper function để kiểm tra pathname có match với ROUTE constants không
+  const matchesInternalRoute = (pathname: string): boolean => {
+    const routeValues = Object.values(ROUTE)
+    return routeValues.some((route) => {
+      // Exact match hoặc starts with route + /
+      return pathname === route || pathname.startsWith(route + '/')
+    })
+  }
+
+  // Helper function để kiểm tra xem có phải internal route không
+  const isInternalRoute = (url: string): boolean => {
+    if (!url || url.trim() === '') return true
+
+    // Nếu không phải http/https, coi như internal
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      return true
+    }
+
+    try {
+      const urlObj = new URL(url)
+      const pathname = urlObj.pathname
+
+      // Ưu tiên check pathname có match với ROUTE không
+      // Điều này quan trọng cho Capacitor app vì domain sẽ khác
+      if (matchesInternalRoute(pathname)) {
+        return true
+      }
+
+      // Nếu pathname không match, check domain
+      const currentHost = window.location.host
+      if (urlObj.host === currentHost) {
+        return true
+      }
+
+      return false
+    } catch {
+      return true
+    }
+  }
+
   // Helper function để xác định URL đích
   const getBannerLink = (banner: IBanner): string => {
     if (banner.url && banner.url.trim() !== '') {
+      // Nếu là internal route, extract pathname
+      if (isInternalRoute(banner.url)) {
+        return extractPathname(banner.url)
+      }
       return banner.url
     }
     return ROUTE.CLIENT_MENU
-  }
-
-  // Helper function để kiểm tra URL có phải external không
-  const isExternalUrl = (url: string): boolean => {
-    return url.startsWith('http://') || url.startsWith('https://')
   }
 
   return (
@@ -62,7 +112,7 @@ export default function SwiperBanner({
             : LandingPageBackground
 
         const linkUrl = getBannerLink(banner)
-        const isExternal = isExternalUrl(linkUrl)
+        const isInternal = isInternalRoute(banner.url || '')
 
         const BannerContent = (
           <div className="flex overflow-hidden relative justify-center items-center w-full h-full">
@@ -89,17 +139,19 @@ export default function SwiperBanner({
 
         return (
           <SwiperSlide key={index} className="flex justify-center items-center bg-black">
-            {isExternal ? (
+            {isInternal ? (
+              <Link to={linkUrl} className="block w-full h-full">
+                {BannerContent}
+              </Link>
+            ) : (
               <a
                 href={linkUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="block w-full h-full"
               >
                 {BannerContent}
               </a>
-            ) : (
-              <Link to={linkUrl} className="block w-full h-full">
-                {BannerContent}
-              </Link>
             )}
           </SwiperSlide>
         )

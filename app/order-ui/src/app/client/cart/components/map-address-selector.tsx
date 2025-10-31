@@ -335,8 +335,8 @@ export default function MapAddressSelectNew({
                             }}
                         />
                         {showSuggestions && (
-                            <div className="overflow-auto absolute right-0 left-0 top-full z-10 mt-2 max-h-72 bg-white rounded-md border shadow">
-                                <div className="sticky top-0 z-10 px-3 py-2 text-xs bg-white border-b text-muted-foreground">{t('cart.suggestions')}</div>
+                            <div className="overflow-auto absolute right-0 left-0 top-full z-10 mt-2 max-h-72 bg-white dark:bg-black rounded-md border shadow">
+                                <div className="sticky top-0 z-10 px-3 py-2 text-xs bg-white dark:bg-black border-b text-muted-foreground">{t('cart.suggestions')}</div>
                                 {isLoadingSuggest && (
                                     <div className="px-3 py-2 text-sm text-muted-foreground">{t('cart.loading')}</div>
                                 )}
