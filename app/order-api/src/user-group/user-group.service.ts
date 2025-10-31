@@ -229,6 +229,7 @@ export class UserGroupService {
       where: { slug },
       relations: {
         userGroupMembers: true,
+        voucherUserGroups: true,
       },
     });
 
@@ -240,6 +241,7 @@ export class UserGroupService {
     await this.transactionManagerService.execute<void>(
       async (manager) => {
         await manager.softRemove(userGroup.userGroupMembers);
+        await manager.softRemove(userGroup.voucherUserGroups);
         await manager.softRemove(userGroup);
       },
       () => {
