@@ -2,12 +2,22 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import * as admin from 'firebase-admin';
 import { FirebaseSendNotificationDto, FirebaseTokenDto } from './firebase.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class FirebaseService implements OnModuleInit {
-  private firebaseApp: admin.app.App;
+  private readonly FirebaseProjectId: string = this.configService.get<string>(
+    'FIREBASE_PROJECT_ID',
+  );
+  private readonly FirebaseClientEmail: string = this.configService.get<string>(
+    'FIREBASE_CLIENT_EMAIL',
+  );
+  private readonly FirebasePrivateKey: string = this.configService.get<string>(
+    'FIREBASE_PRIVATE_KEY',
+  );
 
   constructor(
+    private readonly configService: ConfigService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
   ) {}
@@ -16,12 +26,12 @@ export class FirebaseService implements OnModuleInit {
     const context = `${FirebaseService.name}.${this.onModuleInit.name}`;
     try {
       const serviceAccount = {
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        projectId: this.FirebaseProjectId,
+        clientEmail: this.FirebaseClientEmail,
+        privateKey: this.FirebasePrivateKey?.replace(/\\n/g, '\n'),
       };
 
-      this.firebaseApp = admin.initializeApp({
+      admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
       });
 

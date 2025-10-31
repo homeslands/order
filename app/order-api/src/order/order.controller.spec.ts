@@ -52,6 +52,7 @@ import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { NotificationUtils } from 'src/notification/notification.utils';
 import { NotificationProducer } from 'src/notification/notification.producer';
 import { Notification } from 'src/notification/notification.entity';
+import { NotificationLanguageService } from 'src/notification/language/notification-language.service';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -173,6 +174,7 @@ describe('OrderController', () => {
           provide: 'BullQueue_notification',
           useValue: {},
         },
+        NotificationLanguageService,
       ],
     }).compile();
 
