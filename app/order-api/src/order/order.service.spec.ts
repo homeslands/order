@@ -90,6 +90,7 @@ import { Catalog } from 'src/catalog/catalog.entity';
 import { NotificationUtils } from 'src/notification/notification.utils';
 import { NotificationProducer } from 'src/notification/notification.producer';
 import { Notification } from 'src/notification/notification.entity';
+import { NotificationLanguageService } from 'src/notification/language/notification-language.service';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -294,6 +295,7 @@ describe('OrderService', () => {
           provide: 'BullQueue_notification',
           useValue: {},
         },
+        NotificationLanguageService,
       ],
     }).compile();
 

@@ -1,8 +1,9 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
+import { FirebasePlatform } from './firebase/firebase.constant';
 
 export class CreateNotificationDto {
   @AutoMap()
@@ -39,6 +40,26 @@ export class CreateNotificationDto {
   @ApiProperty({})
   @IsOptional()
   metadata?: Record<string, any>;
+
+  @AutoMap()
+  @ApiProperty({})
+  @IsOptional()
+  title?: string;
+
+  @AutoMap()
+  @ApiProperty({})
+  @IsOptional()
+  body?: string;
+
+  @AutoMap()
+  @ApiProperty({})
+  @IsOptional()
+  link?: string;
+
+  @AutoMap()
+  @ApiProperty({})
+  @IsOptional()
+  language?: string;
 }
 
 export class UpdateNotificationDto extends PartialType(CreateNotificationDto) {}
@@ -88,4 +109,30 @@ export class GetAllNotificationDto extends BaseQueryDto {
   @ApiProperty({ required: false })
   @IsOptional()
   type?: string;
+}
+
+export class FirebaseRegisterDeviceTokenRequestDto {
+  @AutoMap()
+  @ApiProperty({})
+  @IsNotEmpty({ message: 'Firebase token is required' })
+  token: string;
+
+  @AutoMap()
+  @ApiProperty({})
+  @IsNotEmpty()
+  @IsEnum(FirebasePlatform, {
+    message: 'Platform must be one of the following: ios, android, web',
+  })
+  platform: string;
+
+  @AutoMap()
+  @ApiProperty({})
+  @IsOptional()
+  userAgent?: string;
+}
+
+export class FirebaseRegisterDeviceTokenResponseDto extends BaseResponseDto {
+  @AutoMap()
+  @ApiProperty({})
+  platform: string;
 }

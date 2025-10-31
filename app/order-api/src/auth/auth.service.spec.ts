@@ -420,6 +420,8 @@ describe('AuthService', () => {
       balance: null,
       accumulatedPoint: null,
       userGroupMembers: [],
+      language: 'vi',
+      firebaseDeviceTokens: [],
     };
 
     const mockExistToken: ForgotPasswordToken = {
@@ -520,6 +522,8 @@ describe('AuthService', () => {
       balance: null,
       accumulatedPoint: null,
       userGroupMembers: [],
+      language: 'vi',
+      firebaseDeviceTokens: [],
     };
 
     const mockForgotToken: ForgotPasswordToken = {
@@ -616,6 +620,8 @@ describe('AuthService', () => {
       balance: null,
       accumulatedPoint: null,
       userGroupMembers: [],
+      language: 'vi',
+      firebaseDeviceTokens: [],
     };
 
     it('Should throw `AuthException` if user is not found', async () => {

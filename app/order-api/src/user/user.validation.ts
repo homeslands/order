@@ -3,11 +3,12 @@ import { createErrorCode, TErrorCodeValue } from 'src/app/app.validation';
 export const USER_NOT_FOUND = 'USER_NOT_FOUND';
 export const ERROR_CREATE_USER = 'ERROR_CREATE_USER';
 export const CANNOT_UPDATE_CUSTOMER_ROLE = 'CANNOT_UPDATE_CUSTOMER_ROLE';
-
+export const INVALID_LANGUAGE = 'INVALID_LANGUAGE';
 export type TUserErrorCodeKey =
   | typeof USER_NOT_FOUND
   | typeof CANNOT_UPDATE_CUSTOMER_ROLE
-  | typeof ERROR_CREATE_USER;
+  | typeof ERROR_CREATE_USER
+  | typeof INVALID_LANGUAGE;
 export type TUserErrorCode = Record<TUserErrorCodeKey, TErrorCodeValue>;
 
 // 137000 - 138000
@@ -18,4 +19,5 @@ export const UserValidation: TUserErrorCode = {
     137002,
     'Can not update customer role',
   ),
+  INVALID_LANGUAGE: createErrorCode(137003, 'Invalid language'),
 };

@@ -20,6 +20,9 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { NotificationLanguageService } from 'src/notification/language/notification-language.service';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { SystemConfig } from 'src/system-config/system-config.entity';
 
 describe('ChefOrderItemController', () => {
   let controller: ChefOrderItemController;
@@ -83,6 +86,12 @@ describe('ChefOrderItemController', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
+        },
+        NotificationLanguageService,
+        SystemConfigService,
+        {
+          provide: getRepositoryToken(SystemConfig),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();

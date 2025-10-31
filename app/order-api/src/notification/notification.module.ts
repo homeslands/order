@@ -12,6 +12,11 @@ import { UserModule } from 'src/user/user.module';
 import { NotificationProfile } from './notification.mapper';
 import { NotificationUtils } from './notification.utils';
 import { User } from 'src/user/user.entity';
+import { FirebaseService } from './firebase/firebase.service';
+import { FirebaseDeviceToken } from './firebase/firebase-device-token.entity';
+import { NotificationLanguageService } from './language/notification-language.service';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { SystemConfig } from 'src/system-config/system-config.entity';
 
 @Global()
 @Module({
@@ -19,7 +24,12 @@ import { User } from 'src/user/user.entity';
     BullModule.registerQueue({
       name: QueueRegisterKey.NOTIFICATION,
     }),
-    TypeOrmModule.forFeature([Notification, User]),
+    TypeOrmModule.forFeature([
+      Notification,
+      User,
+      FirebaseDeviceToken,
+      SystemConfig,
+    ]),
     DbModule,
     UserModule,
   ],
@@ -30,6 +40,9 @@ import { User } from 'src/user/user.entity';
     NotificationConsumer,
     NotificationProfile,
     NotificationUtils,
+    FirebaseService,
+    NotificationLanguageService,
+    SystemConfigService,
   ],
   exports: [
     NotificationService,

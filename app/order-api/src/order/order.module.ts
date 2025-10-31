@@ -57,6 +57,7 @@ import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.cl
 import { HttpModule } from '@nestjs/axios';
 import { GoogleMapService } from 'src/google-map/google-map.service';
 import { NotificationUtils } from 'src/notification/notification.utils';
+import { NotificationLanguageService } from 'src/notification/language/notification-language.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -120,6 +121,7 @@ import { NotificationUtils } from 'src/notification/notification.utils';
     GoogleMapConnectorClient,
     GoogleMapService,
     NotificationUtils,
+    NotificationLanguageService,
   ],
   exports: [OrderService, OrderUtils, OrderScheduler],
 })

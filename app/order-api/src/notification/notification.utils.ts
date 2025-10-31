@@ -3,7 +3,7 @@ import { RoleEnum } from 'src/role/role.enum';
 import {
   NotificationMessageCode,
   NotificationType,
-} from './notification.contanst';
+} from './notification.constants';
 import { NotificationProducer } from './notification.producer';
 import { User } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
@@ -15,6 +15,10 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { NotificationException } from './notification.exception';
 import { NotificationValidation } from './notification.validation';
 import { isDefinedCustomer } from 'src/auth/auth.utils';
+import { NotificationLanguageService } from './language/notification-language.service';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { SystemConfigKey } from 'src/system-config/system-config.constant';
+import { SystemConfigValidation } from 'src/system-config/system-config.validation';
 
 @Injectable()
 export class NotificationUtils {
@@ -24,7 +28,28 @@ export class NotificationUtils {
     private readonly notificationProducer: NotificationProducer,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
+    private readonly notificationLanguageService: NotificationLanguageService,
+    private readonly systemConfigService: SystemConfigService,
   ) {}
+
+  /**
+   * Get the frontend URL
+   * @returns {Promise<string>} The frontend URL
+   */
+  async getFrontendUrl(): Promise<string> {
+    const context = `${NotificationUtils.name}.${this.getFrontendUrl.name}`;
+    const frontEndUrl = await this.systemConfigService.get(
+      SystemConfigKey.FRONTEND_URL,
+    );
+    if (!frontEndUrl) {
+      this.logger.error(
+        SystemConfigValidation.SYSTEM_CONFIG_NOT_FOUND,
+        context,
+      );
+      return '';
+    }
+    return frontEndUrl;
+  }
 
   async sendNotificationAfterOrderIsPaid(order: Order) {
     // Get all chef role users in the same branch
@@ -123,6 +148,14 @@ export class NotificationUtils {
       throw new NotificationException(NotificationValidation.SENDER_NOT_FOUND);
     }
 
+    const notificationMessage = this.notificationLanguageService.format(
+      NotificationMessageCode.ORDER_NEEDS_READY_TO_GET,
+      { referenceNumber: order.referenceNumber.toString() },
+      customer.language as string,
+    );
+
+    const frontEndUrl = await this.getFrontendUrl();
+
     const notificationData = {
       message: NotificationMessageCode.ORDER_NEEDS_READY_TO_GET,
       receiverId: customer.id,
@@ -130,6 +163,10 @@ export class NotificationUtils {
       receiverName: `${customer.firstName} ${customer.lastName}`,
       senderId: sender.id,
       senderName: `${sender.firstName} ${sender.lastName}`,
+      title: notificationMessage.title,
+      body: notificationMessage.body,
+      language: customer.language,
+      link: `${frontEndUrl}/history?order=${order.slug}`,
       metadata: {
         order: order.slug,
         orderType: order.type,
