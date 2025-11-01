@@ -25,25 +25,27 @@ export default function ClientViewLayout() {
     }
   }, [location.pathname, clearStore])
   return (
-    <div className="box-border flex flex-1 min-h-screen">
+    <>
+      <div className="box-border flex flex-1 min-h-screen">
 
-      {/* Main content */}
-      <div className="relative flex h-[100dvh] flex-1 flex-col overflow-hidden">
-        {/* Header - Fixed on mobile */}
-        <ClientViewHeader />
+        {/* Main content */}
+        <div className="relative flex h-[100dvh] flex-1 flex-col overflow-hidden">
+          {/* Header - Fixed on mobile */}
+          <ClientViewHeader />
 
-        {/* Main scrollable area */}
-        <ScrollArea className="flex-1">
-          <main
-            className={cn(
-              'min-h-full',
-              isMobile ? 'px-2 pb-[env(safe-area-inset-bottom)]' : 'px-4',
-            )}
-          >
-            <Outlet />
-          </main>
-        </ScrollArea>
+          {/* Main scrollable area */}
+          <ScrollArea className="flex-1">
+            <main
+              className={cn(
+                'min-h-full',
+                isMobile ? 'px-2 pb-[env(safe-area-inset-bottom)]' : 'px-4',
+              )}
+            >
+              <Outlet />
+            </main>
+          </ScrollArea>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

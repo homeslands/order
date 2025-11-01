@@ -1,6 +1,6 @@
-import { getAllNotifications, updateNotificationStatus } from '@/api'
+import { getAllNotifications, registerDeviceToken, unregisterDeviceToken, updateNotificationStatus } from '@/api'
 import { QUERYKEY } from '@/constants'
-import { IAllNotificationRequest } from '@/types'
+import { IAllNotificationRequest, IRegisterDeviceTokenRequest } from '@/types'
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query'
 
 export const useNotification = (params: IAllNotificationRequest) => {
@@ -25,6 +25,22 @@ export const useUpdateNotificationStatus = () => {
   return useMutation({
     mutationFn: async (slug: string) => {
       return updateNotificationStatus(slug)
+    },
+  })
+}
+
+export const useRegisterDeviceToken = () => {
+  return useMutation({
+    mutationFn: async (params: IRegisterDeviceTokenRequest) => {
+      return registerDeviceToken(params)
+    },
+  })
+}
+
+export const useUnregisterDeviceToken = () => {
+  return useMutation({
+    mutationFn: async (token: string) => {
+      return unregisterDeviceToken(token)
     },
   })
 }

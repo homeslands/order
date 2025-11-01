@@ -10,14 +10,14 @@ importScripts(
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: 'AIzaSyDpQB9k3vuLVEoEEBjBlubMslADQPdcwuM',
-  authDomain: 'order-notification-4b9b0.firebaseapp.com',
-  projectId: 'order-notification-4b9b0',
-  storageBucket: 'order-notification-4b9b0.firebasestorage.app',
-  messagingSenderId: '798286114785',
-  appId: '1:798286114785:web:16d1ee4d69d141681beca0',
-  measurementId: 'G-W8XQ1YY2H6',
-}
+  apiKey: "AIzaSyBBaA5FPySsAQKL5DEAA0Jp7Flf8ZbMVCg",
+  authDomain: "order-notification-dev.firebaseapp.com",
+  projectId: "order-notification-dev",
+  storageBucket: "order-notification-dev.firebasestorage.app",
+  messagingSenderId: "972559792749",
+  appId: "1:972559792749:web:1580e74b049fa8069c1d64",
+  measurementId: "G-XJNL3ZZ17B"
+};
 
 // Initialize Firebase in the service worker
 firebase.initializeApp(firebaseConfig)
@@ -27,11 +27,6 @@ const messaging = firebase.messaging()
 
 // Handle background messages
 messaging.onBackgroundMessage((payload) => {
-  console.log(
-    '[firebase-messaging-sw.js] Received background message:',
-    payload,
-  )
-
   const notificationTitle = payload.notification?.title || 'New Notification'
   const notificationOptions = {
     body: payload.notification?.body || '',
@@ -45,11 +40,6 @@ messaging.onBackgroundMessage((payload) => {
 
 // Handle notification click
 self.addEventListener('notificationclick', (event) => {
-  console.log(
-    '[firebase-messaging-sw.js] Notification clicked:',
-    event.notification,
-  )
-
   event.notification.close()
 
   // Handle click action (e.g., open a URL)
@@ -59,16 +49,25 @@ self.addEventListener('notificationclick', (event) => {
     clients
       .matchAll({ type: 'window', includeUncontrolled: true })
       .then((windowClients) => {
-        // Check if there is already a window/tab open with the target URL
-        for (let i = 0; i < windowClients.length; i++) {
-          const client = windowClients[i]
-          if (client.url === urlToOpen && 'focus' in client) {
-            return client.focus()
-          }
+        // Try to find and focus existing window
+        if (windowClients.length > 0) {
+          // Prefer to focus the first available window and navigate
+          const client = windowClients[0]
+          
+          // Post message to client để navigate (thay vì open new window)
+          client.postMessage({
+            type: 'NOTIFICATION_NAVIGATION',
+            url: urlToOpen
+          })
+          
+          return client.focus()
         }
-        // If not, open a new window/tab
+        
+        // If no window open, open new one
         if (clients.openWindow) {
-          return clients.openWindow(urlToOpen)
+          // Convert relative URL to absolute for openWindow
+          const absoluteUrl = new URL(urlToOpen, self.location.origin).href
+          return clients.openWindow(absoluteUrl)
         }
       }),
   )

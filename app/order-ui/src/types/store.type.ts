@@ -64,6 +64,9 @@ export interface IThemeStore {
 
 export interface IUserStore {
   userInfo: IUserInfo | null
+  deviceToken: string | null
+  setDeviceToken: (deviceToken: string) => void
+  getDeviceToken: () => string | null
   setUserInfo: (userInfo: IUserInfo) => void
   isVerifyingEmail: boolean
   isVerifyingPhoneNumber: boolean

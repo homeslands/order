@@ -87,6 +87,7 @@ import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout, AdaptiveClientShell } from '@/app/layouts/client'
 import { BranchManagementPage } from '@/app/system/branch'
 import { DocsLayout } from '@/app/layouts/system'
+import RootLayout from '@/app/layouts/root-layout'
 import ErrorPage from '@/app/error-page'
 import NotFoundPage from '@/app/not-found-page'
 import ForbiddenPage from '@/app/forbidden-page'
@@ -94,6 +95,7 @@ import { SystemGiftCardSuccessPage } from '@/app/system/gift-card/checkout/succe
 
 export const router = createBrowserRouter([
   {
+    element: <RootLayout />,
     errorElement: <ErrorPage />,
     children: [
       { path: ROUTE.LOGIN, element: <SuspenseElement component={LoginPage} /> },

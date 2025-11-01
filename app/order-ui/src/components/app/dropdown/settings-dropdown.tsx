@@ -16,10 +16,33 @@ import {
 } from '@/components/ui'
 import { useTheme } from '@/components/app/theme-provider'
 import { USFlag, VIFlag } from '@/assets/images'
+import { useUpdateLanguage } from '@/hooks'
+import { useUserStore } from '@/stores'
+import { useEffect } from 'react'
 
 export default function SettingsDropdown() {
   const { t, i18n } = useTranslation('setting')
   const { theme, setTheme } = useTheme()
+  const { userInfo, setUserInfo } = useUserStore()
+  const {mutate: updateLanguage} = useUpdateLanguage()
+
+  const handleUpdateLanguage = (language: string) => {
+    if (!userInfo?.slug) return
+
+    updateLanguage({ userSlug: userInfo.slug, language }, {
+      onSuccess: (response) => {
+        setUserInfo(response.result)
+        i18n.changeLanguage(language)
+      }
+    })
+  }
+
+  // Update language when userInfo changes
+  useEffect(() => {
+    if (userInfo?.language) {
+      i18n.changeLanguage(userInfo.language)
+    }
+  }, [userInfo?.language])
 
   return (
     <DropdownMenu>
@@ -42,7 +65,7 @@ export default function SettingsDropdown() {
           </span>
           <Select
             value={i18n.language}
-            onValueChange={(value) => i18n.changeLanguage(value)}
+            onValueChange={handleUpdateLanguage}
           >
             <SelectTrigger className="w-full h-8">
               <SelectValue

@@ -384,7 +384,15 @@
         "exceedMaxBalance": "Số dư tối da phải lớn hơn hoặc bằng 5,000,000",
         "userBalanceExceedMaximum": "Số dư người dùng đang vượt quá giới hạn xu tối đa",
         "conflict": "Dữ liệu đã bị thay đổi, vui lòng tải lại trang để lấy dữ liệu mới nhất",
+                "cannotUpdateAppliedVoucherForUserGroup": "Không thể cập nhật voucher đã áp dụng cho nhóm khách hàng",
         "policyValueMustBeInteger": "Giá trị nhập phải là một số",
-        "cannotUpdateAppliedVoucherForUserGroup": "Không thể cập nhật voucher đã áp dụng cho nhóm khách hàng"
+        "languageNotFound": "Không tìm thấy ngôn ngữ",
+        "notificationPermissionDenied": "Bạn đã từ chối quyền nhận thông báo. Vui lòng bật trong cài đặt trình duyệt.",
+        "notificationTokenFailed": "Không thể đăng ký nhận thông báo. Vui lòng thử lại sau.",
+        "notificationTokenRetrying": "Đang thử đăng ký lại thông báo...",
+        "notificationTokenSuccess": "Đã bật thông báo thành công",
+        "notificationNotSupported": "Trình duyệt của bạn không hỗ trợ thông báo đẩy",
+        "notificationNetworkError": "Lỗi kết nối mạng. Đang thử lại...",
+        "notificationServiceWorkerError": "Lỗi service worker. Vui lòng tải lại trang."
       }
     }

@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'com.trendcoffee.order',
+  appId: 'com.trendcoffee.app',
   appName: 'TREND Coffee',
   webDir: 'dist',
 

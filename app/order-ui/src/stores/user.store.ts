@@ -7,6 +7,11 @@ export const useUserStore = create<IUserStore>()(
   persist(
     (set, get) => ({
       userInfo: null,
+      deviceToken: null,
+      setDeviceToken: (deviceToken: string) => {
+        set({ deviceToken })
+      },
+      getDeviceToken: () => get().deviceToken,
       emailVerificationStatus: null,
       phoneNumberVerificationStatus: null,
       isVerifyingPhoneNumber: false,

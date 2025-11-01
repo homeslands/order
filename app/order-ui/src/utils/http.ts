@@ -222,6 +222,10 @@ import { baseURL, ROUTE } from '@/constants'
 import { useLoadingStore } from '@/stores'
 import { showErrorToast } from './toast'
 import { isValidRedirectUrl } from './current-url-manager'
+import { Capacitor } from '@capacitor/core'
+import { registerDeviceToken, unregisterDeviceToken } from '@/api/notification'
+import { getWebFcmToken } from './getWebFcmToken'
+import { getNativeFcmToken } from './getNativeFcmToken'
 
 NProgress.configure({ showSpinner: false, trickleSpeed: 200 })
 
@@ -287,6 +291,23 @@ axiosInstance.interceptors.request.use(
         setRefreshToken(response.data.result.refreshToken)
         setExpireTime(response.data.result.expireTime)
         setExpireTimeRefreshToken(response.data.result.expireTimeRefreshToken)
+
+        const savedFcmToken = localStorage.getItem('fcm_token')
+        const newFcmToken = Capacitor.isNativePlatform() 
+          ? await getNativeFcmToken() 
+          : await getWebFcmToken()
+
+        if (newFcmToken && newFcmToken !== savedFcmToken && savedFcmToken) {
+          // Token FCM đã thay đổi
+          await unregisterDeviceToken(savedFcmToken)
+          await registerDeviceToken({
+            token: newFcmToken || '',
+            platform: Capacitor.getPlatform(),
+            userAgent: navigator.userAgent,
+          })
+          localStorage.setItem('fcm_token', newFcmToken)
+          localStorage.setItem('fcm_token_registered_at', Date.now().toString())
+}
         processQueue(null, newToken)
       } catch (error) {
         processQueue(error, null)

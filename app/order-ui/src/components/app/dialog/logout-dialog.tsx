@@ -17,6 +17,9 @@ import { useAuthStore, useBranchStore, useCartItemStore, useMenuFilterStore, use
 import { showToast } from '@/utils'
 import { ROUTE } from '@/constants'
 import { useOrderFlowStore } from '@/stores'
+import { unregisterDeviceToken } from '@/api/notification'
+import { tokenRegistrationQueue } from '@/services/token-registration-queue'
+import { fcmTokenManager } from '@/services/fcm-token-manager'
 
 export default function LogoutDialog() {
   const { t } = useTranslation(['auth'])
@@ -29,11 +32,22 @@ export default function LogoutDialog() {
   const { clearAllData } = useOrderFlowStore()
   const { clearCart } = useCartItemStore()
   const { clearMenuItems } = useMenuItemStore()
-  const { removeUserInfo, clearUserData } = useUserStore()
+  const { removeUserInfo, clearUserData, setDeviceToken, getDeviceToken } = useUserStore()
   const { clearMenuFilter } = useMenuFilterStore()
   const navigate = useNavigate()
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const deviceToken = getDeviceToken()
+    if (deviceToken) {
+      await unregisterDeviceToken(deviceToken)
+    }
+    
+    // Cleanup notification system
+    tokenRegistrationQueue.clearQueue()
+    fcmTokenManager.stopScheduler()
+    localStorage.removeItem('fcm_token')
+    localStorage.removeItem('fcm_token_registered_at')
+    
     setLogout()
     removeUserInfo()
     clearUserData()
@@ -43,6 +57,7 @@ export default function LogoutDialog() {
     clearMenuItems()
     clearSelectedChefOrder()
     clearMenuFilter()
+    setDeviceToken('')
     navigate(ROUTE.HOME, { replace: true })
     showToast(tToast('toast.logoutSuccess'))
   }

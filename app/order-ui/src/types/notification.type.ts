@@ -25,3 +25,13 @@ export interface INotification extends IBase {
   isRead: boolean
   metadata: INotificationMetadata
 }
+
+export interface IRegisterDeviceTokenRequest {
+  token: string
+  platform: string
+  userAgent: string
+}
+
+export interface IRegisterDeviceTokenResponse extends IBase {
+  platform: string
+}

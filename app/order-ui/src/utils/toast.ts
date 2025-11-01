@@ -107,6 +107,7 @@ const errorCodes: { [key: number]: string } = {
   135502: 'toast.sizeNameDoesExist',
   135503: 'toast.mustChangeSizeOfVariantsBeforeDelete',
   137000: 'toast.userNotFound',
+  137003: 'toast.languageNotFound',
   139000: 'toast.roleNotFound',
   140000: 'toast.systemConfigKeyInvalid',
   140001: 'toast.systemConfigValueInvalid',

@@ -8,6 +8,8 @@ import type {
   NotificationPayload,
   UseNotificationListenerReturn,
 } from '@/types/notification.types'
+import { useNavigate } from 'react-router-dom'
+import { navigateToNotificationUrl } from '@/utils'
 
 /**
  * Hook để lắng nghe thông báo FOREGROUND (khi app đang mở)
@@ -31,88 +33,106 @@ import type {
  * ```
  */
 export function useNotificationListener(): UseNotificationListenerReturn {
+  const navigate = useNavigate()
   const [latestNotification, setLatestNotification] =
     useState<NotificationPayload | null>(null)
 
   useEffect(() => {
+    let cleanup: (() => void) | undefined
+
     if (Capacitor.isNativePlatform()) {
       // === NATIVE: Lắng nghe foreground notifications ===
-      setupNativeListener()
+      setupNativeListener().then((cleanupFn) => {
+        cleanup = cleanupFn
+      })
     } else {
       // === WEB: Lắng nghe foreground notifications ===
-      setupWebListener()
+      setupWebListener().then((cleanupFn) => {
+        cleanup = cleanupFn
+      })
     }
-  }, [])
+
+    // Cleanup function được gọi khi component unmount
+    return () => {
+      if (cleanup) {
+        cleanup()
+      }
+    }
+  }, [navigate])
 
   const setupNativeListener = async () => {
     // Request permission cho local notifications
     await LocalNotifications.requestPermissions()
 
-    // Lắng nghe khi nhận notification (foreground)
-    FirebaseMessaging.addListener('notificationReceived', async (event) => {
-      const notifData = {
-        notification: {
-          title: event.notification.title,
-          body: event.notification.body,
-        },
-        data: event.notification.data as Record<string, string>,
-      }
-
-      setLatestNotification(notifData)
-
-      // Hiển thị notification trên thanh thông báo (foreground)
-      await LocalNotifications.schedule({
-        notifications: [
-          {
-            title: event.notification.title || 'Thông báo mới',
-            body: event.notification.body || '',
-            id: Date.now(),
-            extra: event.notification.data,
-            smallIcon: 'ic_stat_icon_config_sample',
-            iconColor: '#488AFF',
+    // Store listener references để cleanup properly
+    const notificationReceivedListener = await FirebaseMessaging.addListener(
+      'notificationReceived',
+      async (event) => {
+        const notifData = {
+          notification: {
+            title: event.notification.title,
+            body: event.notification.body,
           },
-        ],
-      })
-    })
+          data: event.notification.data as Record<string, string>,
+        }
+
+        setLatestNotification(notifData)
+
+        // Hiển thị notification trên thanh thông báo (foreground)
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              title: event.notification.title || 'Thông báo mới',
+              body: event.notification.body || '',
+              id: Date.now(),
+              extra: event.notification.data,
+              smallIcon: 'ic_stat_icon_config_sample',
+              iconColor: '#488AFF',
+            },
+          ],
+        })
+      },
+    )
 
     // Lắng nghe khi user click vào notification
-    FirebaseMessaging.addListener('notificationActionPerformed', (event) => {
-      // Xử lý navigation dựa vào notification data
-      const data = event.notification.data as Record<string, string> | undefined
-      if (data?.url) {
-        // TODO: Navigate to URL
-      }
-    })
-
-    // Lắng nghe khi user click vào local notification
-    LocalNotifications.addListener(
-      'localNotificationActionPerformed',
-      (notification) => {
-        const data = notification.notification.extra as
-          | Record<string, string>
-          | undefined
+    const notificationActionListener = await FirebaseMessaging.addListener(
+      'notificationActionPerformed',
+      async (event) => {
+        // Xử lý navigation dựa vào notification data
+        const data = event.notification.data as Record<string, string> | undefined
         if (data?.url) {
-          // TODO: Navigate to URL
-          window.location.href = data.url
+          await navigateToNotificationUrl(data.url, navigate)
         }
       },
     )
 
-    // Cleanup
+    // Lắng nghe khi user click vào local notification
+    const localNotificationListener = await LocalNotifications.addListener(
+      'localNotificationActionPerformed',
+      async (notification) => {
+        const data = notification.notification.extra as
+          | Record<string, string>
+          | undefined
+        if (data?.url) {
+          await navigateToNotificationUrl(data.url, navigate)
+        }
+      },
+    )
+
+    // Return cleanup function với proper references
     return () => {
-      FirebaseMessaging.removeAllListeners()
-      LocalNotifications.removeAllListeners()
+      notificationReceivedListener.remove()
+      notificationActionListener.remove()
+      localNotificationListener.remove()
     }
   }
 
   const setupWebListener = async () => {
     if (!messaging) {
-      return
-    }
-
-    // Request permission cho browser notifications
-    if (Notification.permission === 'default') {
-      await Notification.requestPermission()
+      // Return empty cleanup function nếu messaging không available
+      return () => {
+        // No-op
+      }
     }
 
     // Lắng nghe foreground messages
@@ -133,17 +153,17 @@ export function useNotificationListener(): UseNotificationListenerReturn {
         })
 
         // Xử lý click notification
-        notif.onclick = () => {
+        notif.onclick = async () => {
           window.focus()
           notif.close()
           if (payload.data?.url) {
-            window.location.href = payload.data.url
+            await navigateToNotificationUrl(payload.data.url, navigate)
           }
         }
       }
     })
 
-    // Cleanup
+    // Return cleanup function
     return unsubscribe
   }
 

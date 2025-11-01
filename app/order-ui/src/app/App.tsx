@@ -8,7 +8,6 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query'
 import { has } from 'lodash'
-import toast from 'react-hot-toast'
 
 import { router } from '@/router'
 import '@/i18n'
@@ -17,10 +16,7 @@ import { showErrorToast } from '@/utils'
 import { ThemeProvider } from '@/components/app/theme-provider'
 import { useGlobalTokenValidator } from '@/hooks/useGlobalTokenValidator'
 import { useAuthStore, useUserStore } from '@/stores'
-import {
-  useFirebaseNotification,
-  useNotificationListener,
-} from '@/hooks'
+import { Loader2 } from 'lucide-react'
 
 // Create a client
 const queryClient = new QueryClient({
@@ -51,105 +47,6 @@ const queryClient = new QueryClient({
 })
 
 function App() {
-  const { userInfo } = useUserStore()
-
-  // Debug: Check userInfo
-  useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log('[App] userInfo:', userInfo)
-    // eslint-disable-next-line no-console
-    console.log('[App] userId:', userInfo?.slug ?? 'EMPTY')
-  }, [userInfo])
-
-  // 1️⃣ Lấy FCM token và đăng ký với backend
-  const { fcmToken } = useFirebaseNotification(userInfo?.slug ?? '')
-
-  // 2️⃣ Lắng nghe thông báo foreground
-  const { latestNotification, clearNotification } = useNotificationListener()
-
-  // Xử lý khi có notification mới (foreground)
-  useEffect(() => {
-    if (latestNotification) {
-      const notifTitle =
-        latestNotification.notification?.title || 'Thông báo mới'
-      const notifBody = latestNotification.notification?.body || ''
-
-      // eslint-disable-next-line no-console
-      console.log('🔔 Notification received:', {
-        title: notifTitle,
-        body: notifBody,
-        data: latestNotification.data,
-      })
-
-      // Hiển thị toast popup
-      toast(
-        (t) => (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1">
-                <p className="font-semibold text-sm">{notifTitle}</p>
-                {notifBody && (
-                  <p className="text-sm text-gray-600 mt-1">{notifBody}</p>
-                )}
-              </div>
-              <button
-                onClick={() => toast.dismiss(t.id)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            </div>
-            {latestNotification.data?.url && (
-              <button
-                onClick={() => {
-                  toast.dismiss(t.id)
-                  // TODO: Navigate to URL
-                  // navigate(latestNotification.data.url)
-                  window.location.href = latestNotification.data?.url ?? ''
-                }}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium text-left"
-              >
-                Xem chi tiết →
-              </button>
-            )}
-          </div>
-        ),
-        {
-          duration: 5000,
-          icon: '🔔',
-          style: {
-            borderRadius: '8px',
-            background: '#fff',
-            padding: '16px',
-            boxShadow:
-              '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-          },
-        },
-      )
-
-      // Phát âm thanh notification (optional)
-      try {
-        const audio = new Audio('/notification.mp3')
-        audio.volume = 0.5
-        audio.play().catch(() => {
-          // Ignore autoplay errors
-        })
-      } catch {
-        // Ignore audio errors
-      }
-
-      clearNotification()
-    }
-  }, [latestNotification, clearNotification])
-
-  // Log token để test (comment out khi production)
-  useEffect(() => {
-    if (fcmToken) {
-      // eslint-disable-next-line no-console
-      console.log('FCM Token:', fcmToken)
-    }
-  }, [fcmToken])
-
   // ✅ State để track auth initialization
   const [isAuthInitialized, setIsAuthInitialized] = useState(false)
 
@@ -178,8 +75,8 @@ function App() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col gap-4 items-center">
-          <div className="w-8 h-8 rounded-full border-b-2 border-blue-600 animate-spin"></div>
-          <p className="text-sm text-gray-600">Initializing...</p>
+          <Loader2 className="w-8 h-8 rounded-full border-b-2 border-blue-600 animate-spin"></Loader2>
+          <p className="text-sm text-gray-600">Đang khởi tạo...</p>
         </div>
       </div>
     )

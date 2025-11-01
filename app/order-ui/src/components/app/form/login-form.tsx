@@ -23,6 +23,10 @@ import { showToast, calculateSmartNavigationUrl, safeNavigate } from '@/utils'
 import { useNavigate } from 'react-router-dom'
 import { jwtDecode } from 'jwt-decode'
 import { IToken } from '@/types'
+import { getWebFcmToken } from '@/utils/getWebFcmToken'
+import { getNativeFcmToken } from '@/utils/getNativeFcmToken'
+import { Capacitor } from '@capacitor/core'
+import { tokenRegistrationQueue } from '@/services/token-registration-queue'
 
 export const LoginForm: React.FC = () => {
   const { t } = useTranslation(['auth'])
@@ -35,7 +39,7 @@ export const LoginForm: React.FC = () => {
     setLogout
   } = useAuthStore()
   const { clearCart } = useCartItemStore()
-  const { setUserInfo, removeUserInfo } = useUserStore()
+  const { setUserInfo, removeUserInfo, setDeviceToken } = useUserStore()
   const { currentUrl, clearUrl } = useCurrentUrlStore()
   const { mutate: login, isPending } = useLogin()
   const { refetch: refetchProfile } = useProfile()
@@ -65,6 +69,26 @@ export const LoginForm: React.FC = () => {
           if (profile.data) {
             // Set userInfo sau khi có data
             setUserInfo(profile.data.result)
+            
+            // Lấy FCM token
+            const fcmToken = Capacitor.isNativePlatform() 
+              ? await getNativeFcmToken() 
+              : await getWebFcmToken()
+            
+            // Đăng ký token với server qua queue (có retry logic)
+            if (fcmToken) {
+              // Lưu token vào userStore ngay
+              setDeviceToken(fcmToken)
+              
+              // Add vào queue để register (có retry nếu fail)
+              await tokenRegistrationQueue.enqueue({
+                token: fcmToken,
+                platform: Capacitor.getPlatform(),
+                userAgent: navigator.userAgent,
+                userId: profile.data.result.slug,
+              })
+            }
+            
             showToast(t('toast.loginSuccess'))
 
             // ✅ NAVIGATION LOGIC - Handle redirect after successful login

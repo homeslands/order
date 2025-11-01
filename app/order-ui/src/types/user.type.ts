@@ -11,6 +11,7 @@ export interface IUserInfo {
   dob: string
   email: string
   address: string
+  language: string
   branch: {
     addressDetail: {
       lat: number

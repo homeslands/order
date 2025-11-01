@@ -8,14 +8,14 @@ import { Capacitor } from '@capacitor/core'
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: 'AIzaSyDpQB9k3vuLVEoEEBjBlubMslADQPdcwuM',
-  authDomain: 'order-notification-4b9b0.firebaseapp.com',
-  projectId: 'order-notification-4b9b0',
-  storageBucket: 'order-notification-4b9b0.firebasestorage.app',
-  messagingSenderId: '798286114785',
-  appId: '1:798286114785:web:16d1ee4d69d141681beca0',
-  measurementId: 'G-W8XQ1YY2H6',
-}
+  apiKey: "AIzaSyBBaA5FPySsAQKL5DEAA0Jp7Flf8ZbMVCg",
+  authDomain: "order-notification-dev.firebaseapp.com",
+  projectId: "order-notification-dev",
+  storageBucket: "order-notification-dev.firebasestorage.app",
+  messagingSenderId: "972559792749",
+  appId: "1:972559792749:web:1580e74b049fa8069c1d64",
+  measurementId: "G-XJNL3ZZ17B"
+};
 
 export const app = initializeApp(firebaseConfig)
 
