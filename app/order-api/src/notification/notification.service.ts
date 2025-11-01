@@ -135,7 +135,7 @@ export class NotificationService {
           message: createdNotification.message,
           senderId: createdNotification.senderId,
           receiverId: createdNotification.receiverId,
-          createdAt: createdNotification.createdAt,
+          createdAt: createdNotification.createdAt.toISOString(),
           ...(JSON.parse(createdNotification.metadata) || {}),
         },
       };
